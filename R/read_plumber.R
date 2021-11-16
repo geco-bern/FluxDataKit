@@ -3,8 +3,8 @@
 #' Reads data in a given directory
 #' by (fluxnet) site name
 #'
-#' @param site
-#' @param path
+#' @param site fluxnet site name
+#' @param path path with plumber2 data (both flux and meteo data files)
 #'
 #' @return
 #' @export
@@ -14,11 +14,18 @@ read_plumber <- function(
   path = "~/Desktop"
   ){
 
+  # list all files
   files <- list.files(
       path,
       utils::glob2rx(paste0(site,"*.nc")),
-      full.names = TRUE
+      full.names = TRUE,
+      recursive = TRUE
     )
+
+  # check if both files are there
+  if (length(files) != 2){
+    stop("Missing either flux or meteo data for the requested site")
+  }
 
   df <- lapply(files, function(file){
     # convert time (needs attribute read)
