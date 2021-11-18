@@ -21,5 +21,7 @@ df <- do.call("rbind",
     )
   )
 
+# append HWSD soil data using {hwsdr}
+
 # save output to file
-saveRDS("data/plumber_meta-data.rds", compress = "xz")
+saveRDS(df, file = "data/plumber_meta-data.rds", compress = "xz")
