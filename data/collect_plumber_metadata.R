@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+source("R/read_nc.R")
+
 # collect Plumber meta-data
 path <- "~/data/flux_data_kit/plumber/"
 
