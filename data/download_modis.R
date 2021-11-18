@@ -19,6 +19,8 @@ library(ingestr)
 
 # set sites
 sites <- ingestr::siteinfo_fluxnet2015
+sites$year_start <- 2000
+sites$year_end <- as.numeric(format(Sys.Date(),"%Y"))
 bundle <- args[1]
 
 # bail if not on euler
