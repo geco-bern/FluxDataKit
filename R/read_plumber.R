@@ -5,13 +5,15 @@
 #'
 #' @param site fluxnet site name
 #' @param path path with plumber2 data (both flux and meteo data files)
+#' @param meta_data only return meta-data for the site
 #'
 #' @return
 #' @export
 
 read_plumber <- function(
   site = "AT-Neu",
-  path = "~/Desktop"
+  path = "~/Desktop",
+  meta_data = FALSE
   ){
 
   # list all files
@@ -22,9 +24,16 @@ read_plumber <- function(
       recursive = TRUE
     )
 
-  # check if both files are there
-  if (length(files) != 2){
-    stop("Missing either flux or meteo data for the requested site")
+  # only retain one source file
+  # to grab meta-data from
+  if (meta_data) {
+    files <- files[1]
+  } else {
+    # check if both files are there
+    # requirement for processing the fluxes
+    if (length(files) != 2){
+      stop("Missing either flux or meteo data for the requested site")
+    }
   }
 
   df <- lapply(files, function(file){
@@ -61,12 +70,33 @@ read_plumber <- function(
     # add time column
     df$time <- time_date
 
+    # remove trailing spaces
+    # in IGBP classes
+    df$IGBP_veg_short <- gsub(" ","", df$IGBP_veg_short)
+    df$IGBP_veg_long <- gsub(" ","", df$IGBP_veg_long)
+
+    # subset and constrain data
+    if (meta_data) {
+
+      df$start_date <- min(df$time)
+      df$end_date <- max(df$time)
+
+      df <- df[1,c("latitude", "longitude", "reference_height",
+                  "canopy_height", "elevation", "IGBP_veg_short",
+                  "IGBP_veg_long","start_date","end_date")]
+      df$sitename <- site
+    }
+
     # return data frame
     return(df)
   })
 
-  # combine met and flux data
-  all <- left_join(df[[1]], df[[2]])
+  if (meta_data) {
+    all <- df[[1]]
+  } else {
+    # combine met and flux data
+    all <- left_join(df[[1]], df[[2]])
+  }
 
   # return the merged file
   return(all)
