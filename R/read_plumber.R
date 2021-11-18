@@ -51,10 +51,10 @@ read_plumber <- function(
   # add time column
   df$time <- time_date
 
-  # remove trailing spaces
+  # remove trailing / leading white spaces
   # in IGBP classes
-  df$IGBP_veg_short <- gsub(" ","", df$IGBP_veg_short)
-  df$IGBP_veg_long <- gsub(" ","", df$IGBP_veg_long)
+  df$IGBP_veg_short <- trimws(df$IGBP_veg_short)
+  df$IGBP_veg_long <- trimws(df$IGBP_veg_long)
 
   # subset and constrain data
   if (meta_data) {
