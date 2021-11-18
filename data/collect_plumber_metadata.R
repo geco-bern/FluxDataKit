@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-source("R/read_nc.R")
+source("R/read_plumber.R")
 
 # collect Plumber meta-data
 path <- "~/data/flux_data_kit/plumber/"
@@ -16,7 +16,7 @@ files <- list.files(
 # collect meta data
 df <- do.call("rbind",
         lapply(files, function(file){
-          read_nc(file, meta_data = TRUE)
+          read_plumber(file, meta_data = TRUE)
         }
     )
   )
