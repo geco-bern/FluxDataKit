@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # set bundles
-bundles="modis_lst modis_fpar modis_evi modis_ndiv"
+bundles="modis_fpar modis_evi modis_ndiv"
 
 # check dirs
 pwd=`pwd`
 
-if [ ${pwd} -ne "flux_data_kit"]; then
+if [ ${pwd} -ne "flux_data_kit" ]; then
    echo "You are not executing the script in the main project directory, exiting!"
    exit 1
 fi
