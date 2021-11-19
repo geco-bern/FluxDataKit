@@ -33,7 +33,7 @@ merge_plumber <- function(
 
     # read netcdf file of either
     # flux or meteo data
-    df <- read_nc(file)
+    df <- read_plumber(file)
 
     # return data frame
     return(df)
