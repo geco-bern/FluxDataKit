@@ -54,7 +54,10 @@ read_plumber <- function(
   # remove trailing / leading white spaces
   # in IGBP classes
   df$IGBP_veg_short <- trimws(df$IGBP_veg_short)
-  df$IGBP_veg_long <- trimws(df$IGBP_veg_long)
+  #df$IGBP_veg_long <- trimws(df$IGBP_veg_long)
+
+  # drop long names
+  df <- df[,-c("IGBP_veg_long")]
 
   # subset and constrain data
   if (meta_data) {
@@ -64,7 +67,7 @@ read_plumber <- function(
 
     df <- df[1,c("latitude", "longitude", "reference_height",
                  "canopy_height", "elevation", "IGBP_veg_short",
-                 "IGBP_veg_long","year_start","year_end")]
+                 "year_start","year_end")]
     df$sitename <- site
   }
 
