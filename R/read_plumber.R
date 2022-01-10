@@ -57,7 +57,7 @@ read_plumber <- function(
   #df$IGBP_veg_long <- trimws(df$IGBP_veg_long)
 
   # drop long names
-  df <- df[,-c("IGBP_veg_long")]
+  df <- subset(df, select = -IGBP_veg_long)
 
   # subset and constrain data
   if (meta_data) {
