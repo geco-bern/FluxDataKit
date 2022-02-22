@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
-source("R/read_plumber.R")
+library(ingestr)
+library(icoscp)
+library(RCurl)
 library(tidyverse)
 library(amerifluxr)
 
@@ -57,6 +59,11 @@ of_df <- do.call(
 
 
 #---- ICOS meta-data ----
+
+icos_list <- icoscp::icos_stations() %>%
+  filter(
+    theme == "ES"
+  )
 
 icos_sites <- unique(substring(list.files(icos_path,"*"),5,10))
 
