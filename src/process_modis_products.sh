@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # set bundles
-bundles="modis_fpar modis_evi modis_ndiv"
+#bundles="modis_fpar modis_evi modis_ndiv modis_lst"
+bundles="modis_refl"
 
 # check dirs
 pwd=`pwd`
