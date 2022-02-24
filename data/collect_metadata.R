@@ -10,7 +10,7 @@ source("R/read_plumber.R")
 #---- set data paths ----
 plumber_path <- "~/data/flux_data_kit/plumber/"
 oneflux_path <- "~/data/flux_data_kit/oneflux"
-icos_path <- "~/data/flux_data_kit/ICOS/"
+icos_path <- "~/data/flux_data_kit/ICOS_releaseX/"
 
 #--- plumber metatadata ----
 
@@ -48,9 +48,8 @@ saveRDS(amf, file = "data/amf_meta-data.rds", compress = "xz")
 #----- oneflux sites ----
 
 if(!file.exists("data/oneflux_meta-data.rds")){
-of_sites <- unique(substring(list.files(oneflux_path,"*"),5,10))
 
-print(of_sites)
+of_sites <- unique(substring(list.files(oneflux_path,"*"),5,10))
 
 # list files
 files <- list.files(
@@ -77,7 +76,11 @@ icos_list <- icoscp::icos_stations() %>%
 
 icos_sites <- unique(substring(list.files(icos_path,"*"),5,10))
 
+print(icos_sites)
+
 icos_list <- icos_list %>%
  filter(id %in% icos_sites)
+
+print(icos_list)
 
 saveRDS(icos_list, file = "data/icos_meta-data.rds", compress = "xz")
