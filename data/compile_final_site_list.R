@@ -1,5 +1,7 @@
 # load libraries
 library(tidyverse)
+library(raster)
+library(MODISTools)
 
 # read site data RDS files
 # append site types (ICOS, PLUMBER etc)
@@ -158,5 +160,8 @@ df %>%
 
 # get the koeppen geiger values
 
+# get water holding capacity
+
+# download IGBP class (MODISTools)
 
 
