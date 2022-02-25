@@ -76,11 +76,41 @@ icos_list <- icoscp::icos_stations() %>%
 
 icos_sites <- unique(substring(list.files(icos_path,"*"),5,10))
 
-print(icos_sites)
-
 icos_list <- icos_list %>%
  filter(id %in% icos_sites)
 
-print(icos_list)
+icos_files <- list.files(
+		icos_path,
+		glob2rx("*FULLSET_HH*"),
+	 	recursive = TRUE,
+		full.names = TRUE
+		)
+
+years <- lapply(icos_sites, function(site){
+
+	df <- read.table(
+		icos_files[grep(site, icos_files)],
+		header = TRUE,
+		sep = ",")
+
+	print(str(df))
+
+	year_start <- max(as.numeric(substr(df$TIMESTAMP_START,1,4)))
+	year_end <- min(as.numeric(substr(df$TIMESTAMP_START,1,4)))
+
+	return(
+	data.frame(
+	sitename = site,
+	year_start,
+	year_end
+	))
+})
+
+years <- bind_rows(years)
+icos_list <- icos_list %>%
+	rename(
+	'sitename' = 'id'
+	) %>% 
+	left_join(years)
 
 saveRDS(icos_list, file = "data/icos_meta-data.rds", compress = "xz")
