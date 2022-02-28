@@ -157,7 +157,12 @@ format_drivers <- function(
     ## fill gaps in whc
     whc_median <- median(siteinfo$whc, na.rm = TRUE)
     siteinfo <- siteinfo %>%
-      mutate(whc = ifelse(is.na(whc), whc_median, whc))
+      mutate(
+        whc = ifelse(
+          is.na(whc),
+          whc_median,
+          whc
+          ))
   }
 
   #---- grabbing WATCH data ----

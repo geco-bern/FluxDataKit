@@ -14,17 +14,12 @@ source("R/format_drivers.R")
 #source("R/calc_climate_index.R")
 
 # read sites data frame
-file <- readRDS("data/flux_data_kit_site-info.rds")
-
-df_sites <- read.table(
-  file,
-  header = TRUE,
-  sep = ",",
-  stringsAsFactors = FALSE) %>%
+df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
   dplyr::select(sitename, lat, lon, year_start, year_end, elv) %>%
   mutate(idx = 1:n()) %>%
-  mutate(chunk = rep(1:as.integer(args[2]),
-                     each = (nrow(.)/as.integer(args[2])), len = nrow(.)))
+  mutate(
+    chunk = rep(1:as.integer(args[2]),
+      each = (nrow(.)/as.integer(args[2])), len = nrow(.)))
 
 # split sites data frame into (almost) equal chunks
 list_df_split <- df_sites %>%
