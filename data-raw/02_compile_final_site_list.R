@@ -149,7 +149,8 @@ df <- df %>%
   mutate(
     date_start = sprintf("%s-01-01", date_start),
     date_end = sprintf("%s-12-31", date_end),
-    year_end = format(as.Date(date_end), "%Y")
+    year_end = format(as.Date(date_end), "%Y"),
+    year_start = format(as.Date(date_start), "%Y")
   )
 
 # set locations for ancillary data extractions

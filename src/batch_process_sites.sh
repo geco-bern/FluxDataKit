@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # jobs to run
-njobs=50
+njobs=10
 
 # check dirs
 pwd=`pwd`
