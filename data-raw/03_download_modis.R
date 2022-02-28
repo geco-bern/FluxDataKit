@@ -18,7 +18,7 @@ args <- commandArgs(trailingOnly=TRUE)
 library(ingestr)
 
 # set sites
-sites <- ingestr::siteinfo_fluxnet2015
+sites <- readRDS("data/flux_data_kit_site-info.rds")
 sites$year_start <- 2000
 sites$year_end <- as.numeric(format(Sys.Date(),"%Y"))
 bundle <- args[1]

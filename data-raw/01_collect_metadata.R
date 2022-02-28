@@ -16,7 +16,7 @@ icos_path <- "~/data/flux_data_kit/ICOS_releaseX/"
 
 # collect Plumber meta-data
 
-if(!file.exists("data/plumber_meta-data.rds")){
+if(!file.exists("data-raw/plumber_meta-data.rds")){
 
 # list files
 files <- list.files(
@@ -35,19 +35,19 @@ df <- do.call("rbind",
   )
 
 # save output to file
-saveRDS(df, file = "data/plumber_meta-data.rds", compress = "xz")
+saveRDS(df, file = "data-raw/plumber_meta-data.rds", compress = "xz")
 }
 
 #---- ameriflux metadata ----
 
-if(!file.exists("data/amf_meta-data.rds")){
+if(!file.exists("data-raw/amf_meta-data.rds")){
 amf <- amf_site_info()
-saveRDS(amf, file = "data/amf_meta-data.rds", compress = "xz")
+saveRDS(amf, file = "data-raw/amf_meta-data.rds", compress = "xz")
 }
 
 #----- oneflux sites ----
 
-if(!file.exists("data/oneflux_meta-data.rds")){
+if(!file.exists("data-raw/oneflux_meta-data.rds")){
 
 of_sites <- unique(substring(list.files(oneflux_path,"*"),5,10))
 
@@ -64,7 +64,7 @@ one_flux_sites <- amf_site_info() %>%
   SITE_ID %in% of_sites
  )
 
-saveRDS(one_flux_sites, file = "data/oneflux_meta-data.rds", compress = "xz")
+saveRDS(one_flux_sites, file = "data-raw/oneflux_meta-data.rds", compress = "xz")
 }
 
 #---- ICOS meta-data ----
@@ -110,7 +110,7 @@ years <- bind_rows(years)
 icos_list <- icos_list %>%
 	rename(
 	'sitename' = 'id'
-	) %>% 
+	) %>%
 	left_join(years)
 
-saveRDS(icos_list, file = "data/icos_meta-data.rds", compress = "xz")
+saveRDS(icos_list, file = "data-raw/icos_meta-data.rds", compress = "xz")
