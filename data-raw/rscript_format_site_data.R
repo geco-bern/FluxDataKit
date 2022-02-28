@@ -10,8 +10,8 @@ library(rsofun)
 library(rbeni)
 
 source("R/format_drivers.R")
-source("R/process_pmodel_data.R")
-source("R/calc_climate_index.R")
+#source("R/process_pmodel_data.R")
+#source("R/calc_climate_index.R")
 
 # read sites data frame
 file <- readRDS("data/flux_data_kit_site-info.rds")
