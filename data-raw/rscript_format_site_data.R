@@ -37,20 +37,8 @@ df_pmodel <- format_drivers(
     df_sites_sub,
     bias_correction = TRUE,
     verbose = TRUE,
-    run_model = args[3])
+    run_model = FALSE
+    )
 
-# neither rowwise or apply()
-# retain the tibble class which
-# fucks up model evaluation in rsofun
-# so a simple for loop it is
-
-if(args[3]){
-  filename <- file.path(path, paste0("pmodel_output_",args[1],".rds"))
-  saveRDS(df_pmodel, filename)
-} else {
-  for (i in 1:nrow(df_pmodel)){
-    # write cell / file to disk
-    filename <- file.path(path, paste0(df_pmodel$sitename[i],".rds"))
-    saveRDS(df_pmodel[i,], filename)
-  }
-}
+filename <- file.path(path, paste0("output_",args[1],".rds"))
+saveRDS(df_pmodel, filename)
