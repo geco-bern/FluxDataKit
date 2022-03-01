@@ -93,8 +93,6 @@ years <- lapply(icos_sites, function(site){
 		header = TRUE,
 		sep = ",")
 
-	print(str(df))
-
 	year_end <- max(as.numeric(substr(df$TIMESTAMP_START,1,4)))
 	year_start <- min(as.numeric(substr(df$TIMESTAMP_START,1,4)))
 
