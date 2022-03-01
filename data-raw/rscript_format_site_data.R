@@ -16,6 +16,9 @@ source("R/format_drivers.R")
 # read sites data frame
 df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
   dplyr::select(sitename, lat, lon, year_start, year_end, elv) %>%
+  mutate(
+    year_end = 2018 # force 2018 as end year
+  ) %>%
   mutate(idx = 1:n()) %>%
   mutate(
     chunk = rep(1:as.integer(args[2]),
