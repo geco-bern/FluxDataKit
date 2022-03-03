@@ -19,6 +19,9 @@ df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
   mutate(
     year_end = 2018 # force 2018 as end year
   ) %>%
+  filter(
+    !(year_start > year_end)
+  ) %>%
   mutate(idx = 1:n()) %>%
   mutate(
     chunk = rep(1:as.integer(args[2]),
@@ -31,6 +34,9 @@ list_df_split <- df_sites %>%
 
 df_sites_sub <- list_df_split[[as.integer(args[1])]] %>%
   dplyr::select(-c(chunk, idx))
+
+
+print(df_sites_sub)
 
 message("Processing cells:")
 message(nrow(df_sites_sub))
