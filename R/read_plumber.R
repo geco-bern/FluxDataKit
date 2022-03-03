@@ -40,6 +40,7 @@ read_plumber <- function(
   # Load variable data
   df <- as.data.frame(
     lapply(vars, function(x) ncdf4::ncvar_get(nc, x))
+
   )
 
   # close file
