@@ -162,6 +162,21 @@ format_drivers_site <- function(
 
   #----- Calculate daily values from half-hourly measurements ----
 
+  data <- ddf_flux$data[[1]]
+  ddf_flux$data[[1]] <- data %>%
+    mutate(
+      date = as.Date(date)
+    ) %>%
+    group_by(date) %>%
+    summarize(
+      gpp = sum(gpp, na.rm = TRUE),
+      temp = mean(temp, na.rm = TRUE),
+      prec = sum(prec, na.rm = TRUE),
+      vpd = mean(vpd, na.rm = TRUE),
+      patm = mean(patm, na.rm = TRUE),
+      ppfd = mean(ppfd, na.rm = TRUE)
+    )
+
   #---- Processing CRU data (for cloud cover CCOV) ----
   if(verbose){
     message("Processing CRU data ....")
