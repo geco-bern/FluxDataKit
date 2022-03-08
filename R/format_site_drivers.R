@@ -254,7 +254,7 @@ format_drivers_site <- function(
 
   # merge all climate drivers into
   # one format
-  ddf_meteo <- ddf_watch %>%
+  ddf_meteo <- ddf_flux %>%
     tidyr::unnest(data) %>%
     left_join(
       ddf_cru %>%
