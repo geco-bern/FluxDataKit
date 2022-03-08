@@ -215,7 +215,7 @@ format_drivers_site <- function(
       source   = "fluxnet",
       getvars  = list(
         gpp = "GPP_NT_VUT_REF",
-        gpp_unc = "GPP_NT_VUT_SE"
+        gpp_unc = "GPP_NT_VUT_SE",
         temp = "TA_F",
         prec = "P_F",
         vpd = "VPD_F",
