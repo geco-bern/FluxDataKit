@@ -144,19 +144,19 @@ format_drivers_site <- function(
     remove_neg   = FALSE
   )
 
-  if (.$product[1] == "oneflux"){
+  if (product == "oneflux"){
     path = "~/data/flux_data_kit/oneflux/"
   }
 
-  if (.$product[1] == "icos"){
+  if (product == "icos"){
     path = "~/data/flux_data_kit/ICOS_releaseX/"
   }
 
-  if (.$product[1] == "plumber"){
+  if (product == "plumber"){
     path = "~/data/flux_data_kit/plumber_fluxnet/"
   }
 
-  if (.$product[1] == "ameriflux"){
+  if (product == "ameriflux"){
     path = "~/data/flux_data_kit/fluxnet2015/"
 
     ddf_flux <- ingest(
@@ -177,7 +177,7 @@ format_drivers_site <- function(
     )
   }
 
-  if (.$product[1] == "plumber"){
+  if (product == "plumber"){
     ddf_flux <- ingest(
       siteinfo = siteinfo %>% slice(1:3),
       source   = "fluxnet",
