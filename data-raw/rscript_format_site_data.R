@@ -6,13 +6,13 @@ args <- commandArgs(trailingOnly=TRUE)
 library(tidyverse)
 library(ingestr)
 library(rsofun)
-library(rbeni)
+#library(rbeni)
 
-source("R/format_drivers_site.R")
+source("R/format_site_drivers.R")
 
 # read sites data frame
 df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
-  dplyr::select(sitename, lat, lon, year_start, year_end, elv) %>%
+  dplyr::select(sitename, lat, lon, year_start, year_end, elv, product) %>%
   mutate(
     year_end = 2018 # force 2018 as end year
   ) %>%
@@ -20,23 +20,35 @@ df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
     !(year_start > year_end)
   )
 
-df_sites %>%
-  group_by(product) %>%
+data <- df_sites %>%
+  rowwise() %>%
   do({
 
-    if (.$product == "icos"){
-      path = "~/data/flux_data_kit"
+    if (.$product[1] == "oneflux"){
+      path = "~/data/flux_data_kit/oneflux/"
     }
+
+    if (.$product[1] == "icos"){
+      path = "~/data/flux_data_kit/icos_releaseX/"
+    }
+
+    if (.$product[1] == "plumber"){
+      path = "~/data/flux_data_kit/plumber_fluxnet/"
+    }
+
+    if (.$product[1] == "ameriflux"){
+      path = "~/data/flux_data_kit/fluxnet2015/"
+    }
+
+    ss <- as.data.frame(.)
 
     # process data
     df_pmodel <- format_drivers_site(
-      df_sites_sub,
-      bias_correction = TRUE,
+      ss,
       verbose = TRUE,
       path = path
     )
   })
 
-
-filename <- file.path("data/p_model_drivers/", paste0("output_",args[1],".rds"))
-saveRDS(df_pmodel, filename)
+#filename <- file.path("data/p_model_drivers/", paste0("output_",args[1],".rds"))
+#saveRDS(df_pmodel, filename)
