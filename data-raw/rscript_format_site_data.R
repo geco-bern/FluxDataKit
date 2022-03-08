@@ -36,6 +36,4 @@ data <- df_sites %>%
     )
   })
 
-print(data)
-
-saveRDS(df_pmodel, "data/p_model_")
+saveRDS(df_pmodel, "data/p_model_drivers/site_based_drivers.rds", compression = "xz")
