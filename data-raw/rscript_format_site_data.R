@@ -29,7 +29,7 @@ data <- df_sites %>%
     }
 
     if (.$product[1] == "icos"){
-      path = "~/data/flux_data_kit/icos_releaseX/"
+      path = "~/data/flux_data_kit/ICOS_releaseX/"
     }
 
     if (.$product[1] == "plumber"){
