@@ -29,11 +29,17 @@ data <- df_sites %>%
     ss <- as.data.frame(.)
 
     # process data
-    df_pmodel <- format_drivers_site(
-      ss,
-      verbose = TRUE,
-      product = .$product[1]
+    df_pmodel <- try(
+        format_drivers_site(
+        ss,
+        verbose = TRUE,
+        product = .$product[1]
+      )
     )
+
   })
 
-saveRDS(df_pmodel, "data/p_model_drivers/site_based_drivers.rds", compression = "xz")
+saveRDS(
+  data,
+  "data/p_model_drivers/site_based_drivers.rds",
+  compress = "xz")
