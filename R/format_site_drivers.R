@@ -144,37 +144,27 @@ format_drivers_site <- function(
     remove_neg   = FALSE
   )
 
-
   if (.$product[1] == "oneflux"){
     path = "~/data/flux_data_kit/oneflux/"
-
-    ddf_flux <- ingest(
-      siteinfo = siteinfo %>% slice(1:3),
-      source   = "fluxnet",
-      getvars  = list(
-        gpp = "GPP_NT_VUT_REF",
-        gpp_unc = "GPP_NT_VUT_SE"
-        temp = "TA_F",
-        prec = "P_F",
-        vpd = "VPD_F",
-        patm = "PA_F",
-        ppfd = "NETRAD"
-      ),
-      dir = path,
-      settings = settings_fluxnet,
-      timescale= "hh"
-    )
   }
 
   if (.$product[1] == "icos"){
     path = "~/data/flux_data_kit/ICOS_releaseX/"
+  }
+
+  if (.$product[1] == "plumber"){
+    path = "~/data/flux_data_kit/plumber_fluxnet/"
+  }
+
+  if (.$product[1] == "ameriflux"){
+    path = "~/data/flux_data_kit/fluxnet2015/"
 
     ddf_flux <- ingest(
       siteinfo = siteinfo %>% slice(1:3),
       source   = "fluxnet",
       getvars  = list(
         gpp = "GPP_NT_VUT_REF",
-        gpp_unc = "GPP_NT_VUT_SE"
+        gpp_unc = "GPP_NT_VUT_SE",
         temp = "TA_F",
         prec = "P_F",
         vpd = "VPD_F",
@@ -188,8 +178,6 @@ format_drivers_site <- function(
   }
 
   if (.$product[1] == "plumber"){
-    path = "~/data/flux_data_kit/plumber_fluxnet/"
-
     ddf_flux <- ingest(
       siteinfo = siteinfo %>% slice(1:3),
       source   = "fluxnet",
@@ -205,11 +193,7 @@ format_drivers_site <- function(
       settings = settings_fluxnet,
       timescale= "hh"
     )
-  }
-
-  if (.$product[1] == "ameriflux"){
-    path = "~/data/flux_data_kit/fluxnet2015/"
-
+  } else {
     ddf_flux <- ingest(
       siteinfo = siteinfo %>% slice(1:3),
       source   = "fluxnet",
