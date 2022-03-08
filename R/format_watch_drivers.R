@@ -272,12 +272,12 @@ format_drivers <- function(
   }
 
   output <- collect_drivers_sofun(
-    siteinfo       = siteinfo,
+    site_info      = siteinfo,
     params_siml    = params_siml,
     meteo          = ddf_meteo,
     fapar          = ddf_fapar_unity,
     co2            = df_co2,
-    df_soiltexture = df_soiltexture
+    params_soil = df_soiltexture
   )
 
   if (run_model){

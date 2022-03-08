@@ -20,7 +20,7 @@ df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
     !(year_start > year_end)
   )
 
-data <- df_sites[1:2,] %>%
+data <- df_sites %>%
   rowwise() %>%
   do({
 
@@ -38,5 +38,4 @@ data <- df_sites[1:2,] %>%
 
 print(data)
 
-#filename <- file.path("data/p_model_drivers/", paste0("output_",args[1],".rds"))
-#saveRDS(df_pmodel, filename)
+saveRDS(df_pmodel, "data/p_model_")
