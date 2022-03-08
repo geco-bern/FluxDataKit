@@ -13,12 +13,13 @@
 #' @param params_siml simulation parameters (preset)
 #' @param params_modl model parameters (preset)
 #' @param df_soiltexture soil data specifics (preset)
+#' @param path path where the source flux data is hosted
 #' @param verbose provide verbose output (default = FALSE)
 #'
 #' @return returns an rsofun compatible driver file for the provided
 #'  sites
 
-format_drivers <- function(
+format_drivers_site <- function(
   siteinfo,
   params_siml = list(
     spinup             = TRUE,  # to bring soil moisture to steady state
@@ -57,6 +58,7 @@ format_drivers <- function(
       forg = 0.1,
       fgravel = 0.1)
   ),
+  path,
   verbose = TRUE
   ){
 
@@ -138,7 +140,7 @@ format_drivers <- function(
   settings_fluxnet <- list(
     getswc       = FALSE,
     filter_ntdt  = TRUE,
-    threshold_GPP= 0.8,
+    threshold_GPP = 0.8,
     remove_neg   = FALSE
   )
 
@@ -153,14 +155,12 @@ format_drivers <- function(
       patm = "PA_F",
       ppfd = "NETRAD"
       ),
-    dir = "~/data/FLUXNET-2015_Tier1/20191024/DD/",
+    dir = path,
     settings = settings_fluxnet,
     timescale= "hh"
   )
 
   #----- Calculate daily values from half-hourly measurements ----
-
-
 
   #---- Processing CRU data (for cloud cover CCOV) ----
   if(verbose){
