@@ -24,21 +24,7 @@ data <- df_sites %>%
   rowwise() %>%
   do({
 
-    if (.$product[1] == "oneflux"){
-      path = "~/data/flux_data_kit/oneflux/"
-    }
-
-    if (.$product[1] == "icos"){
-      path = "~/data/flux_data_kit/ICOS_releaseX/"
-    }
-
-    if (.$product[1] == "plumber"){
-      path = "~/data/flux_data_kit/plumber_fluxnet/"
-    }
-
-    if (.$product[1] == "ameriflux"){
-      path = "~/data/flux_data_kit/fluxnet2015/"
-    }
+    message(.$sitename[1])
 
     ss <- as.data.frame(.)
 
@@ -46,7 +32,7 @@ data <- df_sites %>%
     df_pmodel <- format_drivers_site(
       ss,
       verbose = TRUE,
-      path = path
+      product = .$product[1]
     )
   })
 

@@ -13,7 +13,7 @@
 #' @param params_siml simulation parameters (preset)
 #' @param params_modl model parameters (preset)
 #' @param df_soiltexture soil data specifics (preset)
-#' @param path path where the source flux data is hosted
+#' @param product which flux product to use
 #' @param verbose provide verbose output (default = FALSE)
 #'
 #' @return returns an rsofun compatible driver file for the provided
@@ -58,7 +58,7 @@ format_drivers_site <- function(
       forg = 0.1,
       fgravel = 0.1)
   ),
-  path,
+  product,
   verbose = TRUE
   ){
 
@@ -144,21 +144,89 @@ format_drivers_site <- function(
     remove_neg   = FALSE
   )
 
-  ddf_flux <- ingest(
-    siteinfo = siteinfo %>% slice(1:3),
-    source   = "fluxnet",
-    getvars  = list(
-      gpp = "GPP_VUT_REF",
-      temp = "TA_F",
-      prec = "P_F",
-      vpd = "VPD_F",
-      patm = "PA_F",
-      ppfd = "NETRAD"
+
+  if (.$product[1] == "oneflux"){
+    path = "~/data/flux_data_kit/oneflux/"
+
+    ddf_flux <- ingest(
+      siteinfo = siteinfo %>% slice(1:3),
+      source   = "fluxnet",
+      getvars  = list(
+        gpp = "GPP_NT_VUT_REF",
+        gpp_unc = "GPP_NT_VUT_SE"
+        temp = "TA_F",
+        prec = "P_F",
+        vpd = "VPD_F",
+        patm = "PA_F",
+        ppfd = "NETRAD"
       ),
-    dir = path,
-    settings = settings_fluxnet,
-    timescale= "hh"
-  )
+      dir = path,
+      settings = settings_fluxnet,
+      timescale= "hh"
+    )
+  }
+
+  if (.$product[1] == "icos"){
+    path = "~/data/flux_data_kit/ICOS_releaseX/"
+
+    ddf_flux <- ingest(
+      siteinfo = siteinfo %>% slice(1:3),
+      source   = "fluxnet",
+      getvars  = list(
+        gpp = "GPP_NT_VUT_REF",
+        gpp_unc = "GPP_NT_VUT_SE"
+        temp = "TA_F",
+        prec = "P_F",
+        vpd = "VPD_F",
+        patm = "PA_F",
+        ppfd = "NETRAD"
+      ),
+      dir = path,
+      settings = settings_fluxnet,
+      timescale= "hh"
+    )
+  }
+
+  if (.$product[1] == "plumber"){
+    path = "~/data/flux_data_kit/plumber_fluxnet/"
+
+    ddf_flux <- ingest(
+      siteinfo = siteinfo %>% slice(1:3),
+      source   = "fluxnet",
+      getvars  = list(
+        gpp = "GPP_VUT_REF",
+        temp = "TA_F",
+        prec = "P_F",
+        vpd = "VPD_F",
+        patm = "PA_F",
+        ppfd = "NETRAD"
+      ),
+      dir = path,
+      settings = settings_fluxnet,
+      timescale= "hh"
+    )
+  }
+
+  if (.$product[1] == "ameriflux"){
+    path = "~/data/flux_data_kit/fluxnet2015/"
+
+    ddf_flux <- ingest(
+      siteinfo = siteinfo %>% slice(1:3),
+      source   = "fluxnet",
+      getvars  = list(
+        gpp = "GPP_NT_VUT_REF",
+        gpp_unc = "GPP_NT_VUT_SE"
+        temp = "TA_F",
+        prec = "P_F",
+        vpd = "VPD_F",
+        patm = "PA_F",
+        ppfd = "NETRAD"
+      ),
+      dir = path,
+      settings = settings_fluxnet,
+      timescale= "hh"
+    )
+  }
 
   #----- Calculate daily values from half-hourly measurements ----
 
