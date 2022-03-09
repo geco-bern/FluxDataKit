@@ -25,7 +25,7 @@ data <-
   df_sites,
   1,
   function(site){
-    message(site$sitename[1])
+    message(site['sitename'])
 
     ss <- as.data.frame(site)
 
@@ -34,7 +34,7 @@ data <-
       format_drivers_site(
         ss,
         verbose = FALSE,
-        product = .$product[1]
+        product = site['product']
       )
     )
 
