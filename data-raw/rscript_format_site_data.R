@@ -20,14 +20,10 @@ df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
     !(year_start > year_end)
   )
 
-data <-
-  apply(
-  df_sites,
-  1,
-  function(site){
-    message(site['sitename'])
-
-    ss <- t(as.data.frame(site))
+data <- df_sites %>%
+  rowwise() %>%
+  do({
+    ss <- as.data.frame(.)
     print(ss)
 
     # process data
@@ -35,14 +31,14 @@ data <-
       format_drivers_site(
         ss,
         verbose = FALSE,
-        product = site['product']
+        product = .$product[1]
       )
     )
 
     if(inherits(df, "try-error")){
-      return(NULL)
+      df <- data.frame(NA)
     } else {
-      return(df)
+      df
     }
 
   })
