@@ -28,6 +28,7 @@ data <-
     message(site['sitename'])
 
     ss <- as.data.frame(site)
+    print(ss)
 
     # process data
     df <- try(
@@ -38,7 +39,7 @@ data <-
       )
     )
 
-    if(inherits(df_pmodel, "try-error")){
+    if(inherits(df, "try-error")){
       return(NULL)
     } else {
       return(df)
