@@ -37,6 +37,10 @@ data <- df_sites %>%
       )
     )
 
+    if(inherits(df_pmodel, "try-error")){
+      df_pmodel <- data.frame()
+    }
+
   })
 
 saveRDS(
