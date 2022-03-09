@@ -27,7 +27,7 @@ data <-
   function(site){
     message(site['sitename'])
 
-    ss <- as.data.frame(site)
+    ss <- t(as.data.frame(site))
     print(ss)
 
     # process data
