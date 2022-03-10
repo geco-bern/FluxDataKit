@@ -180,18 +180,21 @@ format_drivers_site <- function(
   #----- Calculate daily values from half-hourly measurements ----
 
   data <- ddf_flux$data[[1]]
+
+  print(data)
+
   ddf_flux$data[[1]] <- data %>%
     mutate(
       date = as.Date(date)
     ) %>%
     group_by(date) %>%
     summarize(
-      gpp = sum(gpp, na.rm = TRUE),
+      gpp = sum(gpp, na.rm = TRUE), # are there negative values?
       temp = mean(temp, na.rm = TRUE),
       prec = sum(prec, na.rm = TRUE),
       vpd = mean(vpd, na.rm = TRUE),
       patm = mean(patm, na.rm = TRUE),
-      ppfd = mean(ppfd, na.rm = TRUE)
+      ppfd = mean(ppfd, na.rm = TRUE) # exclude nighttime values?
     )
 
   #---- Processing CRU data (for cloud cover CCOV) ----
@@ -210,7 +213,7 @@ format_drivers_site <- function(
 
   # memory intensive, purge memory
   gc()
-  g
+
   #---- Merging climate data ----
 
   if(verbose){
