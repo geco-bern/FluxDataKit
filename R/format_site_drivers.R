@@ -191,6 +191,8 @@ format_drivers_site <- function(
     summarize(
       gpp = sum(gpp, na.rm = TRUE), # are there negative values?
       temp = mean(temp, na.rm = TRUE),
+      tmin = min(temp, na.rm = TRUE),
+      tmax = max(temp, na.rm = TRUE),
       prec = sum(prec, na.rm = TRUE),
       vpd = mean(vpd, na.rm = TRUE),
       patm = mean(patm, na.rm = TRUE),
