@@ -12,13 +12,15 @@ source("R/format_site_drivers.R")
 
 # read sites data frame
 df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
-  dplyr::select(sitename, lat, lon, year_start, year_end, elv, product) %>%
-  mutate(
-    year_end = 2018 # force 2018 as end year
-  ) %>%
-  filter(
-    !(year_start > year_end)
-  )
+  dplyr::select(sitename, lat, lon, year_start, year_end, elv, product)
+
+# %>%
+#   mutate(
+#     year_end = 2018 # force 2018 as end year
+#   ) %>%
+#   filter(
+#     !(year_start > year_end)
+#   )
 
 data <- df_sites %>%
   rowwise() %>%
