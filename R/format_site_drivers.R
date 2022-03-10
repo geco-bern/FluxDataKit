@@ -170,7 +170,8 @@ format_drivers_site <- function(
       prec = "P_F",
       vpd = "VPD_F_MDS",
       patm = "PA_F",
-      ppfd = "NETRAD"
+      ppfd = "SW_IN_F_MDS",
+      netrad = "NETRAD"
     ),
     dir = path,
     settings = settings_fluxnet,
@@ -189,13 +190,14 @@ format_drivers_site <- function(
     ) %>%
     group_by(date) %>%
     summarize(
-      gpp = sum(gpp, na.rm = TRUE), # are there negative values?
+      gpp = sum(gpp, na.rm = TRUE),
       temp = mean(temp, na.rm = TRUE),
       tmin = min(temp, na.rm = TRUE),
       tmax = max(temp, na.rm = TRUE),
       prec = sum(prec, na.rm = TRUE),
       vpd = mean(vpd, na.rm = TRUE),
       patm = mean(patm, na.rm = TRUE),
+      netrad = mean(netrad, na.rm = TRUE),
       ppfd = mean(ppfd, na.rm = TRUE) # exclude nighttime values?
     )
 
@@ -267,7 +269,7 @@ format_drivers_site <- function(
   }
 
   output <- collect_drivers_sofun(
-    site_info       = siteinfo,
+    site_info      = siteinfo,
     params_siml    = params_siml,
     meteo          = ddf_meteo,
     fapar          = ddf_fapar_unity,
