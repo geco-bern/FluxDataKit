@@ -2,15 +2,10 @@
 library(tidyverse)
 
 # load site locations
-
-sites <- read.table(
-  "data/site_meta_data.csv",
-  sep = ",",
-  header = TRUE)
+sites <- readRDS("data/flux_data_kit_site-info.rds")
 
 # change this depending on system settings
 python_path = "/usr/bin/python3"
-#python_path = "/usr/local/bin/python" # OSX
 
 # clone the gee_subset project
 # relies on git being installed
@@ -27,7 +22,7 @@ if(!dir.exists(path)){
 
 # set product parameters, such as
 # product name, band(s) to query, start and end date of the range
-# and the lcoation
+# and the location
 product = "MODIS/006/MCD43A4"
 band = "Nadir_Reflectance_Band3 Nadir_Reflectance_Band2 Nadir_Reflectance_Band1"
 
@@ -41,8 +36,8 @@ site_data <- apply(sites, 1, function(site){
 
   # set site location
   location <- paste(
-    site['latitude'],
-    site['longitude']
+    site['lat'],
+    site['lon']
     )
 
   # make the gee_subset.py python call
@@ -85,8 +80,7 @@ site_data <- apply(sites, 1, function(site){
   yearly_data <- bind_rows(yearly_data)
 
   # add site data
-  yearly_data$site <- site['site']
-  yearly_data$veg_type <- site['veg_type']
+  yearly_data$site <- site['sitename']
 
   return(yearly_data)
 })
