@@ -23,11 +23,6 @@ sites$year_start <- 2000
 sites$year_end <- as.numeric(format(Sys.Date(),"%Y"))
 bundle <- args[1]
 
-# bail if not on euler
-if(!grepl('eu-', Sys.info()['nodename'])){
-  stop("You are not on Euler, source data unavailable - abort abort abort!")
-}
-
 # feedback
 message("processing MODIS data product: ")
 

@@ -31,19 +31,19 @@ message(paste("  - ", bundle))
 
 settings_gee <- get_settings_gee(
   bundle            = bundle,
-  python_path       = system("which python", intern = TRUE),
-  gee_path          = "~/google_earth_engine_subsets/gee_subset/",
+  python_path       = "/usr/bin/python3",
+  gee_path          = "./src/gee_subset/src/gee_subset",
   data_path         = "~/data/gee_subsets/",
-  method_interpol   = "linear",
+  method_interpol   = "none",
   keep              = TRUE,
-  overwrite_raw     = FALSE,
+  overwrite_raw     = TRUE,
   overwrite_interpol= TRUE
 )
 
 # run the ingest routine
 df_modis <- ingest(
   sites,
-  source = "modis",
+  source = "gee",
   settings = settings_gee,
   parallel = FALSE
 )
