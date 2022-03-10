@@ -160,23 +160,6 @@ format_drivers_site <- function(
     path = "~/data/flux_data_kit/fluxnet2015/"
   }
 
-  if (product == "plumber"){
-    ddf_flux <- ingest(
-      siteinfo = siteinfo %>% slice(1:3),
-      source   = "fluxnet",
-      getvars  = list(
-        gpp = "GPP_VUT_REF",
-        temp = "TA_F",
-        prec = "P_F",
-        vpd = "VPD_F",
-        patm = "PA_F",
-        ppfd = "NETRAD"
-      ),
-      dir = path,
-      settings = settings_fluxnet,
-      timescale= "hh"
-    )
-  } else {
     ddf_flux <- ingest(
       siteinfo = siteinfo %>% slice(1:3),
       source   = "fluxnet",
@@ -193,7 +176,6 @@ format_drivers_site <- function(
       settings = settings_fluxnet,
       timescale= "hh"
     )
-  }
 
   #----- Calculate daily values from half-hourly measurements ----
 
@@ -228,7 +210,7 @@ format_drivers_site <- function(
 
   # memory intensive, purge memory
   gc()
-
+  g
   #---- Merging climate data ----
 
   if(verbose){
