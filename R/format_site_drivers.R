@@ -160,22 +160,22 @@ format_drivers_site <- function(
     path = "~/data/flux_data_kit/fluxnet2015/"
   }
 
-    ddf_flux <- ingest(
-      siteinfo = siteinfo %>% slice(1:3),
-      source   = "fluxnet",
-      getvars  = list(
-        gpp = "GPP_NT_VUT_REF",
-        gpp_unc = "GPP_NT_VUT_SE",
-        temp = "TA_F",
-        prec = "P_F",
-        vpd = "VPD_F",
-        patm = "PA_F",
-        ppfd = "NETRAD"
-      ),
-      dir = path,
-      settings = settings_fluxnet,
-      timescale= "hh"
-    )
+  ddf_flux <- ingest(
+    siteinfo = siteinfo %>% slice(1:3),
+    source   = "fluxnet",
+    getvars  = list(
+      gpp = "GPP_NT_VUT_REF",
+      gpp_unc = "GPP_NT_VUT_SE",
+      temp = "TA_F_MDS",
+      prec = "P_F",
+      vpd = "VPD_F_MDS",
+      patm = "PA_F",
+      ppfd = "NETRAD"
+    ),
+    dir = path,
+    settings = settings_fluxnet,
+    timescale= "hh"
+  )
 
   #----- Calculate daily values from half-hourly measurements ----
 
