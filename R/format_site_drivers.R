@@ -289,7 +289,7 @@ format_drivers_site <- function(
       params_soil    = df_soiltexture
     )
   } else {
-    output <- ddf_meteo
+    output <- ddf_flux
   }
 
   # return data, either a driver

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 args <- commandArgs(trailingOnly = TRUE)
-freq <- args[0]
+freq <- args[1]
 
 # load libraries and
 # scripts
@@ -14,7 +14,7 @@ source("R/format_site_drivers.R")
 df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
   dplyr::select(sitename, lat, lon, year_start, year_end, elv, product)
 
-data <- df_sites[1:2,] %>%
+data <- df_sites %>%
   rowwise() %>%
   do({
     ss <- as.data.frame(.)
@@ -39,18 +39,6 @@ data <- df_sites[1:2,] %>%
   })
 
 if (freq == "hh"){
-
-  #----- flatten file -----
-  data <- data %>%
-    filter(
-      !is.null(forcing)
-    ) %>%
-    select(-NA.) %>%
-    select(
-      sitename,
-      forcing
-    ) %>%
-    unnest()
 
   saveRDS(
     data,
