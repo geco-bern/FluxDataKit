@@ -14,7 +14,7 @@ source("R/format_site_drivers.R")
 df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
   dplyr::select(sitename, lat, lon, year_start, year_end, elv, product)
 
-data <- df_sites %>%
+data <- df_sites[1:2,] %>%
   rowwise() %>%
   do({
     ss <- as.data.frame(.)
