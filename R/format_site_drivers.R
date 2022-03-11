@@ -209,6 +209,7 @@ format_drivers_site <- function(
   }
 
   if (freq != "hh"){
+
     #---- Processing CRU data (for cloud cover CCOV) ----
     if(verbose){
       message("Processing CRU data ....")
@@ -269,6 +270,7 @@ format_drivers_site <- function(
       siteinfo  = siteinfo,
       source    = "fapar_unity"
     )
+
   }
 
   #---- Format p-model driver data ----
@@ -288,7 +290,6 @@ format_drivers_site <- function(
     )
   } else {
     output <- ddf_meteo
-    )
   }
 
   # return data, either a driver
