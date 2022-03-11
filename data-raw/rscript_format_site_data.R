@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-args <- commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly = TRUE)
 freq <- args[0]
 
 # load libraries and
@@ -7,7 +7,6 @@ freq <- args[0]
 library(tidyverse)
 library(ingestr)
 library(rsofun)
-#library(rbeni)
 
 source("R/format_site_drivers.R")
 
@@ -40,11 +39,25 @@ data <- df_sites %>%
   })
 
 if (freq == "hh"){
+
+  #----- flatten file -----
+  data <- data %>%
+    filter(
+      !is.null(forcing)
+    ) %>%
+    select(-NA.) %>%
+    select(
+      sitename,
+      forcing
+    ) %>%
+    unnest()
+
   saveRDS(
     data,
-    "data/p_model_drivers/site_based_drivers_HH.rds",
+    "data/site_based_drivers_HH.rds",
     compress = "xz")
-} else {
+
+  } else {
   saveRDS(
     data,
     "data/p_model_drivers/site_based_drivers.rds",
