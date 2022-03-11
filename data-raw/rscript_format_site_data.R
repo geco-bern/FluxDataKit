@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
 args <- commandArgs(trailingOnly=TRUE)
+freq <- args[0]
 
 # load libraries and
 # scripts
@@ -14,38 +15,39 @@ source("R/format_site_drivers.R")
 df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
   dplyr::select(sitename, lat, lon, year_start, year_end, elv, product)
 
-# %>%
-#   mutate(
-#     year_end = 2018 # force 2018 as end year
-#   ) %>%
-#   filter(
-#     !(year_start > year_end)
-#   )
-
 data <- df_sites %>%
   rowwise() %>%
   do({
     ss <- as.data.frame(.)
-    print(ss)
 
     # process data
     df <- try(
       format_drivers_site(
         ss,
         verbose = FALSE,
-        product = .$product[1]
+        product = .$product[1],
+        freq = freq
       )
     )
 
     if(inherits(df, "try-error")){
-      df <- data.frame(NA)
+      df <- data.frame(
+        forcing = NA
+        )
     } else {
       df
     }
-
   })
 
-saveRDS(
-  data,
-  "data/p_model_drivers/site_based_drivers.rds",
-  compress = "xz")
+if (freq == "hh"){
+  saveRDS(
+    data,
+    "data/p_model_drivers/site_based_drivers_HH.rds",
+    compress = "xz")
+} else {
+  saveRDS(
+    data,
+    "data/p_model_drivers/site_based_drivers.rds",
+    compress = "xz")
+}
+

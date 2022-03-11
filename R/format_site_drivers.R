@@ -58,6 +58,7 @@ format_drivers_site <- function(
       forg = 0.1,
       fgravel = 0.1)
   ),
+  freq = "hh",
   product,
   verbose = TRUE
   ){
@@ -180,87 +181,95 @@ format_drivers_site <- function(
 
   #----- Calculate daily values from half-hourly measurements ----
 
-  data <- ddf_flux$data[[1]]
+  if (freq != "hh"){
+    data <- ddf_flux$data[[1]]
+    ddf_flux$data[[1]] <- data %>%
+      mutate(
+        date = as.Date(date)
+      ) %>%
+      group_by(date) %>%
+      summarize(
+        gpp = sum(gpp, na.rm = TRUE),
+        temp = mean(temp, na.rm = TRUE),
+        tmin = min(temp, na.rm = TRUE),
+        tmax = max(temp, na.rm = TRUE),
+        prec = sum(prec, na.rm = TRUE),
+        vpd = mean(vpd, na.rm = TRUE),
+        patm = mean(patm, na.rm = TRUE),
+        netrad = mean(netrad, na.rm = TRUE),
+        ppfd = mean(ppfd, na.rm = TRUE) # exclude nighttime values?
+      )
+  } else {
+    data <- ddf_flux$data[[1]]
+    ddf_flux$data[[1]] <- data %>%
+      mutate(
+        date_time = date,
+        date = as.Date(date)
+      )
+  }
 
-  print(data)
+  if (freq != "hh"){
+    #---- Processing CRU data (for cloud cover CCOV) ----
+    if(verbose){
+      message("Processing CRU data ....")
+    }
 
-  ddf_flux$data[[1]] <- data %>%
-    mutate(
-      date = as.Date(date)
-    ) %>%
-    group_by(date) %>%
-    summarize(
-      gpp = sum(gpp, na.rm = TRUE),
-      temp = mean(temp, na.rm = TRUE),
-      tmin = min(temp, na.rm = TRUE),
-      tmax = max(temp, na.rm = TRUE),
-      prec = sum(prec, na.rm = TRUE),
-      vpd = mean(vpd, na.rm = TRUE),
-      patm = mean(patm, na.rm = TRUE),
-      netrad = mean(netrad, na.rm = TRUE),
-      ppfd = mean(ppfd, na.rm = TRUE) # exclude nighttime values?
+    # adjust this with your local path
+    ddf_cru <- ingest(
+      siteinfo = siteinfo,
+      source    = "cru",
+      getvars   = "ccov",
+      dir       = "~/data/cru/ts_4.01/",
+      settings = list(correct_bias = NULL)
     )
 
-  #---- Processing CRU data (for cloud cover CCOV) ----
-  if(verbose){
-    message("Processing CRU data ....")
+    # memory intensive, purge memory
+    gc()
+
+    #---- Merging climate data ----
+
+    if(verbose){
+      message("Merging climate data ....")
+    }
+
+    # merge all climate drivers into
+    # one format
+    ddf_meteo <- ddf_flux %>%
+      tidyr::unnest(data) %>%
+      left_join(
+        ddf_cru %>%
+          tidyr::unnest(data),
+        by = c("sitename", "date")
+      ) %>%
+      group_by(sitename) %>%
+      tidyr::nest()
+
+    #---- Append CO2 data ----
+
+    if(verbose){
+      message("Append CO2 data ....")
+    }
+
+    # grab the CO2 data matching date ranges
+    df_co2 <- ingest(
+      siteinfo,
+      source  = "co2_cmip",
+      verbose = FALSE,
+      dir = "~/data/co2/"
+    )
+
+    #---- Append FAPAR data ----
+
+    if(verbose){
+      message("Append FAPAR data ....")
+    }
+
+    # grab the FAPAR data
+    ddf_fapar_unity <- ingest(
+      siteinfo  = siteinfo,
+      source    = "fapar_unity"
+    )
   }
-
-  # adjust this with your local path
-  ddf_cru <- ingest(
-        siteinfo = siteinfo,
-        source    = "cru",
-        getvars   = "ccov",
-        dir       = "~/data/cru/ts_4.01/",
-        settings = list(correct_bias = NULL)
-      )
-
-  # memory intensive, purge memory
-  gc()
-
-  #---- Merging climate data ----
-
-  if(verbose){
-    message("Merging climate data ....")
-  }
-
-  # merge all climate drivers into
-  # one format
-  ddf_meteo <- ddf_flux %>%
-    tidyr::unnest(data) %>%
-    left_join(
-      ddf_cru %>%
-        tidyr::unnest(data),
-      by = c("sitename", "date")
-    ) %>%
-    group_by(sitename) %>%
-    tidyr::nest()
-
-  #---- Append CO2 data ----
-
-  if(verbose){
-    message("Append CO2 data ....")
-  }
-
-  # grab the CO2 data matching date ranges
-  df_co2 <- ingest(
-    siteinfo,
-    source  = "co2_cmip",
-    verbose = FALSE,
-    dir = "~/data/co2/"
-  )
-
-  #---- Append FAPAR data ----
-
-  if(verbose){
-    message("Append FAPAR data ....")
-  }
-
-  # grab the FAPAR data
-  ddf_fapar_unity <- ingest(
-    siteinfo  = siteinfo,
-    source    = "fapar_unity"
-  )
 
   #---- Format p-model driver data ----
 
@@ -268,14 +277,19 @@ format_drivers_site <- function(
     message("Combining all driver data ....")
   }
 
-  output <- collect_drivers_sofun(
-    site_info      = siteinfo,
-    params_siml    = params_siml,
-    meteo          = ddf_meteo,
-    fapar          = ddf_fapar_unity,
-    co2            = df_co2,
-    params_soil = df_soiltexture
-  )
+  if(freq != "hh"){
+    output <- collect_drivers_sofun(
+      site_info      = siteinfo,
+      params_siml    = params_siml,
+      meteo          = ddf_meteo,
+      fapar          = ddf_fapar_unity,
+      co2            = df_co2,
+      params_soil    = df_soiltexture
+    )
+  } else {
+    output <- ddf_meteo
+    )
+  }
 
   # return data, either a driver
   # or processed output
