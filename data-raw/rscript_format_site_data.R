@@ -40,6 +40,9 @@ data <- df_sites %>%
 
 if (freq == "hh"){
 
+  data <- data %>%
+    unnest()
+
   saveRDS(
     data,
     "data/site_based_drivers_HH.rds",
