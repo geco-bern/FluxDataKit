@@ -18,6 +18,7 @@ df <- df %>%
   ) %>%
   unnest()
 
+df <- readRDS("~/Dropbox/tmp/site_based_drivers_HH.rds")
 meta_data <- readRDS("data/flux_data_kit_site-info.rds")
 
 df <- left_join(df, meta_data)

@@ -172,7 +172,17 @@ format_drivers_site <- function(
       vpd = "VPD_F_MDS",
       patm = "PA_F",
       ppfd = "SW_IN_F_MDS",
-      netrad = "NETRAD"
+      netrad = "NETRAD",
+      wind = "WS",
+      co2_air = "CO2_F_MDS",
+      sw_up = "SW_OUT",
+      lw_down = "LW_IN_F_MDS",
+      le = "LE_F_MDS",
+      le_cor = "LE_CORR",
+      h = "H_F_MDS",
+      h_cor = "H_CORR",
+      g  = "G_F_MDS",
+      ustar = "USTAR"
     ),
     dir = path,
     settings = settings_fluxnet,
