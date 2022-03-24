@@ -54,9 +54,15 @@ if (freq == "hh"){
     compress = "xz")
 
   } else {
+
+  data <- data %>%
+    filter(
+      !is.na(forcing)
+    )
+
   saveRDS(
     data,
-    "data/p_model_drivers/site_based_pmodel_drivers.rds",
+    "data/p_model_drivers/site_based_drivers.rds",
     compress = "xz")
 }
 
