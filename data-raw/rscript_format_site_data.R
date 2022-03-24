@@ -32,7 +32,11 @@ data <- df_sites %>%
 
     if(inherits(df, "try-error")){
       df <- data.frame(
-        forcing = NA
+        sitename = ss$sitename,
+        forcing = NA,
+        params_siml = NA,
+        site_info = NA,
+        param_soil = NA
         )
     } else {
       df
