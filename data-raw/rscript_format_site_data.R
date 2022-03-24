@@ -11,8 +11,9 @@ library(rsofun)
 source("R/format_site_drivers.R")
 
 # read sites data frame
-df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
-  dplyr::select(sitename, lat, lon, year_start, year_end, elv, product)
+df_sites <- readRDS("data/flux_data_kit_site-info.rds")
+# %>%
+#   dplyr::select(sitename, lat, lon, year_start, year_end, elv, product)
 
 data <- df_sites %>%
   rowwise() %>%
@@ -51,7 +52,7 @@ if (freq == "hh"){
   } else {
   saveRDS(
     data,
-    "data/p_model_drivers/site_based_drivers.rds",
+    "data/p_model_drivers/site_based_pmodel_drivers.rds",
     compress = "xz")
 }
 

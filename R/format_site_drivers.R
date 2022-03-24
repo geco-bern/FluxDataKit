@@ -206,8 +206,8 @@ format_drivers_site <- function(
         prec = sum(prec, na.rm = TRUE),
         vpd = mean(vpd, na.rm = TRUE),
         patm = mean(patm, na.rm = TRUE),
-        netrad = mean(netrad, na.rm = TRUE),
-        ppfd = mean(ppfd, na.rm = TRUE) # exclude nighttime values?
+        netrad = mean(netrad[netrad > 0], na.rm = TRUE),
+        ppfd = mean(ppfd[ppfd > 0], na.rm = TRUE)
       )
   } else {
     data <- ddf_flux$data[[1]]
@@ -238,7 +238,6 @@ format_drivers_site <- function(
     gc()
 
     #---- Merging climate data ----
-
     if(verbose){
       message("Merging climate data ....")
     }
@@ -256,7 +255,6 @@ format_drivers_site <- function(
       tidyr::nest()
 
     #---- Append CO2 data ----
-
     if(verbose){
       message("Append CO2 data ....")
     }
@@ -270,7 +268,6 @@ format_drivers_site <- function(
     )
 
     #---- Append FAPAR data ----
-
     if(verbose){
       message("Append FAPAR data ....")
     }
@@ -284,7 +281,6 @@ format_drivers_site <- function(
   }
 
   #---- Format p-model driver data ----
-
   if(verbose){
     message("Combining all driver data ....")
   }
