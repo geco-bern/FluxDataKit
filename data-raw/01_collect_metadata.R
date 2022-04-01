@@ -15,7 +15,6 @@ icos_path <- "~/data/flux_data_kit/ICOS_releaseX/"
 #--- plumber metatadata ----
 
 # collect Plumber meta-data
-
 if(!file.exists("data-raw/plumber_meta-data.rds")){
 
 # list files
