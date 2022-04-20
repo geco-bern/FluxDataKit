@@ -1,0 +1,14 @@
+---
+title: "Setup and data provenance"
+author: "Koen Hufkens"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Setup and data provenance}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+# Setup
+
+
+# data provenance (downloads)
