@@ -1,0 +1,12 @@
+template:
+  package: cestemplate
+
+destination: docs
+
+toc:
+  depth: 3
+
+navbar:
+  structure:
+    left:  [home, intro, articles, tutorials, news]
+    right: [github]
