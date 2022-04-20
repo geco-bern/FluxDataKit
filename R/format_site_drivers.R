@@ -255,6 +255,8 @@ format_drivers_site <- function(
       tidyr::nest()
 
     #---- Append CO2 data ----
+    #
+    # CHECK SOURCE DATA
     if(verbose){
       message("Append CO2 data ....")
     }
@@ -268,6 +270,8 @@ format_drivers_site <- function(
     )
 
     #---- Append FAPAR data ----
+    #
+    # REPLACE WITH MODIS
     if(verbose){
       message("Append FAPAR data ....")
     }

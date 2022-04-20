@@ -10,5 +10,110 @@ vignette: >
 
 # Setup
 
+To setup the project first clone the git repository
+
+```
+git clone https://github.com/khufkens/flux_data_kit.git
+```
+
+and install all critical packages required in gathering and processing the data.
+
+```
+install.packages(
+  c(
+    "devtools",
+    "rvest",
+    "tidyverse",
+    "icoscp",
+    "RCurl",
+    "XML",
+    "amerifluxr",
+    "raster",
+    "MODISTools"
+  )
+)
+
+devtools::install_github(
+  "computationales/ingestr"
+)
+
+devtools::install_github(
+  "computationales/rsofun"
+)
+```
+
+With all tools installed we need to download the required input data for
+aggregation.
 
 # data provenance (downloads)
+
+A list of numbered scripts is provided in the `data-raw` directory which govern
+the downloading and compiling of intermediate data. The numbered scripts should
+be run in sequence.
+
+Due to login-walls, or missing API infrastructure, most data downloads are still
+manual instead of automated. The below section therefore links to the locations
+where you can manually get the data. No fixes will be provided to faciliate this
+process further.
+
+By default the data will be downloaded to a directory with the `~/data/flux_data_kit/`
+base path. Before running any scripts, check if data is written to this directory and
+if it does not exist on your system, either create the path or alter the destination.
+
+## Flux data
+
+All ecosystem flux sources should be downloaded at half-hourly (HH) rates, unless
+otherwise specified. Data sources and final paths are listed below. Top level
+paths for flux data are considered to be sufficient for further processing.
+
+Estimated data sizes are provided to indicate network load, although for most
+these downloads should be easily manageable from a download and storage perspective.
+
+
+
+### FLUXNET2015
+
+FLUXNET2015 data is downloaded from the dedicated [download page](https://fluxnet.org/data/fluxnet2015-dataset/). A login is required to access
+the data. We only considered the legacy **FULLSET** data, which is covered by a CC-BY 4.0 license. This limits the site count. Expanding this list is possible, but only with permission
+from the PI sharing the data. We refer to the [data policy](https://fluxnet.org/data/data-policy/) for more details.
+
+path: 
+"~/data/flux_data_kit/fluxnet2015/"
+
+### ICOS
+
+As of writing ICOS data was provided as a pre-release to our group and is therefore not
+yet available for a wider public. However, this data should be released shortly through
+the [ICOS carbon portal](https://www.icos-cp.eu/data-services/about-data-portal).
+
+path: 
+"~/data/flux_data_kit/ICOS_releaseX/"
+
+### OneFlux
+
+A limited set of sites has been reprocessed using the OneFlux processing chain. This
+beta release can be found (here)[https://ameriflux.lbl.gov/data/download-data-oneflux-beta/]. Over time a full dataset will supersede the FLUXNET2015 data. However, now the site count is
+limited.
+
+path: 
+"~/data/flux_data_kit/oneflux/"
+
+### Plumber2
+
+"PLUMBER2 is a model intercomparison project for land surface models. Multiple leading land surface and ecosystem models are evaluated for water and carbon fluxes at 170 flux tower sites, spanning multiple biomes and climate zones globally." the full description of the dataset
+can be found in the publication by [Ukkola et al. 2021](https://doi.org/10.5194/essd-2021-181) and combines FLUXNET2015, La Thuile and OzFlux collections.
+
+The data can be downloaded using an included script `00_download_plumber2.R` in the `data-raw`
+directory of the project.
+
+path:
+"~/data/flux_data_kit/plumber_fluxnet/"
+
+## Gridded products
+
+### Rooting zone water storage capacity
+
+Global rooting zone water storage capacity can be [downloaded here](https://zenodo.org/record/5515246).
+
+path:
+"~/data/flux_data_kit/cwdx80/"
