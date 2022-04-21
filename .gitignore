@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 data-raw/flux_data/
+data-raw/modis/
+data-raw/ancillary/
