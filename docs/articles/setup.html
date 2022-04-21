@@ -78,7 +78,8 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Setup and data provenance</h1>
-                        <h4 data-toc-skip class="author">Koen Hufkens</h4>
+                        <h4 data-toc-skip class="author">Koen
+Hufkens</h4>
             
       
       
@@ -92,9 +93,11 @@
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <p>To setup the project first clone the git repository</p>
-<pre><code>git clone https://github.com/khufkens/flux_data_kit.git</code></pre>
-<p>and install all critical packages required in gathering and processing the data.</p>
-<pre><code><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>git clone https<span class="sc">:</span><span class="er">//</span>github.com<span class="sc">/</span>computationales<span class="sc">/</span>flux_data_kit.git</span></code></pre></div>
+<p>and install all critical packages required in gathering and
+processing the data.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
     <span class="st">"devtools"</span>,
     <span class="st">"rvest"</span>,
@@ -114,55 +117,174 @@
 
 <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span>
   <span class="st">"computationales/rsofun"</span>
-<span class="op">)</span></code></pre>
-<p>With all tools installed we need to download the required input data for aggregation.</p>
+<span class="op">)</span></code></pre></div>
+<p>With all tools installed we need to download the required input data
+for aggregation.</p>
 </div>
 <div class="section level2">
 <h2 id="data-provenance-downloads">data provenance (downloads)<a class="anchor" aria-label="anchor" href="#data-provenance-downloads"></a>
 </h2>
-<p>A list of numbered scripts is provided in the <code>data-raw</code> directory which govern the downloading and compiling of intermediate data. The numbered scripts should be run in sequence.</p>
-<p>Due to login-walls, or missing API infrastructure, most data downloads are still manual instead of automated. The below section therefore links to the locations where you can manually get the data. No fixes will be provided to faciliate this process further.</p>
-<p>By default the data will be downloaded to a directory with the <code>~/data/flux_data_kit/</code> base path. Before running any scripts, check if data is written to this directory and if it does not exist on your system, either create the path or alter the destination.</p>
+<p>A list of numbered scripts is provided in the <code>data-raw</code>
+directory which govern the downloading and compiling of intermediate
+data. The numbered scripts should be run in sequence.</p>
+<p>Due to login-walls, or missing API infrastructure, most data
+downloads are still manual instead of automated. The below section
+therefore links to the locations where you can manually get the data. No
+fixes will be provided to facilitate this process further.</p>
+<p>By default the data will be downloaded to a directory with the
+<code>data-raw/</code> base path. Before running any scripts, check if
+data is written to this directory. When you want to alter the storage
+location you may use soft links.</p>
 <div class="section level3">
 <h3 id="flux-data">Flux data<a class="anchor" aria-label="anchor" href="#flux-data"></a>
 </h3>
-<p>All ecosystem flux sources should be downloaded at half-hourly (HH) rates, unless otherwise specified. Data sources and final paths are listed below. Top level paths for flux data are considered to be sufficient for further processing.</p>
-<p>Estimated data sizes are provided to indicate network load, although for most these downloads should be easily manageable from a download and storage perspective.</p>
+<p>All ecosystem flux sources should be downloaded at half-hourly (HH)
+rates, unless otherwise specified. Data sources and final paths are
+listed below. Top level paths for flux data are considered to be
+sufficient for further processing.</p>
+<p>Estimated data sizes are provided to indicate network load, although
+for most these downloads should be easily manageable from a download and
+storage perspective. Below you find a summary table of data volumes, nr.
+of sites and the local storage paths for all flux data products
+considered.</p>
+<table class="table">
+<thead><tr class="header">
+<th>product</th>
+<th align="center">data volume</th>
+<th align="center">nr. sites</th>
+<th align="left">data path</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>FLUXNET2015</td>
+<td align="center">~35GB</td>
+<td align="center">166</td>
+<td align="left"><code>data-raw/flux_data/fluxnet2015/</code></td>
+</tr>
+<tr class="even">
+<td>ICOS</td>
+<td align="center">~12GB</td>
+<td align="center">67</td>
+<td align="left"><code>data-raw/flux_data/icos/</code></td>
+</tr>
+<tr class="odd">
+<td>OneFlux</td>
+<td align="center">~12GB</td>
+<td align="center">74</td>
+<td align="left"><code>data-raw/flux_data/oneflux/</code></td>
+</tr>
+<tr class="even">
+<td>Plumber2</td>
+<td align="center">~4GB</td>
+<td align="center">112</td>
+<td align="left"><code>data-raw/flux_data/plumber_fluxnet/</code></td>
+</tr>
+</tbody>
+</table>
 <div class="section level4">
 <h4 id="fluxnet2015">FLUXNET2015<a class="anchor" aria-label="anchor" href="#fluxnet2015"></a>
 </h4>
-<p>FLUXNET2015 data is downloaded from the dedicated <a href="https://fluxnet.org/data/fluxnet2015-dataset/" class="external-link">download page</a>. A login is required to access the data. We only considered the legacy <strong>FULLSET</strong> data, which is covered by a CC-BY 4.0 license. This limits the site count. Expanding this list is possible, but only with permission from the PI sharing the data. We refer to the <a href="https://fluxnet.org/data/data-policy/" class="external-link">data policy</a> for more details.</p>
-<p>path: “~/data/flux_data_kit/fluxnet2015/”</p>
+<p>FLUXNET2015 data is downloaded from the dedicated <a href="https://fluxnet.org/data/fluxnet2015-dataset/" class="external-link">download page</a>.
+A login is required to access the data. We only considered the legacy
+<strong>FULLSET</strong> data, which is covered by a CC-BY 4.0 license.
+This limits the site count. Expanding this list is possible, but only
+with permission from the PI sharing the data. We refer to the <a href="https://fluxnet.org/data/data-policy/" class="external-link">data policy</a> for more
+details.</p>
 </div>
 <div class="section level4">
 <h4 id="icos">ICOS<a class="anchor" aria-label="anchor" href="#icos"></a>
 </h4>
-<p>As of writing ICOS data was provided as a pre-release to our group and is therefore not yet available for a wider public. However, this data should be released shortly through the <a href="https://www.icos-cp.eu/data-services/about-data-portal" class="external-link">ICOS carbon portal</a>.</p>
-<p>path: “~/data/flux_data_kit/ICOS_releaseX/”</p>
+<p>As of writing ICOS data was provided as a pre-release to our group
+and is therefore not yet available for a wider public. However, this
+data should be released shortly through the <a href="https://www.icos-cp.eu/data-services/about-data-portal" class="external-link">ICOS
+carbon portal</a>.</p>
 </div>
 <div class="section level4">
 <h4 id="oneflux">OneFlux<a class="anchor" aria-label="anchor" href="#oneflux"></a>
 </h4>
-<p>A limited set of sites has been reprocessed using the OneFlux processing chain. This beta release can be found (here)[<a href="https://ameriflux.lbl.gov/data/download-data-oneflux-beta/" class="external-link uri">https://ameriflux.lbl.gov/data/download-data-oneflux-beta/</a>]. Over time a full dataset will supersede the FLUXNET2015 data. However, now the site count is limited.</p>
-<p>path: “~/data/flux_data_kit/oneflux/”</p>
+<p>A limited set of sites has been reprocessed using the OneFlux
+processing chain. This beta release can be found (here)[<a href="https://ameriflux.lbl.gov/data/download-data-oneflux-beta/" class="external-link uri">https://ameriflux.lbl.gov/data/download-data-oneflux-beta/</a>].
+Over time a full dataset will supersede the FLUXNET2015 data. However,
+now the site count is limited.</p>
 </div>
 <div class="section level4">
 <h4 id="plumber2">Plumber2<a class="anchor" aria-label="anchor" href="#plumber2"></a>
 </h4>
-<p>“PLUMBER2 is a model intercomparison project for land surface models. Multiple leading land surface and ecosystem models are evaluated for water and carbon fluxes at 170 flux tower sites, spanning multiple biomes and climate zones globally.” the full description of the dataset can be found in the publication by <a href="https://doi.org/10.5194/essd-2021-181" class="external-link">Ukkola et al. 2021</a> and combines FLUXNET2015, La Thuile and OzFlux collections.</p>
-<p>The data can be downloaded using an included script <code>00_download_plumber2.R</code> in the <code>data-raw</code> directory of the project.</p>
-<p>path: “~/data/flux_data_kit/plumber_fluxnet/”</p>
+<p>“PLUMBER2 is a model intercomparison project for land surface models.
+Multiple leading land surface and ecosystem models are evaluated for
+water and carbon fluxes at 170 flux tower sites, spanning multiple
+biomes and climate zones globally.” the full description of the dataset
+can be found in the publication by <a href="https://doi.org/10.5194/essd-2021-181" class="external-link">Ukkola et al. 2021</a> and
+combines FLUXNET2015, La Thuile and OzFlux collections.</p>
+<p>The downloading and conversion is facilitated using a script
+<code>00_download_convert_flux_data.R</code> included in the
+<code>data-raw</code> directory.</p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="gridded-products">Gridded products<a class="anchor" aria-label="anchor" href="#gridded-products"></a>
 </h3>
+<p>Other gridded data products are required to complement the flux data
+for modelling purposes. Products required, data volumes and storage
+paths are listed below. Detailed links to original publications and data
+are provided below.</p>
+<table class="table">
+<thead><tr class="header">
+<th>product</th>
+<th align="center">data volume</th>
+<th align="left">data path</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>rooting zone water storage</td>
+<td align="center">~80MB</td>
+<td align="left"><code>data-raw/ancillary/cwdx80/</code></td>
+</tr>
+<tr class="even">
+<td>Koeppen-Geiger</td>
+<td align="center">~22MB</td>
+<td align="left"><code>data-raw/ancillary/koeppen_geigen/</code></td>
+</tr>
+</tbody>
+</table>
 <div class="section level4">
 <h4 id="rooting-zone-water-storage-capacity">Rooting zone water storage capacity<a class="anchor" aria-label="anchor" href="#rooting-zone-water-storage-capacity"></a>
 </h4>
 <p>Global rooting zone water storage capacity can be <a href="https://zenodo.org/record/5515246" class="external-link">downloaded here</a>.</p>
-<p>path: “~/data/flux_data_kit/cwdx80/”</p>
 </div>
+<div class="section level4">
+<h4 id="koeppen-geiger-included-in-repo">Koeppen-Geiger (included in repo)<a class="anchor" aria-label="anchor" href="#koeppen-geiger-included-in-repo"></a>
+</h4>
+<p>Koeppen-Geiger climate classifications are downloaded from the recent
+work by <a href="https://www.nature.com/articles/sdata2018214" class="external-link">Beck et
+al. 2018</a>. Data can be downloaded from the <a href="http://www.gloh2o.org/koppen/" class="external-link">project website</a> but is also
+included in the repository due to its small size.</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="remote-sensing-data">Remote sensing data<a class="anchor" aria-label="anchor" href="#remote-sensing-data"></a>
+</h3>
+<p>We include various MODIS products to complement the flux data. Data
+are downloaded from Google Earth Engine using the gee_subset python
+toolkit using the {ingestr} package. Data are stored in a product by
+product basis. in the <code>data-raw/modis/</code> directory. Data is
+downloaded using the <code>02_download_modis_data.R</code> script.</p>
+<blockquote>
+<p>Note that you will need to compile the meta-data list first (see
+meta-data article).</p>
+</blockquote>
+<table class="table">
+<thead><tr class="header">
+<th>product</th>
+<th align="center">data volume</th>
+<th align="left">data path</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td>MODXXX</td>
+<td align="center">~80MB</td>
+<td align="left"><code>data-raw/modis/XZY/</code></td>
+</tr></tbody>
+</table>
 </div>
 </div>
   </div>

@@ -63,7 +63,7 @@ format_drivers_site <- function(
   verbose = TRUE
   ){
 
-  #---- startup checks ----
+  #---- start-up checks ----
 
   # bail if not on euler
   if(!grepl('eu-', Sys.info()['nodename'])){
@@ -141,7 +141,7 @@ format_drivers_site <- function(
   settings_fluxnet <- list(
     getswc       = FALSE,
     filter_ntdt  = TRUE,
-    threshold_GPP = 0.8,
+    threshold_GPP = 1,
     remove_neg   = FALSE
   )
 
