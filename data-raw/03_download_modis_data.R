@@ -33,7 +33,7 @@ settings_gee <- get_settings_gee(
   bundle            = bundle,
   python_path       = "/usr/bin/python3",
   gee_path          = "./src/gee_subset/src/gee_subset",
-  data_path         = "~/data/gee_subsets/",
+  data_path         = "data-raw/modis/",
   method_interpol   = "none",
   keep              = TRUE,
   overwrite_raw     = TRUE,
