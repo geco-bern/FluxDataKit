@@ -121,8 +121,9 @@ Detailed links to original publications and data are provided below.
 
 | product   |      data volume      |  data path |
 |-----------|:---------------------:|:-----------|
-| rooting zone water storage |  ~80MB | `data-raw/ancillary/cwdx80/`
-| Koeppen-Geiger |  ~22MB | `data-raw/ancillary/koeppen_geigen/`
+| rooting zone water storage |  ~80MB | `data-raw/ancillary_data/cwdx80/`
+| Koeppen-Geiger |  ~22MB | `data-raw/ancillary_data/koeppen_geiger/`
+| field capacity |  ~4MB | `data-raw/ancillary_data/field_capacity/`
 
 ### Rooting zone water storage capacity
 
@@ -130,6 +131,13 @@ Global rooting zone water storage capacity can be
 [downloaded here](https://zenodo.org/record/5515246).
 
 ### Koeppen-Geiger (included in repo)
+
+Koeppen-Geiger climate classifications are downloaded from the recent
+work by [Beck et al. 2018](https://www.nature.com/articles/sdata2018214). Data
+can be downloaded from the [project website](http://www.gloh2o.org/koppen/) but
+is also included in the repository due to its small size.
+
+### Field capacity (included in repo)
 
 Koeppen-Geiger climate classifications are downloaded from the recent
 work by [Beck et al. 2018](https://www.nature.com/articles/sdata2018214). Data
