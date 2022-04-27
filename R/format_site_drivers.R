@@ -63,7 +63,7 @@ format_drivers_site <- function(
   verbose = TRUE
   ){
 
-  #---- startup checks ----
+  #---- start-up checks ----
 
   # bail if not on euler
   if(!grepl('eu-', Sys.info()['nodename'])){
@@ -141,7 +141,7 @@ format_drivers_site <- function(
   settings_fluxnet <- list(
     getswc       = FALSE,
     filter_ntdt  = TRUE,
-    threshold_GPP = 0.8,
+    threshold_GPP = 1,
     remove_neg   = FALSE
   )
 
@@ -206,8 +206,8 @@ format_drivers_site <- function(
         prec = sum(prec, na.rm = TRUE),
         vpd = mean(vpd, na.rm = TRUE),
         patm = mean(patm, na.rm = TRUE),
-        netrad = mean(netrad, na.rm = TRUE),
-        ppfd = mean(ppfd, na.rm = TRUE) # exclude nighttime values?
+        netrad = mean(netrad[netrad > 0], na.rm = TRUE),
+        ppfd = mean(ppfd[ppfd > 0], na.rm = TRUE)
       )
   } else {
     data <- ddf_flux$data[[1]]
@@ -238,7 +238,6 @@ format_drivers_site <- function(
     gc()
 
     #---- Merging climate data ----
-
     if(verbose){
       message("Merging climate data ....")
     }
@@ -256,7 +255,8 @@ format_drivers_site <- function(
       tidyr::nest()
 
     #---- Append CO2 data ----
-
+    #
+    # CHECK SOURCE DATA
     if(verbose){
       message("Append CO2 data ....")
     }
@@ -270,7 +270,8 @@ format_drivers_site <- function(
     )
 
     #---- Append FAPAR data ----
-
+    #
+    # REPLACE WITH MODIS
     if(verbose){
       message("Append FAPAR data ....")
     }
@@ -284,7 +285,6 @@ format_drivers_site <- function(
   }
 
   #---- Format p-model driver data ----
-
   if(verbose){
     message("Combining all driver data ....")
   }

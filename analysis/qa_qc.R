@@ -11,12 +11,25 @@ df <- df %>%
   filter(
     !is.null(forcing)
   ) %>%
-  select(-NA.) %>%
   select(
     sitename,
     forcing
   ) %>%
-  unnest()
+  unnest(cols = c(forcing))
+
+# calculate site years
+site_years <- df %>%
+  group_by(sitename) %>%
+  summarize(
+    time_diff = max(date) - min(date) # time difference in days
+  ) %>%
+  ungroup() %>%
+  summarize( # summarize time in years
+    time = round(as.numeric(sum(time_diff)/365))
+  )
+
+message("daily site years:")
+message(site_years)
 
 df <- readRDS("~/Dropbox/tmp/site_based_drivers_HH.rds")
 meta_data <- readRDS("data/flux_data_kit_site-info.rds")
@@ -34,6 +47,7 @@ site_years <- df %>%
     time = round(as.numeric(sum(time_diff)/365))
   )
 
+message("HH site years:")
 message(site_years)
 
 #---- plot all GPP time series ----
