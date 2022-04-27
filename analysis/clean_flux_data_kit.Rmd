@@ -14,7 +14,10 @@ library(tidyverse)
 
 
 ```{r cars}
-df <- readRDS("~/Downloads/site_based_drivers_HH.rds")
+df <- readRDS("~/Downloads/site_based_drivers_HH.rds") %>% 
+  as_tibble() %>% 
+  group_by(sitename) %>% 
+  nest()
 ```
 
 ## Outliers
@@ -34,8 +37,6 @@ detect_outliers_gpp <- function(df){
 
 ## read https://stineb.github.io/esds_book/ch-02.html#functional-programming-i
 df_clean <- df %>% 
-  group_by(sitename) %>% 
-  nest() %>% 
   mutate(data = purrr::map(data, ~detect_outliers_gpp(.)))
   
 ```
