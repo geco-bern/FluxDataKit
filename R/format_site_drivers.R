@@ -65,34 +65,8 @@ format_drivers_site <- function(
 
   #---- start-up checks ----
 
-  # bail if not on euler
-  if(!grepl('eu-', Sys.info()['nodename'])){
-    stop("You are not on Euler, source data unavailable - abort abort abort!")
-  }
-
-  # bail if not on euler
-  if(!dir.exists("~/data")){
-    stop("Data path is not linked, create a soft link in your home directory
-         to setup a link to the (CES) Euler data storage:
-         ln -s /cluster/work/climate/bestocke/data data
-         ")
-  }
-
   # check format of the siteinfo
   names(siteinfo) %in% c("sitename","lon","lat","start_year","end_year","elv")
-
-  if(!dir.exists("~/data")){
-    stop("Data path is not linked, create a soft link in your home directory
-         to setup a link to the (CES) Euler data storage:
-         ln -s /cluster/work/climate/bestocke/data data
-         ")
-  }
-
-
-  # some feedback on the processing
-  if(verbose){
-    message("Running on Euler, data linkages in place. Proceeding ....")
-  }
 
   #---- complement siteinfo with WHC based on S_CWDX80 ----
 
@@ -108,7 +82,7 @@ format_drivers_site <- function(
       message("Processing cwdx80 data on server ....")
     }
 
-      filn <- "~/data/mct_data/cwdx80.nc"
+      filn <- "data-raw/ancillary_data/cwdx80/cwdx80.nc"
       siteinfo <- siteinfo %>%
         left_join(rbeni::extract_nc(
           dplyr::select(siteinfo,
@@ -121,7 +95,10 @@ format_drivers_site <- function(
           by = c("sitename", "lon", "lat")
         )
 
+    # median values
     whc_median <- median(siteinfo$whc, na.rm = TRUE)
+
+    # append info
     siteinfo <- siteinfo %>%
       mutate(
         whc = ifelse(
@@ -146,19 +123,19 @@ format_drivers_site <- function(
   )
 
   if (product == "oneflux"){
-    path = "~/data/flux_data_kit/oneflux/"
+    path = "data-raw/flux_data/oneflux/"
   }
 
   if (product == "icos"){
-    path = "~/data/flux_data_kit/ICOS_releaseX/"
+    path = "data-raw/flux_data/icos/"
   }
 
   if (product == "plumber"){
-    path = "~/data/flux_data_kit/plumber_fluxnet/"
+    path = "data-raw/flux_data/plumber_fluxnet/"
   }
 
   if (product == "ameriflux"){
-    path = "~/data/flux_data_kit/fluxnet2015/"
+    path = "data-raw/flux_data/fluxnet2015/"
   }
 
   ddf_flux <- ingest(
@@ -230,7 +207,7 @@ format_drivers_site <- function(
       siteinfo = siteinfo,
       source    = "cru",
       getvars   = "ccov",
-      dir       = "~/data/cru/ts_4.01/",
+      dir       = "data-raw/ancillary_data/cru/",
       settings = list(correct_bias = NULL)
     )
 
@@ -266,22 +243,38 @@ format_drivers_site <- function(
       siteinfo,
       source  = "co2_cmip",
       verbose = FALSE,
-      dir = "~/data/co2/"
+      dir = "data-raw/ancillary_data/co2/"
     )
 
     #---- Append FAPAR data ----
-    #
-    # REPLACE WITH MODIS
+
     if(verbose){
       message("Append FAPAR data ....")
     }
 
-    # grab the FAPAR data
-    ddf_fapar_unity <- ingest(
-      siteinfo  = siteinfo,
-      source    = "fapar_unity"
-    )
+    if (!dir.exists("data-raw/modis/raw/")){
+      stop("no FAPAR data found - download first")
+    }
 
+    settings_gee <- get_settings_gee(
+        bundle            = "modis_fpar",
+        python_path       = "/usr/bin/python3", # doesn't matter data should be downloaded
+        gee_path          = "./src/gee_subset/src/gee_subset",
+        data_path         = "data-raw/modis/",
+        method_interpol   = "loess",
+        keep              = TRUE,
+        overwrite_raw     = FALSE,
+        overwrite_interpol= TRUE
+      )
+
+      # run the ingest routine
+      df_fapar <-
+            ingest(
+            siteinfo,
+            source = "gee",
+            settings = settings_gee,
+            parallel = FALSE
+          )
   }
 
   #---- Format p-model driver data ----
@@ -294,7 +287,7 @@ format_drivers_site <- function(
       site_info      = siteinfo,
       params_siml    = params_siml,
       meteo          = ddf_meteo,
-      fapar          = ddf_fapar_unity,
+      fapar          = df_fapar,
       co2            = df_co2,
       params_soil    = df_soiltexture
     )
