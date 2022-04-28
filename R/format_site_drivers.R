@@ -170,22 +170,48 @@ format_drivers_site <- function(
 
   if (freq != "hh"){
     data <- ddf_flux$data[[1]]
-    ddf_flux$data[[1]] <- data %>%
+    data <- data %>%
       mutate(
         date = as.Date(date)
       ) %>%
       group_by(date) %>%
       summarize(
-        gpp = sum(gpp, na.rm = TRUE),
+        # Daily summary values, all quite
+        # normal
+        #gpp = sum(gpp, na.rm = TRUE),
+        gpp = ifelse(
+          length(which(!is.na(gpp)) >= length(gpp) ),
+          mean(gpp, na.rm = TRUE),
+          NA
+        ),
         temp = mean(temp, na.rm = TRUE),
         tmin = min(temp, na.rm = TRUE),
         tmax = max(temp, na.rm = TRUE),
         prec = sum(prec, na.rm = TRUE),
         vpd = mean(vpd, na.rm = TRUE),
         patm = mean(patm, na.rm = TRUE),
-        netrad = mean(netrad[netrad > 0], na.rm = TRUE),
-        ppfd = mean(ppfd[ppfd > 0], na.rm = TRUE)
+        # radiation values are averages for
+        # days with more than 50% of values
+        # available
+        netrad = ifelse(
+          length(which(!is.na(netrad)) > length(netrad) * 0.5 ),
+          mean(netrad, na.rm = TRUE),
+          NA
+        ),
+        ppfd = ifelse(
+          length(which(!is.na(ppfd)) > length(ppfd) * 0.5 ),
+          mean(ppfd, na.rm = TRUE),
+          NA
+        )
+      ) %>%
+      mutate(
+        tmin = ifelse(is.infinite(tmin), NA, tmin),
+        tmax = ifelse(is.infinite(tmax), NA, tmax)
       )
+
+    # put back in tibble
+    ddf_flux$data[[1]] <- data
+
   } else {
     data <- ddf_flux$data[[1]]
     ddf_flux$data[[1]] <- data %>%
@@ -262,7 +288,7 @@ format_drivers_site <- function(
         gee_path          = "./src/gee_subset/src/gee_subset",
         data_path         = "data-raw/modis/",
         method_interpol   = "loess",
-        keep              = TRUE,
+        keep              = FALSE,
         overwrite_raw     = FALSE,
         overwrite_interpol= TRUE
       )
@@ -275,6 +301,14 @@ format_drivers_site <- function(
             settings = settings_gee,
             parallel = FALSE
           )
+
+      # rename loess column to fapar as required
+      # for input below
+      df_fapar <- df_fapar %>%
+        dplyr::mutate(
+          data = purrr::map(data, ~ dplyr::mutate(., fapar = loess))
+          )
+
   }
 
   #---- Format p-model driver data ----

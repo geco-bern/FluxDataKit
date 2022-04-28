@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 args <- commandArgs(trailingOnly = TRUE)
 freq <- args[1]
+freq <- "daily"
 
 # load libraries and
 # scripts
@@ -11,21 +12,27 @@ source("R/format_site_drivers.R")
 source("R/prepare_setup_sofun.R")
 
 # read sites data frame
-df_sites <- readRDS("data/flux_data_kit_site-info.rds")
+df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
+  filter(product == "oneflux")
 
 data <- df_sites %>%
   rowwise() %>%
   do({
+
     ss <- as.data.frame(.)
+
+    print(ss)
 
     # process data
     df <- try(
+      #suppressWarnings(
       format_drivers_site(
         ss,
         verbose = FALSE,
         product = .$product[1],
         freq = freq
       )
+      #)
     )
 
     if(inherits(df, "try-error")){
@@ -40,6 +47,8 @@ data <- df_sites %>%
       df
     }
   })
+
+# feedback
 
 if (freq == "hh"){
 
