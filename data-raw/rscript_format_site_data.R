@@ -12,8 +12,10 @@ source("R/format_site_drivers.R")
 source("R/prepare_setup_sofun.R")
 
 # read sites data frame
-df_sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
-  filter(product == "oneflux")
+df_sites <- readRDS("data/flux_data_kit_site-info.rds")
+
+# %>%
+#   filter(product == "oneflux")
 
 data <- df_sites %>%
   rowwise() %>%
@@ -41,14 +43,18 @@ data <- df_sites %>%
           forcing = NA,
           params_siml = NA,
           site_info = NA,
-          param_soil = NA
+          params_soil = NA
         )
     } else {
       df
     }
   })
 
-# feedback
+# remove empty locations
+# some Ameriflux sites are not
+# available
+data <- data %>%
+  filter(!is.null(forcing))
 
 if (freq == "hh"){
 

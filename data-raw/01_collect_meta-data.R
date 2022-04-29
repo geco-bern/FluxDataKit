@@ -12,6 +12,7 @@ source("R/read_plumber.R")
 plumber_path <- "data-raw/flux_data/plumber_fluxnet/"
 oneflux_path <- "data-raw/flux_data/oneflux/"
 icos_path <- "data-raw/flux_data/icos/"
+fluxnet_path <- "data-raw/flux_data/fluxnet2015/"
 
 #--- plumber metatadata ----
 
@@ -38,7 +39,7 @@ df <- do.call("rbind",
 saveRDS(df, file = "data-raw/meta-data/plumber_meta-data.rds", compress = "xz")
 }
 
-#---- ameriflux metadata ----
+#---- ameriflux / fluxnet2015 metadata ----
 
 if(!file.exists("data-raw/meta-data/amf_meta-data.rds")){
 amf <- amf_site_info()
@@ -54,17 +55,17 @@ of_sites <- unique(substring(list.files(oneflux_path,"*"),5,10))
 # list files
 files <- list.files(
   oneflux_path,
-  utils::glob2rx(paste0("*FULLSET_DD*.csv")),
+  utils::glob2rx(paste0("*FULLSET_HH*.csv")),
   full.names = TRUE,
   recursive = TRUE
 )
 
-one_flux_sites <- amf_site_info() %>%
+oneflux_sites <- amf_site_info() %>%
  filter(
   SITE_ID %in% of_sites
  )
 
-saveRDS(one_flux_sites, file = "data-raw/meta-data/oneflux_meta-data.rds", compress = "xz")
+saveRDS(oneflux_sites, file = "data-raw/meta-data/oneflux_meta-data.rds", compress = "xz")
 }
 
 #---- ICOS meta-data ----
@@ -112,3 +113,53 @@ icos_list <- icos_list %>%
 	left_join(years)
 
 saveRDS(icos_list, file = "data-raw/meta-data/icos_meta-data.rds", compress = "xz")
+
+#---- fluxnet2015 meta-data ----
+
+fluxnet_list <- read_csv("data-raw/meta_data/fluxnet2015_site_list.csv") %>%
+  filter(
+    license == "CC-BY-4.0"
+  ) %>%
+  select(-product)
+
+fluxnet_sites <- unique(substring(list.files(fluxnet_path,"*"),5,10))
+
+fluxnet_list <- fluxnet_list %>%
+  filter(id %in% fluxnet_sites)
+
+fluxnet_files <- list.files(
+  fluxnet_path,
+  glob2rx("*FULLSET_DD*"),
+  recursive = TRUE,
+  full.names = TRUE
+)
+
+years <- lapply(fluxnet_sites, function(site){
+
+  df <- read.table(
+    fluxnet_files[grep(site, fluxnet_files)],
+    header = TRUE,
+    sep = ",")
+
+  year_end <- max(as.numeric(substr(df$TIMESTAMP,1,4)))
+  year_start <- min(as.numeric(substr(df$TIMESTAMP,1,4)))
+
+  return(
+    data.frame(
+      sitename = site,
+      year_start,
+      year_end
+    ))
+})
+
+years <- bind_rows(years)
+
+fluxnet_list <- fluxnet_list %>%
+  rename(
+    'sitename' = 'id'
+  ) %>%
+  left_join(years)
+
+saveRDS(fluxnet_list, file = "data-raw/meta_data/fluxnet_meta-data.rds", compress = "xz")
+
+

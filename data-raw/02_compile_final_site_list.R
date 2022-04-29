@@ -9,7 +9,7 @@ library(MODISTools)
 # order or preference of the data
 
 # 1. ICOS X
-icos <- readRDS("data-raw/icos_meta-data.rds") %>%
+icos <- readRDS("data-raw/meta_data/icos_meta-data.rds") %>%
   rename(
     'elev' = 'elevation',
     'date_start' = 'year_start',
@@ -29,7 +29,7 @@ icos <- readRDS("data-raw/icos_meta-data.rds") %>%
   )
 
 # 2. OneFlux
-oneflux <- readRDS("data-raw/oneflux_meta-data.rds") %>%
+oneflux <- readRDS("data-raw/meta_data/oneflux_meta-data.rds") %>%
   filter(
     DATA_POLICY != "LEGACY"
   ) %>%
@@ -55,38 +55,59 @@ oneflux <- readRDS("data-raw/oneflux_meta-data.rds") %>%
     product = "oneflux"
   )
 
-# 3. ameriflux
-ameriflux <- readRDS("data-raw/amf_meta-data.rds") %>%
-  filter(
-    DATA_POLICY != "LEGACY"
-  ) %>%
-  mutate(
-    DATA_START = ifelse(is.na(DATA_START),as.numeric(TOWER_BEGAN), DATA_START)
-  ) %>%
+# 3. fluxnet / ameriflux
+
+fluxnet <- readRDS("data-raw/meta_data/fluxnet_meta-data.rds") %>%
   rename(
-    'sitename' = 'SITE_ID',
-    'lat' = 'LOCATION_LAT',
-    'lon' = 'LOCATION_LONG',
-    'elv' = 'LOCATION_ELEV',
-    'date_start' = 'DATA_START',
-    'date_end' = 'DATA_END',
-    'koeppen_code' = 'CLIMATE_KOEPPEN'
+    'lat' = 'latitude',
+    'lon' = 'longitude',
+    'elv' = 'altitude',
+    'date_start' = 'year_start',
+    'date_end' = 'year_end'
   ) %>%
   dplyr::select(
     sitename,
     lat,
     lon,
     elv,
-    koeppen_code,
     date_start,
     date_end
-  )%>%
+  ) %>%
   mutate(
-    product = "ameriflux"
+    product = "fluxnet2015"
   )
 
+# ameriflux <- readRDS("data-raw/meta_data/amf_meta-data.rds") %>%
+#   filter(
+#     DATA_POLICY != "LEGACY"
+#   ) %>%
+#   mutate(
+#     DATA_START = ifelse(is.na(DATA_START),as.numeric(TOWER_BEGAN), DATA_START)
+#   ) %>%
+#   rename(
+#     'sitename' = 'SITE_ID',
+#     'lat' = 'LOCATION_LAT',
+#     'lon' = 'LOCATION_LONG',
+#     'elv' = 'LOCATION_ELEV',
+#     'date_start' = 'DATA_START',
+#     'date_end' = 'DATA_END',
+#     'koeppen_code' = 'CLIMATE_KOEPPEN'
+#   ) %>%
+#   dplyr::select(
+#     sitename,
+#     lat,
+#     lon,
+#     elv,
+#     koeppen_code,
+#     date_start,
+#     date_end
+#   )%>%
+#   mutate(
+#     product = "ameriflux"
+#   )
+
 # 4. plumber
-plumber <- readRDS("data-raw/plumber_meta-data.rds") %>%
+plumber <- readRDS("data-raw/meta_data/plumber_meta-data.rds") %>%
   rename(
     'lat' = 'latitude',
     'lon' =  'longitude',
@@ -120,13 +141,12 @@ oneflux <- oneflux %>%
 
 df <- full_join(df, oneflux)
 
-ameriflux <- ameriflux %>%
+fluxnet <- fluxnet %>%
   filter(
     !(sitename %in% df$sitename)
   )
 
-df <- full_join(df, ameriflux)
-
+df <- full_join(df, fluxnet)
 
 plumber <- plumber %>%
   filter(
@@ -157,10 +177,10 @@ df <- df %>%
 loc <- data.frame(lon = df$lon, lat = df$lat)
 
 # get the koeppen geiger values
-kg <- raster("data-raw/KG/Beck_KG_V1_present_0p0083.tif")
+kg <- raster("data-raw/ancillary_data/koeppen_geiger/Beck_KG_V1_present_0p0083.tif")
 kg_v <- raster::extract(kg, loc)
 kg_key <- read.table(
-  "data-raw/KG/key.csv",
+  "data-raw/ancillary_data/koeppen_geiger/key.csv",
   header = TRUE,
   sep = ","
 )
@@ -189,7 +209,7 @@ df <- df %>%
   )
 
 # get water holding capacity
-whc <- raster("data-raw/field_capacity/field_capacity.tif")
+whc <- raster("data-raw/ancillary_data/field_capacity/field_capacity.tif")
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
@@ -212,7 +232,7 @@ igbp <- apply(df, 1, function(x){
 df$igbp_land_use <- igbp
 
 igbp_key <- read.table(
-  "data-raw/igbp_key.csv",
+  "data-raw/ancillary_data/igbp_key.csv",
   header = TRUE,
   sep = ","
 )
