@@ -65,6 +65,6 @@ if (freq == "hh"){
 
   saveRDS(
     data,
-    "data/p_model_drivers/site_based_drivers_fluxnet2015.rds",
+    "data/p_model_drivers/site_based_drivers.rds",
     compress = "xz")
 }
