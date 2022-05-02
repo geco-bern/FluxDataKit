@@ -232,6 +232,11 @@ for modelling purposes. Products required, data volumes and storage
 paths are listed below. Detailed links to original publications and data
 are provided below.</p>
 <table class="table">
+<colgroup>
+<col width="23%">
+<col width="50%">
+<col width="26%">
+</colgroup>
 <thead><tr class="header">
 <th>product</th>
 <th align="center">data volume</th>
@@ -241,12 +246,17 @@ are provided below.</p>
 <tr class="odd">
 <td>rooting zone water storage</td>
 <td align="center">~80MB</td>
-<td align="left"><code>data-raw/ancillary/cwdx80/</code></td>
+<td align="left"><code>data-raw/ancillary_data/cwdx80/</code></td>
 </tr>
 <tr class="even">
 <td>Koeppen-Geiger</td>
 <td align="center">~22MB</td>
-<td align="left"><code>data-raw/ancillary/koeppen_geigen/</code></td>
+<td align="left"><code>data-raw/ancillary_data/koeppen_geiger/</code></td>
+</tr>
+<tr class="odd">
+<td>field capacity</td>
+<td align="center">~4MB</td>
+<td align="left"><code>data-raw/ancillary_data/field_capacity/</code></td>
 </tr>
 </tbody>
 </table>
@@ -263,15 +273,27 @@ work by <a href="https://www.nature.com/articles/sdata2018214" class="external-l
 al. 2018</a>. Data can be downloaded from the <a href="http://www.gloh2o.org/koppen/" class="external-link">project website</a> but is also
 included in the repository due to its small size.</p>
 </div>
+<div class="section level4">
+<h4 id="field-capacity-included-in-repo">Field capacity (included in repo)<a class="anchor" aria-label="anchor" href="#field-capacity-included-in-repo"></a>
+</h4>
+<p>Koeppen-Geiger climate classifications are downloaded from the recent
+work by <a href="https://www.nature.com/articles/sdata2018214" class="external-link">Beck et
+al. 2018</a>. Data can be downloaded from the <a href="http://www.gloh2o.org/koppen/" class="external-link">project website</a> but is also
+included in the repository due to its small size.</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="remote-sensing-data">Remote sensing data<a class="anchor" aria-label="anchor" href="#remote-sensing-data"></a>
 </h3>
 <p>We include various MODIS products to complement the flux data. Data
-are downloaded from Google Earth Engine using the gee_subset python
-toolkit using the {ingestr} package. Data are stored in a product by
-product basis. in the <code>data-raw/modis/</code> directory. Data is
-downloaded using the <code>02_download_modis_data.R</code> script.</p>
+are downloaded from Google Earth Engine (GEE) using the gee_subset
+python toolkit using the {ingestr} package. Data are stored in a product
+by product basis. in the <code>data-raw/modis/</code> directory. Data is
+downloaded using the <code>02_download_modis_data.R</code> script and
+raw data stored in <code>data-raw/modis/raw</code>.</p>
+<p>Note that downloading this data requires a functioning GEE API
+instance on your computer. For setup instructions we refer to <a href="https://developers.google.com/earth-engine/guides/python_install" class="external-link">the
+GEE docs</a>.</p>
 <blockquote>
 <p>Note that you will need to compile the meta-data list first (see
 meta-data article).</p>
@@ -284,9 +306,69 @@ meta-data article).</p>
 </tr></thead>
 <tbody><tr class="odd">
 <td>MODXXX</td>
-<td align="center">~80MB</td>
-<td align="left"><code>data-raw/modis/XZY/</code></td>
+<td align="center">~7GB</td>
+<td align="left"><code>data-raw/modis/raw/</code></td>
 </tr></tbody>
+</table>
+<p>Data is subsequently compiled into a consistent tidy format organized
+by site name and stored in <code>data/modis_data.rds</code> using the
+<code>05_combine_modis_data.R</code> script.</p>
+<p>Below you find a table of all downloaded data products we consider
+relevant within the context of model development. These might be
+expanded over time.</p>
+<table class="table">
+<colgroup>
+<col width="24%">
+<col width="48%">
+<col width="26%">
+</colgroup>
+<thead><tr class="header">
+<th>product</th>
+<th align="left">band</th>
+<th align="left">multiplier</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD15A3H#bands" class="external-link">MCD15A3H</a></td>
+<td align="left">Fpar</td>
+<td align="left">0.01</td>
+</tr>
+<tr class="even">
+<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD15A3H#bands" class="external-link">MCD15A3H</a></td>
+<td align="left">Lai</td>
+<td align="left">0.1</td>
+</tr>
+<tr class="odd">
+<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD15A2H" class="external-link">MOD15A2H</a></td>
+<td align="left">Fpar_500m</td>
+<td align="left">0.01</td>
+</tr>
+<tr class="even">
+<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD15A2H" class="external-link">MOD15A2H</a></td>
+<td align="left">Lai_500m</td>
+<td align="left">0.1</td>
+</tr>
+<tr class="odd">
+<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MOD17A2H" class="external-link">MOD17A2H</a></td>
+<td align="left">Gpp</td>
+<td align="left">0.0001</td>
+</tr>
+<tr class="even">
+<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A1" class="external-link">MOD11A1</a></td>
+<td align="left">LST_Day_1km</td>
+<td align="left">0.02</td>
+</tr>
+<tr class="odd">
+<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD43A4" class="external-link">MCD43A4</a></td>
+<td align="left">Nadir_Reflectance_Band(1-7)</td>
+<td align="left">0.0001</td>
+</tr>
+<tr class="even">
+<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MODOCGA" class="external-link">MODOCGA</a></td>
+<td align="left">sur_refl_b(08-15)</td>
+<td align="left">0.0001</td>
+</tr>
+</tbody>
 </table>
 </div>
 </div>

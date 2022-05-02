@@ -147,13 +147,35 @@ is also included in the repository due to its small size.
 ## Remote sensing data
 
 We include various MODIS products to complement the flux data. Data are downloaded
-from Google Earth Engine using the gee_subset python toolkit using the {ingestr}
+from Google Earth Engine (GEE) using the gee_subset python toolkit using the {ingestr}
 package. Data are stored in a product by product basis. in the `data-raw/modis/`
-directory. Data is downloaded using the `02_download_modis_data.R` script.
+directory. Data is downloaded using the `02_download_modis_data.R` script and
+raw data stored in `data-raw/modis/raw`.
+
+Note that downloading this data requires a functioning GEE API instance on your
+computer. For setup instructions we refer to [the GEE docs](https://developers.google.com/earth-engine/guides/python_install).
 
 > Note that you will need to compile the meta-data list first 
 (see meta-data article).
 
 | product   |      data volume      |  data path |
 |-----------|:---------------------:|:-----------|
-| MODXXX |  ~80MB | `data-raw/modis/XZY/`
+| MODXXX |  ~7GB | `data-raw/modis/raw/`
+
+Data is subsequently compiled into a consistent tidy format organized by site
+name and stored in `data/modis_data.rds` using the `05_combine_modis_data.R` 
+script.
+
+Below you find a table of all downloaded data products we consider relevant
+within the context of model development. These might be expanded over time.
+
+| product   |      band      |  multiplier |
+|-----------|:---------------------|:-----------|
+| [MCD15A3H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD15A3H#bands) |  Fpar | 0.01
+| [MCD15A3H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD15A3H#bands) |  Lai | 0.1
+| [MOD15A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD15A2H) | Fpar_500m | 0.01 
+| [MOD15A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD15A2H) | Lai_500m | 0.1 
+| [MOD17A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MOD17A2H) | Gpp | 0.0001 
+| [MOD11A1](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A1) | LST_Day_1km | 0.02
+| [MCD43A4](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD43A4) | Nadir_Reflectance_Band(1-7) | 0.0001 
+| [MODOCGA](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MODOCGA) | sur_refl_b(08-15) | 0.0001
