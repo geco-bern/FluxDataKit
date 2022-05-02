@@ -61,9 +61,6 @@
 <li>
       <a href="../articles/01_setup.html">Setup and data provenance</a>
     </li>
-    <li>
-      <a href="../articles/02_meta-data.html">Compile meta-data</a>
-    </li>
   </ul>
 </li>
         
@@ -138,6 +135,25 @@ fixes will be provided to facilitate this process further.</p>
 <code>data-raw/</code> base path. Before running any scripts, check if
 data is written to this directory. When you want to alter the storage
 location you may use soft links.</p>
+<div class="section level3">
+<h3 id="meta-data">Meta data<a class="anchor" aria-label="anchor" href="#meta-data"></a>
+</h3>
+<p>Meta-data is compiled on a site by site basis using the
+<code>01_collect_meta-data.R</code> script. This will compile all easily
+available meta-data through either API calls or scraping the data
+downloaded in the previous step (setup / data collection).</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/01_collect_meta-data.R"</span><span class="op">)</span></code></pre></div>
+<p>Given the various datasets, and at times overlap between the datasets
+a priority in processing is given to more recent (hopefully) and more
+complete datasets. In order of processing this means that OneFlux has
+priority over FLUXNET2015, and Plumber2. ICOS data has priority over
+FLUXNET2015 for European sites. Overall, Plumber2 mostly fills in the
+remaining sites in Asia and Australia. The final picking order is
+thus:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/02_compile_final_site_list.R"</span><span class="op">)</span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="flux-data">Flux data<a class="anchor" aria-label="anchor" href="#flux-data"></a>
 </h3>
@@ -310,9 +326,6 @@ meta-data article).</p>
 <td align="left"><code>data-raw/modis/raw/</code></td>
 </tr></tbody>
 </table>
-<p>Data is subsequently compiled into a consistent tidy format organized
-by site name and stored in <code>data/modis_data.rds</code> using the
-<code>05_combine_modis_data.R</code> script.</p>
 <p>Below you find a table of all downloaded data products we consider
 relevant within the context of model development. These might be
 expanded over time.</p>
@@ -370,6 +383,9 @@ expanded over time.</p>
 </tr>
 </tbody>
 </table>
+<p>Data is subsequently compiled into a consistent tidy format organized
+by site name and stored in <code>data/modis_data.rds</code> using the
+<code>05_combine_modis_data.R</code> script.</p>
 </div>
 </div>
   </div>

@@ -60,6 +60,28 @@ By default the data will be downloaded to a directory with the `data-raw/`
 base path. Before running any scripts, check if data is written to this directory.
 When you want to alter the storage location you may use soft links.
 
+## Meta data
+
+Meta-data is compiled on a site by site basis using the
+`01_collect_meta-data.R` script. This will compile all easily available
+meta-data through either API calls or scraping the data downloaded in the
+previous step (setup / data collection).
+
+```r
+source("data-raw/01_collect_meta-data.R")
+```
+
+Given the various datasets, and at times overlap between the datasets a priority
+in processing is given to more recent (hopefully) and more complete datasets. In
+order of processing this means that OneFlux has priority over FLUXNET2015, and 
+Plumber2. ICOS data has priority over FLUXNET2015 for European sites. Overall, 
+Plumber2 mostly fills in the remaining sites in Asia and Australia. The final
+picking order is thus:
+
+```r
+source("data-raw/02_compile_final_site_list.R")
+```
+
 ## Flux data
 
 All ecosystem flux sources should be downloaded at half-hourly (HH) rates, unless
@@ -162,9 +184,6 @@ computer. For setup instructions we refer to [the GEE docs](https://developers.g
 |-----------|:---------------------:|:-----------|
 | MODXXX |  ~7GB | `data-raw/modis/raw/`
 
-Data is subsequently compiled into a consistent tidy format organized by site
-name and stored in `data/modis_data.rds` using the `05_combine_modis_data.R` 
-script.
 
 Below you find a table of all downloaded data products we consider relevant
 within the context of model development. These might be expanded over time.
@@ -179,3 +198,7 @@ within the context of model development. These might be expanded over time.
 | [MOD11A1](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A1) | LST_Day_1km | 0.02
 | [MCD43A4](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD43A4) | Nadir_Reflectance_Band(1-7) | 0.0001 
 | [MODOCGA](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MODOCGA) | sur_refl_b(08-15) | 0.0001
+
+Data is subsequently compiled into a consistent tidy format organized by site
+name and stored in `data/modis_data.rds` using the `05_combine_modis_data.R` 
+script.
