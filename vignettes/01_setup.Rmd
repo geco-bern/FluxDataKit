@@ -201,4 +201,4 @@ within the context of model development. These might be expanded over time.
 
 Data is subsequently compiled into a consistent tidy format organized by site
 name and stored in `data/modis_data.rds` using the `05_combine_modis_data.R` 
-script.
+script. For details on the products we refer to the links in the table above.
