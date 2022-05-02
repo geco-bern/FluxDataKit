@@ -134,7 +134,7 @@ format_drivers_site <- function(
     path = "data-raw/flux_data/plumber_fluxnet/"
   }
 
-  if (product == "ameriflux"){
+  if (product == "fluxnet2015"){
     path = "data-raw/flux_data/fluxnet2015/"
   }
 
