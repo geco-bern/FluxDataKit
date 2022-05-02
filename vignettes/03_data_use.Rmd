@@ -1,0 +1,15 @@
+---
+title: "Data use"
+author: "Koen Hufkens"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data use}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+The (main) data is `rsofun` p-model compatible data. This means that the data
+can be used to run the model (and optimizations) as is. We'll include a small
+worked example below but refer to the `rsofun` 
+[documentation](https://computationales.github.io/rsofun/articles/pmodel_use.html)
+for more details.
