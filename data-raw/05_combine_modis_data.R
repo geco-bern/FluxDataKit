@@ -1,9 +1,10 @@
 # Combine MODIS products
 library(tidyverse)
 
+# list all sites
 sites <- readRDS("data/flux_data_kit_site-info.rds")
-#sites <- sites[1:2,]
 
+# gather data
 data <- sites %>%
   group_by(sitename) %>%
   do({
@@ -14,6 +15,9 @@ data <- sites %>%
       glob2rx(sprintf("%s*.csv",
             .$sitename)),
       full.names = TRUE)
+
+    print(files)
+    break
 
     # loop over files, read and reshuffle
     # into consistent long format
@@ -27,4 +31,5 @@ data <- sites %>%
   }) %>%
   nest()
 
+# save all data (compressed)
 saveRDS(data, file = "data/modis_data.rds", compress = "xz")
