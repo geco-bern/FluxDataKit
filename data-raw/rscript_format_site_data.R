@@ -14,7 +14,7 @@ source("R/prepare_setup_sofun.R")
 # read sites data frame
 df_sites <- readRDS("data/flux_data_kit_site-info.rds")
 
-data <- df_sites %>%
+data <- df_sites[1:2,] %>%
   rowwise() %>%
   do({
 
@@ -49,7 +49,7 @@ data <- df_sites %>%
 # some Ameriflux sites are not
 # available
 data <- data %>%
-  filter(!is.null(forcing))
+ filter(!is.null(forcing))
 
 if (freq == "hh"){
 

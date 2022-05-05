@@ -1,7 +1,7 @@
 # quality control on the compiled data
 
 library(tidyverse)
-library(ggforce)
+#library(ggforce)
 library(patchwork)
 
 # read data

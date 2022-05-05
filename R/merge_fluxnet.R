@@ -1,7 +1,5 @@
-
-
 merge_fluxnet <- function(
-  plumber = "/scratch/plumber/"
+  plumber = "/scratch/plumber/",
   icos_etc = "/scratch/CES/ICOS_2021/"
   #icos_drought
 ) {
@@ -46,5 +44,3 @@ merge_fluxnet <- function(
   # in the same way)
 
 }
-
-merge_icos()

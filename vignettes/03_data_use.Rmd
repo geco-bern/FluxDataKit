@@ -13,3 +13,35 @@ can be used to run the model (and optimizations) as is. We'll include a small
 worked example below but refer to the `rsofun` 
 [documentation](https://computationales.github.io/rsofun/articles/pmodel_use.html)
 for more details.
+
+```{r}
+# read in the data
+
+
+```
+
+
+```{r}
+# optimized parameters from previous
+# work
+params_modl <- list(
+    kphio           = 0.09423773,
+    soilm_par_a     = 0.33349283,
+    soilm_par_b     = 1.45602286,
+    tau_acclim_tempstress = 10,
+    par_shape_tempstress  = 0.0
+  )
+```
+
+
+```{r}
+# run the model for these parameters
+output <- rsofun::runread_pmodel_f(
+  p_model_drivers,
+  par = params_modl
+  )
+```
+
+
+
+

@@ -23,6 +23,14 @@ sites <- readRDS("../data/flux_data_kit_site-info.rds") %>%
     'end' = 'year_end',
     'IGBP' = 'igbp_land_use'
   )
+
+data <- readRDS("../data/p_model_drivers/site_based_drivers.rds")
+
+sites <- sites %>%
+  filter(
+    !c(sitename %in% data$sitename)
+  )
+
 ```
 
 <center>
@@ -34,7 +42,7 @@ leaflet(sites) %>%
 </center>
 <br><br>
 
-The below table lists all sites, for which we also provide a [CSV file](https://github.com/computationales/flux_data_kit/raw/main/data/flux_data_kit_site-info.csv). In the table below we list the FLUXNET abbreviation of all sites, their geographic location and elevation, the source of the data (icos, fluxnet2015, oneflux, plumber), the Koeppen-Geiger code, start and end year, water holding capacity (whc) and IGBP land cover class.
+The below table lists all sites available, for which we also provide a [CSV file](https://github.com/computationales/flux_data_kit/raw/main/data/flux_data_kit_site-info.csv). In the table below we list the FLUXNET abbreviation of all sites, their geographic location and elevation, the source of the data (icos, fluxnet2015, oneflux, plumber), the Koeppen-Geiger code, start and end year, water holding capacity (whc) and IGBP land cover class. This list includes 233 sites (or 1835 site years), from a total of 302. Roughly 70 sites were not included in the final data product due to missing (site specific) data which would limit usability in terms of consistent use for modelling efforts. Further consider that this is the total extent of the data irrespective of further screening of input variables.
 
 ---
 
