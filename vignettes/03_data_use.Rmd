@@ -8,6 +8,8 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
+# p-model use
+
 The (main) data is `rsofun` p-model compatible data. This means that the data
 can be used to run the model (and optimizations) as is. We'll include a small
 worked example below but refer to the `rsofun` 
@@ -26,6 +28,10 @@ library(rsofun)
 
 # read in the data, only retain the first two sites for this demo
 df <- readRDS("../data/p_model_drivers/site_based_drivers.rds")[1:2,]
+modis <- readRDS("../data/modis_data.rds") %>%
+  rename(
+    'modis' = 'data'
+  )
 ```
 
 
@@ -60,3 +66,28 @@ output <- rsofun::runread_pmodel_f(
 
 print(output)
 ```
+
+# MODIS data
+
+By default the provided MODIS data in this repository is not merged with the
+p-model drivers. To combine both datasets you can simply merge them by
+sitename.
+
+```{r eval = FALSE}
+# load modis data and rename the data column
+modis <- readRDS("data/modis_data.rds") %>%
+  rename(
+    'modis' = 'data'
+  )
+```
+
+Then do a simple left join on the available p-model data.
+
+```{r}
+# join datas
+df <- left_join(df, modis, by = "sitename")
+print(df)
+```
+All MODIS data is provided in a long format, so a conversion to a wide format
+sorted by date is required before merging it with the forcing data as provided
+for p-model model exercises.
