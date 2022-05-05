@@ -14,12 +14,28 @@ worked example below but refer to the `rsofun`
 [documentation](https://computationales.github.io/rsofun/articles/pmodel_use.html)
 for more details.
 
-```{r}
-# read in the data
+Take note that not for all sites there is full coverage of the GPP data, these values
+are then reported as NA. NA values should be handled per ususal in R and are safely
+ignored during model optimization in `rsofun`. For more details on model optimization
+we refer to the [vignette in the rsofun package](https://computationales.github.io/rsofun/articles/pmodel_use.html#calibrating-model-parameters).
 
+```{r include=FALSE}
+#library(Matrix) # hack because tidyverse bug ffs
+library(dplyr)
+library(rsofun)
 
+# read in the data, only retain the first two sites for this demo
+df <- readRDS("../data/p_model_drivers/site_based_drivers.rds")[1:2,]
 ```
 
+
+```{r eval=FALSE}
+library(rsofun)
+library(dplyr)
+
+# read in the data
+df <- readRDS("data/p_model_drivers/site_based_drivers.rds")[1:2,]
+```
 
 ```{r}
 # optimized parameters from previous
@@ -37,11 +53,10 @@ params_modl <- list(
 ```{r}
 # run the model for these parameters
 output <- rsofun::runread_pmodel_f(
-  p_model_drivers,
-  par = params_modl
+  drivers = df,
+  par = params_modl,
+  makecheck = FALSE
   )
+
+print(output)
 ```
-
-
-
-

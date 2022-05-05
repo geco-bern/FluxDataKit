@@ -100,6 +100,43 @@ means that the data can be used to run the model (and optimizations) as
 is. We’ll include a small worked example below but refer to the
 <code>rsofun</code> <a href="https://computationales.github.io/rsofun/articles/pmodel_use.html" class="external-link">documentation</a>
 for more details.</p>
+<p>Take note that not for all sites there is full coverage of the GPP
+data, these values are then reported as NA. NA values should be handled
+per ususal in R and are safely ignored during model optimization in
+<code>rsofun</code>. For more details on model optimization we refer to
+the <a href="https://computationales.github.io/rsofun/articles/pmodel_use.html#calibrating-model-parameters" class="external-link">vignette
+in the rsofun package</a>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/computationales/rsofun" class="external-link">rsofun</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span>
+
+<span class="co"># read in the data</span>
+<span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/p_model_drivers/site_based_drivers.rds"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,<span class="op">]</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># optimized parameters from previous</span>
+<span class="co"># work</span>
+<span class="va">params_modl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
+    kphio           <span class="op">=</span> <span class="fl">0.09423773</span>,
+    soilm_par_a     <span class="op">=</span> <span class="fl">0.33349283</span>,
+    soilm_par_b     <span class="op">=</span> <span class="fl">1.45602286</span>,
+    tau_acclim_tempstress <span class="op">=</span> <span class="fl">10</span>,
+    par_shape_tempstress  <span class="op">=</span> <span class="fl">0.0</span>
+  <span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># run the model for these parameters</span>
+<span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">rsofun</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rsofun/man/runread_pmodel_f.html" class="external-link">runread_pmodel_f</a></span><span class="op">(</span>
+  drivers <span class="op">=</span> <span class="va">df</span>,
+  par <span class="op">=</span> <span class="va">params_modl</span>,
+  makecheck <span class="op">=</span> <span class="cn">FALSE</span>
+  <span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## <span style="color: #949494;"># A tibble: 2 × 3</span></span>
+<span class="co">## <span style="color: #949494;"># Rowwise: </span></span>
+<span class="co">##   sitename site_info         data      </span>
+<span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span>
+<span class="co">## <span style="color: #BCBCBC;">1</span> SE-Nor   <span style="color: #949494;">&lt;tibble [1 × 11]&gt;</span> <span style="color: #949494;">&lt;list [2]&gt;</span></span>
+<span class="co">## <span style="color: #BCBCBC;">2</span> BE-Bra   <span style="color: #949494;">&lt;tibble [1 × 11]&gt;</span> <span style="color: #949494;">&lt;list [2]&gt;</span></span></code></pre>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
