@@ -166,6 +166,12 @@ format_drivers_site <- function(
     timescale= "hh"
   )
 
+  # GPP conversion factor
+  # in FLUXNET given in umolCO2 m-2 s-1. converted to gC m-2 d-1
+  c_molmass <- 12.0107  # molar mass of C
+  gpp_coversion <- 1e-6 * 60 * 60 * 24 * c_molmass
+
+
   #----- Calculate daily values from half-hourly measurements ----
 
   if (freq != "hh"){
@@ -176,20 +182,26 @@ format_drivers_site <- function(
       ) %>%
       group_by(date) %>%
       summarize(
-        # Daily summary values, all quite
-        # normal
-        #gpp = sum(gpp, na.rm = TRUE),
+
+        # Daily summary values
         gpp = ifelse(
           length(which(!is.na(gpp)) >= length(gpp) ),
           mean(gpp, na.rm = TRUE),
           NA
         ),
-        temp = mean(temp, na.rm = TRUE),
+
         tmin = min(temp, na.rm = TRUE),
+
         tmax = max(temp, na.rm = TRUE),
+
+        temp = mean(temp, na.rm = TRUE),
+
         prec = sum(prec, na.rm = TRUE),
+
         vpd = mean(vpd, na.rm = TRUE),
+
         patm = mean(patm, na.rm = TRUE),
+
         # radiation values are averages for
         # days with more than 50% of values
         # available
@@ -198,11 +210,23 @@ format_drivers_site <- function(
           mean(netrad, na.rm = TRUE),
           NA
         ),
+
         ppfd = ifelse(
           length(which(!is.na(ppfd)) > length(ppfd) * 0.5 ),
           mean(ppfd, na.rm = TRUE),
           NA
-        )
+        ),
+
+        # tally the number of HH values
+        # included in the dialy data for QA/QC
+        gpp_qc = length(which(!is.na(gpp))),
+        temp_qc = length(which(!is.na(temp))),
+        prec_qc = length(which(!is.na(prec))),
+        vpd_qc = length(which(!is.na(vpd))),
+        patm_qc = length(which(!is.na(patm))),
+        netrad_qc = length(which(!is.na(netrad))),
+        ppdf_qc = length(which(!is.na(ppfd)))
+
       ) %>%
       mutate(
         tmin = ifelse(is.infinite(tmin), NA, tmin),
@@ -284,10 +308,12 @@ format_drivers_site <- function(
 
     settings_gee <- get_settings_gee(
         bundle            = "modis_fpar",
-        python_path       = "/usr/bin/python3", # doesn't matter data should be downloaded
+        # doesn't matter data should be downloaded
+        python_path       = "/usr/bin/python3",
         gee_path          = "./src/gee_subset/src/gee_subset",
         data_path         = "data-raw/modis/",
-        method_interpol   = "loess",
+        # use linear interpolation (good enough and simple/ predictable)
+        method_interpol   = "linear",
         keep              = FALSE,
         overwrite_raw     = FALSE,
         overwrite_interpol= TRUE
@@ -308,7 +334,6 @@ format_drivers_site <- function(
         dplyr::mutate(
           data = purrr::map(data, ~ dplyr::mutate(., fapar = loess))
           )
-
   }
 
   #---- Format p-model driver data ----

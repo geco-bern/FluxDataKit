@@ -1,7 +1,8 @@
 # Should be run as a job
 # or a script on the command line
 
-# load required libraries
+# load required libraries (refresh local install)
+try(detach("package:ingestr", unload = TRUE))
 library(ingestr)
 
 # set sites
@@ -11,27 +12,27 @@ sites$year_end <- as.numeric(format(Sys.Date(), "%Y"))
 
 bundles <-
   c(
-    "modis_fpar",
-    "modis_lst_aqua",
-    "modis_lst_terra",
-    "modis_lai",
-    "modis_gpp",
-    "modis_refl_1",
-    "modis_refl_2",
-    "modis_refl_3",
-    "modis_refl_4",
-    "modis_refl_5",
-    "modis_refl_6",
-    "modis_refl_7",
-    "modis_refl_8",
-    "modis_refl_9",
-    "modis_refl_10",
-    "modis_refl_11",
-    "modis_refl_12",
-    "modis_refl_13",
-    "modis_refl_14",
-    "modis_refl_15",
-    "modis_refl_16"
+    #"modis_fpar",
+    # "modis_lst_aqua",
+    # "modis_lst_terra",
+    # "modis_lai",
+    # "modis_gpp",
+    # "modis_refl_1",
+    # "modis_refl_2",
+    # "modis_refl_3",
+    # "modis_refl_4",
+    # "modis_refl_5",
+    # "modis_refl_6",
+    # "modis_refl_7"
+    "modis_refl_8"
+    # "modis_refl_9",
+    # "modis_refl_10",
+    # "modis_refl_11",
+    # "modis_refl_12",
+    # "modis_refl_13",
+    # "modis_refl_14",
+    # "modis_refl_15",
+    # "modis_refl_16"
   )
 
 lapply(bundles, function(bundle){
@@ -47,20 +48,21 @@ lapply(bundles, function(bundle){
     python_path       = "/usr/bin/python3", # on linux
     gee_path          = "./src/gee_subset/src/gee_subset",
     data_path         = "data-raw/modis/",
-    method_interpol   = ifelse(bundle == "modis_fpar","loess","none"),
-    keep              = TRUE,
+    method_interpol   = ifelse(bundle == "modis_fpar","linear","linear"),
+    keep              = FALSE,
     overwrite_raw     = FALSE,
     overwrite_interpol= TRUE
   )
 
   # run the ingest routine
   df_modis <-
-      ingest(
+      try(ingest(
       sites,
       source = "gee",
       settings = settings_gee,
       parallel = FALSE
-    )
+    ))
 
+  break
   return(invisible())
 })
