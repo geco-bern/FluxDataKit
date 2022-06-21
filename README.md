@@ -1,14 +1,15 @@
 # Fluxnet aggregation project
 
 This project is the framework used to create the LEMONTREE flux data kit, a
-dataset with consistent model drivers for use and re-use. The data (as of publication)
-sources from various ecosystem flux data providers or datasets, most prominently 
-these are the FLUXNET2015 dataset, the OneFlux data, an amended version of FLUXNET2015,
-ICOS processed data, and Plumber2 data. The latter includes many of the AsiaFlux
-and OzFlux sites, in addition to FLUXNET2015.
+dataset with consistent model drivers for use and re-use. The formatting of the
+data follows the requirements of the [rsofun]() package. However, additional
+fields will be included to expand research into the domains of machine learning.
 
-In order to ensure transparency to the provenance of all data we document the
-workflow in various articles.
+The data sources from various ecosystem flux data providers 
+or datasets, most prominently these are the FLUXNET2015 dataset, the OneFlux 
+data (an amended version of FLUXNET2015), ICOS processed data, and Plumber2 data.
+The latter includes many of the AsiaFlux and OzFlux sites, in addition to the 
+FLUXNET2015 dataset.
 
 ## Flux data selection
 
@@ -21,21 +22,49 @@ picking order is thus:
 
 - ICOS
 - OneFlux
-- FLUXNET2015
-- Plumber2
-
-### Processing
+- Plumber2 (FLUXNET2015)
 
 All data are (currently) aggregated to a daily level to limit the file size and
-ease of handling the data. Upon request the data can be processed at the half-hourly
-resolution of the source flux data. Data will then be processed on a site-by-site
-basis to reduce the final dimensions of the data.
+ease of handling the data. In order to address issues of corrections to
+meteorological and flux data we use the [FluxnetLSM]() framework and the workflow
+as described for constructing the [Plumber2 dataset]().
 
-## Ancillary MODIS data
+## Data structure
 
-For many modelling efforts ancillary MODIS remote sensing data is required in order
-to support these efforts. In this context estimates of FAPAR/LAI come to mind. We
-therefore include a selection of common MODIS data products in the flux data kit. We did not interpolate the data, this will remain the prerogative of the user.
+### p-model drivers
+
+We used the gapfilled and corrected FluxnetLSM data to provide p-model driver
+data. The required fields include:
+
+| variable | unit | description |
+| :--- | :--- | :--- |
+| date | day (YYYY-MM-DD) | date |
+| temp | C | daily mean temperature |
+| prec | mm | precipitation |
+| vpd |  | vapour pressure deficit |
+| ppfd |  | photosynthetic photon flux density |
+| patm | Pa | atmospheric pressure |
+| ccov | % | cloud cover |
+| ccov_int | % | cloud cover |
+| snow | mm | precipitaton as snow |
+| rain | mm | precipitation |
+| fapar |  | fraction of photosynthetic active radiation (sourced from FluxnetEO) |
+| co2 | ppm | atmospheric co2 concentration |
+| doy | integer | Day of Year |
+| tmin | C | daily minimum temperature |
+| tmax | C | daily maximum temperature |
+
+Most of these fields are taken from the *in-situ* ERA-Interim gapfilled FluxnetLSM
+processed fluxes of the products mentioned above. Sites are not screened for
+completeness to ensure reasonable coverage. The latter is deferred to the user
+as this depends on use cases.
+
+### ancillary remote sensing data
+
+For machine learning or other modelling purposes we provide ancillary MODIS
+based remote sensing data as described in the FluxnetEO dataset. We refer to
+the original publication and our [FluxnetEO]() package for easy reading and
+processing of the data.
 
 ## Acknowledgements
 

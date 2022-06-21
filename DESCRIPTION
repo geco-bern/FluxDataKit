@@ -13,7 +13,8 @@ Description: A processing workflow for aggregated flux and remote sensing data.
 License: AGPL-3
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    dplyr
 VignetteBuilder:
     knitr
 Encoding: UTF-8
