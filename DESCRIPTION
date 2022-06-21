@@ -11,6 +11,8 @@ Authors@R: c(
     )
 Description: A processing workflow for aggregated flux and remote sensing data.
 License: AGPL-3
+Imports:
+    tidyverse
 Suggests:
     knitr,
     rmarkdown,
