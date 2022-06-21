@@ -85,8 +85,8 @@
 <div class="section level1">
 <div class="page-header"><h1 id="fluxnet-aggregation-project">Fluxnet aggregation project<a class="anchor" aria-label="anchor" href="#fluxnet-aggregation-project"></a>
 </h1></div>
-<p>This project is the framework used to create the LEMONTREE flux data kit, a dataset with consistent model drivers for use and re-use. The data (as of publication) sources from various ecosystem flux data providers or datasets, most prominently these are the FLUXNET2015 dataset, the OneFlux data, an amended version of FLUXNET2015, ICOS processed data, and Plumber2 data. The latter includes many of the AsiaFlux and OzFlux sites, in addition to FLUXNET2015.</p>
-<p>In order to ensure transparency to the provenance of all data we document the workflow in various articles.</p>
+<p>This project is the framework used to create the LEMONTREE flux data kit, a dataset with consistent model drivers for use and re-use. The formatting of the data follows the requirements of the <a href="">rsofun</a> package. However, additional fields will be included to expand research into the domains of machine learning.</p>
+<p>The data sources from various ecosystem flux data providers or datasets, most prominently these are the FLUXNET2015 dataset, the OneFlux data (an amended version of FLUXNET2015), ICOS processed data, and Plumber2 data. The latter includes many of the AsiaFlux and OzFlux sites, in addition to the FLUXNET2015 dataset.</p>
 <div class="section level2">
 <h2 id="flux-data-selection">Flux data selection<a class="anchor" aria-label="anchor" href="#flux-data-selection"></a>
 </h2>
@@ -94,19 +94,113 @@
 <ul>
 <li>ICOS</li>
 <li>OneFlux</li>
-<li>FLUXNET2015</li>
-<li>Plumber2</li>
+<li>Plumber2 (FLUXNET2015)</li>
 </ul>
-<div class="section level3">
-<h3 id="processing">Processing<a class="anchor" aria-label="anchor" href="#processing"></a>
-</h3>
-<p>All data are (currently) aggregated to a daily level to limit the file size and ease of handling the data. Upon request the data can be processed at the half-hourly resolution of the source flux data. Data will then be processed on a site-by-site basis to reduce the final dimensions of the data.</p>
-</div>
+<p>All data are (currently) aggregated to a daily level to limit the file size and ease of handling the data. In order to address issues of corrections to meteorological and flux data we use the <a href="">FluxnetLSM</a> framework and the workflow as described for constructing the <a href="">Plumber2 dataset</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="ancillary-modis-data">Ancillary MODIS data<a class="anchor" aria-label="anchor" href="#ancillary-modis-data"></a>
+<h2 id="data-structure">Data structure<a class="anchor" aria-label="anchor" href="#data-structure"></a>
 </h2>
-<p>For many modelling efforts ancillary MODIS remote sensing data is required in order to support these efforts. In this context estimates of FAPAR/LAI come to mind. We therefore include a selection of common MODIS data products in the flux data kit. We did not interpolate the data, this will remain the prerogative of the user.</p>
+<div class="section level3">
+<h3 id="p-model-drivers">p-model drivers<a class="anchor" aria-label="anchor" href="#p-model-drivers"></a>
+</h3>
+<p>We used the gapfilled and corrected FluxnetLSM data to provide p-model driver data. The required fields include:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">variable</th>
+<th align="left">unit</th>
+<th align="left">description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">date</td>
+<td align="left">day (YYYY-MM-DD)</td>
+<td align="left">date</td>
+</tr>
+<tr class="even">
+<td align="left">temp</td>
+<td align="left">C</td>
+<td align="left">daily mean temperature</td>
+</tr>
+<tr class="odd">
+<td align="left">prec</td>
+<td align="left">mm</td>
+<td align="left">precipitation</td>
+</tr>
+<tr class="even">
+<td align="left">vpd</td>
+<td align="left"></td>
+<td align="left">vapour pressure deficit</td>
+</tr>
+<tr class="odd">
+<td align="left">ppfd</td>
+<td align="left"></td>
+<td align="left">photosynthetic photon flux density</td>
+</tr>
+<tr class="even">
+<td align="left">patm</td>
+<td align="left">Pa</td>
+<td align="left">atmospheric pressure</td>
+</tr>
+<tr class="odd">
+<td align="left">ccov</td>
+<td align="left">%</td>
+<td align="left">cloud cover</td>
+</tr>
+<tr class="even">
+<td align="left">ccov_int</td>
+<td align="left">%</td>
+<td align="left">cloud cover</td>
+</tr>
+<tr class="odd">
+<td align="left">snow</td>
+<td align="left">mm</td>
+<td align="left">precipitaton as snow</td>
+</tr>
+<tr class="even">
+<td align="left">rain</td>
+<td align="left">mm</td>
+<td align="left">precipitation</td>
+</tr>
+<tr class="odd">
+<td align="left">fapar</td>
+<td align="left"></td>
+<td align="left">fraction of photosynthetic active radiation (sourced from FluxnetEO)</td>
+</tr>
+<tr class="even">
+<td align="left">co2</td>
+<td align="left">ppm</td>
+<td align="left">atmospheric co2 concentration</td>
+</tr>
+<tr class="odd">
+<td align="left">doy</td>
+<td align="left">integer</td>
+<td align="left">Day of Year</td>
+</tr>
+<tr class="even">
+<td align="left">tmin</td>
+<td align="left">C</td>
+<td align="left">daily minimum temperature</td>
+</tr>
+<tr class="odd">
+<td align="left">tmax</td>
+<td align="left">C</td>
+<td align="left">daily maximum temperature</td>
+</tr>
+</tbody>
+</table>
+<p>Most of these fields are taken from the <em>in-situ</em> ERA-Interim gapfilled FluxnetLSM processed fluxes of the products mentioned above. Sites are not screened for completeness to ensure reasonable coverage. The latter is deferred to the user as this depends on use cases.</p>
+</div>
+<div class="section level3">
+<h3 id="ancillary-remote-sensing-data">ancillary remote sensing data<a class="anchor" aria-label="anchor" href="#ancillary-remote-sensing-data"></a>
+</h3>
+<p>For machine learning or other modelling purposes we provide ancillary MODIS based remote sensing data as described in the FluxnetEO dataset. We refer to the original publication and our <a href="">FluxnetEO</a> package for easy reading and processing of the data.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
