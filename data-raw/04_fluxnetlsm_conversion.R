@@ -2,19 +2,21 @@ try(detach("package:FluxnetLSM", unload = TRUE))
 library(FluxnetLSM)
 library(tidyverse)
 
+# select datasets / sites to process
 datasets <- c("fluxnet2015","icos","oneflux")
 sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
   filter(
     product != "plumber"
   )
 
+# loop over all datasets and sites
 lapply(datasets, function(dataset){
 
   message(sprintf("---- processing product: %s", dataset))
 
   site_selection <- sites %>%
     filter(
-      product == dataset
+      product == !!dataset
     )
 
   lapply(site_selection$sitename, function(site_code){
@@ -27,7 +29,7 @@ lapply(datasets, function(dataset){
     ERA_path <- file.path("data-raw/flux_data", dataset)
 
     #Outputs will be saved to this directory
-    out_path <- file.path("data/fluxnetlsm",dataset)
+    out_path <- file.path("data/fluxnetlsm", dataset)
 
     #--- Automatically retrieve all Fluxnet files in input directory ---#
 
@@ -75,9 +77,7 @@ lapply(datasets, function(dataset){
       )
     }
 
-    ###############################
-    ###--- Optional settings ---###
-    ###############################
+    #---- Settings ----
 
     #Retrieve default processing options
     conv_opts <- get_default_conversion_options()
@@ -85,17 +85,33 @@ lapply(datasets, function(dataset){
     # Set gapfilling options to ERAinterim
     conv_opts$met_gapfill  <- "ERAinterim"
 
-    ##########################
-    ###--- Run analysis ---###
-    ##########################
+    # Thresholds for missing and gap-filled time steps
+    missing_met <- 100   #max. percent missing (must be set)
+    missing_flux <- 100
+    gapfill_met_tier1 <- 100  #max. gapfilled percentage
+    gapfill_met_tier2 <- 100
+    gapfill_flux <- 100
+    min_yrs <- 1   #min. number of consecutive years
 
-    try(convert_fluxnet_to_netcdf(
-      site_code = site_code,
-      infile = infile,
-      era_file=era_file,
-      out_path = out_path,
-      conv_opts = conv_opts
-    ))
+    #---- Run analysis ----
+
+    try(
+      convert_fluxnet_to_netcdf(
+        infile = infile,
+        site_code = site_code,
+        out_path = out_path,
+        met_gapfill = "ERAinterim",
+        flux_gapfill = "statistical",
+        era_file = era_file,
+        missing_met = missing_met,
+        missing_flux = missing_flux,
+        gapfill_met_tier1 = gapfill_met_tier1,
+        gapfill_met_tier2 = gapfill_met_tier2,
+        gapfill_flux=gapfill_flux, min_yrs=min_yrs,
+        check_range_action = "warn",
+        include_all_eval=TRUE
+      )
+    )
 
   })
 
