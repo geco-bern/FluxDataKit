@@ -10,7 +10,7 @@
 #' @return dataframe with read in nc values
 #' @export
 
-read_plumber <- function(
+fdk_read_plumber <- function(
   file,
   meta_data = FALSE
   ){

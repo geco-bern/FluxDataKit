@@ -19,7 +19,7 @@
 #' @return returns an rsofun compatible driver file for the provided
 #'  sites
 
-format_drivers_site <- function(
+fdk_format_drivers <- function(
   siteinfo,
   params_siml = list(
     spinup             = TRUE,  # to bring soil moisture to steady state

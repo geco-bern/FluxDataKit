@@ -5,3 +5,5 @@
 data-raw/flux_data/
 data-raw/modis/
 data-raw/ancillary/
+data/fluxnetlsm
+data/fluxnetlsm_corrected
