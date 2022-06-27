@@ -14,16 +14,12 @@ fdk_balance_energy <- function(
 
   #Method is from: https://github.com/AmeriFlux/ONEFlux
 
-  library(chron)
-
   #Save original values for later use
   qle_all    <- qle
   qle_all_qc <- qle_qc
 
   qh_all    <- qh
   qh_all_qc <- qh_qc
-
-
 
   ### Hour of day ###
   hod_vec <- format(time, format="%H:%M:%S")
@@ -94,12 +90,9 @@ fdk_balance_energy <- function(
   higher <- median + 1.5*iqr
   lower  <- median - 1.5*iqr
 
-
   #Mask value outside range
   ebcf[ebcf < lower]  <- NA
   ebcf[ebcf > higher] <- NA
-
-
 
   ### Mask out sunrise and sunset times ###
 
