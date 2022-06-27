@@ -99,8 +99,19 @@
 <p>All data are (currently) aggregated to a daily level to limit the file size and ease of handling the data. In order to address issues of corrections to meteorological and flux data we use the <a href="">FluxnetLSM</a> framework and the workflow as described for constructing the <a href="">Plumber2 dataset</a>.</p>
 </div>
 <div class="section level2">
+<h2 id="workflow--plumber-x">Workflow &amp; PLUMBER-X<a class="anchor" aria-label="anchor" href="#workflow--plumber-x"></a>
+</h2>
+<p>The back-end of the package leverages the FluxnetLSM and FluxnetEO packages to create a workflow which is largely consistent with the code to generate the PLUMBER2 dataset (see exceptions below), while integrating the FluxnetEO dataset to provide ancillary remote sensing data (for machine learning processes). In short, as a side effect of the generation of the p-model driver data one can create land surface model compatible data (in line with the PLUMBER2 dataset).</p>
+</div>
+<div class="section level2">
 <h2 id="data-structure">Data structure<a class="anchor" aria-label="anchor" href="#data-structure"></a>
 </h2>
+<div class="section level3">
+<h3 id="plumber-x">PLUMBER-X<a class="anchor" aria-label="anchor" href="#plumber-x"></a>
+</h3>
+<p>As an intermediate step to the generation of the p-model driver data the package creates a dataset in line with the PLUMBER2 land surface modelling dataset. These data aren’t necessarily retained (as temporary intermediates), but one can specify to retain these temporary files if they serve a purpose within your workflow. The workflow also allows for rolling releases of PLUMBER-X datasets as soon as new FLUXNET compatible data releases come available. For the goals of the PLUMBER dataset I refert to the original publication (<a href="https://essd.copernicus.org/articles/14/449/2022/essd-14-449-2022.pdf" class="external-link">Ukkola et al. 2022</a>). The workflow as outlined below (and in the paper) is followed aside from selecting MODIS as the default LAI product (and providing additional FPAR data using the same workflow), and for consistency only global annual CO2 data is used and no site level measurements.</p>
+<p><img src="https://essd.copernicus.org/articles/14/449/2022/essd-14-449-2022-f01.png"></p>
+</div>
 <div class="section level3">
 <h3 id="p-model-drivers">p-model drivers<a class="anchor" aria-label="anchor" href="#p-model-drivers"></a>
 </h3>
