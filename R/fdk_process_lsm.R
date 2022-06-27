@@ -13,8 +13,9 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
 fdk_process_lsm <- function(
     df,
     out_path,
-    format = "netcdf"
-    ){
+    format = "fluxnet",
+    save_tmp_files = TRUE
+    ) {
 
   # create full path
   df$data_path <- file.path(df$data_path, df$product)
@@ -25,7 +26,7 @@ fdk_process_lsm <- function(
       message(sprintf("-- processing site: %s", x['sitename']))
 
       # Outputs will be saved to this directory
-      tmp_path <- file.path(tempdir(), "fluxnetlsm")
+      tmp_path <- file.path(tempdir(), "fluxnetlsm", x['sitename'])
 
       if ( x['product'] != "fluxnet2015"){
         infile <- FluxnetLSM::get_fluxnet_files(
@@ -102,25 +103,85 @@ fdk_process_lsm <- function(
         )
       )
 
+      if(!inherits(status, "try-error")){
+        warning("conversion failed --- skipping")
+        return(invisible())
+      }
+
       #----- Corrections ----
 
-      if(!inherits(status, "try-error")){
+      message("applying corrections")
 
-        message("applying corrections")
+      #----- Downloading and adding MODIS data ----
 
+      if(FALSE) {
+
+        modis_data <- fdk_download_modis(
+          df,
+          path
+        )
+
+        # Define variable:
+        laivar <- ncvar_def(
+          'LAI_MODIS',
+          '-',
+          list(site_nc[[s]]$dim[[1]], site_nc[[s]]$dim[[2]], site_nc[[s]]$dim[[3]]),
+          missval=-9999,
+          longname='MODIS 8-daily LAI'
+        )
+
+        # Add variable and then variable data:
+        site_nc[[s]] <- ncvar_add(
+          site_nc[[s]],
+          laivar
+        )
+
+        ncvar_put(
+          site_nc[[s]],
+          'LAI_MODIS',
+          modis_tseries
+        )
+
+        #Close file handle
+        nc_close(site_nc[[s]])
       }
 
 
-      #----- Cleanup ----
+      #----- Convert to FLUXNET formatting ----
 
-      if(!inherits(status, "try-error")){
+      if(format == "fluxnet") {
 
-        message("cleanup temporary files...")
-        unlink(tmp_path, recursive = T)
+        message("converting to fluxnet")
+
+        message("saving data in your output directory")
       }
-
-
     })
+
+  #---- cleanup of files ----
+
+  # copy "raw" netcdf files to output path
+  # if requested (format != fluxnet)
+  if(format != "fluxnet") {
+    nc_files <- list.files(
+      path = file.path(tempdir(), "fluxnetlsm"),
+      pattern = "*.nc",
+      recursive = TRUE,
+      full.names = TRUE
+    )
+
+    file.copy(
+      from = nc_files,
+      to = out_path,
+      overwrite = TRUE
+    )
+  }
+
+  # delete tmp files if requested
+  if (!save_tmp_files) {
+    message("cleanup all temporary files...")
+    unlink(file.path(tempdir(), "fluxnetlsm"), recursive = T)
+  }
+
 }
 
 fdk_process_lsm(sites)
