@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Setup and data provenance • flux-data-kit</title>
+<title>Setup and data provenance • FluxDataKit</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/apple-touch-icon.png">
@@ -19,7 +19,7 @@
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><!-- ropensci --><link href="../ceslabs.css" rel="stylesheet">
 <meta property="og:title" content="Setup and data provenance">
-<meta property="og:description" content="flux-data-kit">
+<meta property="og:description" content="FluxDataKit">
 <meta name="twitter:card" content="summary">
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -44,7 +44,7 @@
         <a class="external-link hidden-md hidden-lg" href="https://computationales.ethz.ch/">
           <img src="https://avatars.githubusercontent.com/u/93120344" id="hexlogo" alt="bluegreen labs"></a>
         <a class="navbar-brand" href="../index.html">
-           <i>flux-data-kit <small>v0.1</small></i>
+           <i>FluxDataKit <small>v0.9</small></i>
         </a>
       </div>
     </div>
@@ -60,6 +60,12 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/01_setup.html">Setup and data provenance</a>
+    </li>
+    <li>
+      <a href="../articles/02_data_coverage.html">Data coverage</a>
+    </li>
+    <li>
+      <a href="../articles/03_data_use.html">Data use</a>
     </li>
   </ul>
 </li>
@@ -97,27 +103,27 @@ Hufkens</h4>
 <p>and install all critical packages required in gathering and
 processing the data.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
-    <span class="st">"devtools"</span>,
-    <span class="st">"rvest"</span>,
-    <span class="st">"tidyverse"</span>,
-    <span class="st">"icoscp"</span>,
-    <span class="st">"RCurl"</span>,
-    <span class="st">"XML"</span>,
-    <span class="st">"amerifluxr"</span>,
-    <span class="st">"raster"</span>,
-    <span class="st">"MODISTools"</span>
-  <span class="op">)</span>
-<span class="op">)</span>
-
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span>
-  <span class="st">"computationales/ingestr"</span>
-<span class="op">)</span>
-
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span>
-  <span class="st">"computationales/rsofun"</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"devtools"</span>,</span>
+<span>    <span class="st">"rvest"</span>,</span>
+<span>    <span class="st">"tidyverse"</span>,</span>
+<span>    <span class="st">"icoscp"</span>,</span>
+<span>    <span class="st">"RCurl"</span>,</span>
+<span>    <span class="st">"XML"</span>,</span>
+<span>    <span class="st">"amerifluxr"</span>,</span>
+<span>    <span class="st">"raster"</span>,</span>
+<span>    <span class="st">"MODISTools"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span></span>
+<span>  <span class="st">"computationales/ingestr"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span></span>
+<span>  <span class="st">"computationales/rsofun"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>With all tools installed we need to download the required input data
 for aggregation.</p>
 </div>
@@ -143,7 +149,7 @@ location you may use soft links.</p>
 available meta-data through either API calls or scraping the data
 downloaded in the previous step (setup / data collection).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/01_collect_meta-data.R"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/01_collect_meta-data.R"</span><span class="op">)</span></span></code></pre></div>
 <p>Given the various datasets, and at times overlap between the datasets
 a priority in processing is given to more recent (hopefully) and more
 complete datasets. In order of processing this means that OneFlux has
@@ -152,7 +158,7 @@ FLUXNET2015 for European sites. Overall, Plumber2 mostly fills in the
 remaining sites in Asia and Australia. The final picking order is
 thus:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/02_compile_final_site_list.R"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/02_compile_final_site_list.R"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="flux-data">Flux data<a class="anchor" aria-label="anchor" href="#flux-data"></a>
