@@ -1,4 +1,23 @@
 
+#' Flux corrections
+#'
+#' Additional flux corrections
+#'
+#' @param infile_flux
+#' @param qc_info
+#' @param outfile_flux
+#' @param outdir
+#' @param new_qc
+#' @param qle_name
+#' @param qh_name
+#' @param rnet_name
+#' @param qg_name
+#' @param qle_cor_name
+#' @param qh_cor_name
+#'
+#' @return
+#' @export
+
 flux_corrections <- function(
     infile_flux,
     qc_info,
@@ -11,6 +30,7 @@ flux_corrections <- function(
     qg_name="Qg",
     qle_cor_name="Qle_cor", qh_cor_name="Qh_cor"
 ) {
+
 
   ################################################
   #########------ Flux corrections ------#########

@@ -1,14 +1,16 @@
-#library(tidyverse)
-library(dplyr)
-library(FluxnetLSM)
 
-# select datasets / sites to process
-datasets <- c("fluxnet2015","icos","oneflux")
-sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
-  filter(
-    product != "plumber",
-    sitename == "AT-Neu"
-  )
+#' Generate LSM data
+#'
+#' Convert FLUXNET data to land surface model compatible netcdf files, using
+#' the FluxnetLSM package and PLUMBER2 based workflows.
+#'
+#' @param df dataframe with sites to process
+#' @param out_path output directory
+#' @param format the format of the output (fluxnet = FLUXNET formatting)
+#' @param save_tmp_files retain temporary files (TRUE or FALSE)
+#'
+#' @return
+#' @export
 
 fdk_process_lsm <- function(
     df,
@@ -183,6 +185,4 @@ fdk_process_lsm <- function(
   }
 
 }
-
-fdk_process_lsm(sites)
 

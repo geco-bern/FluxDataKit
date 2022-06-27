@@ -31,7 +31,7 @@ As an intermediate step to the generation of the p-model driver data the package
 We used the gapfilled and corrected FluxnetLSM data to provide p-model driver data. The required fields include:
 
 | variable | unit             | description                                                          |
-|:-----------------------|:-----------------------|:-----------------------|
+|:-----------------------|:-----------------------|:-------------------------------------------------|
 | date     | day (YYYY-MM-DD) | date                                                                 |
 | temp     | C                | daily mean temperature                                               |
 | prec     | mm               | precipitation                                                        |

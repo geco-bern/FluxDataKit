@@ -1,11 +1,14 @@
-# library(ncdf4)
-# library(zoo)
-library(tidyverse)
 
-bla <- readRDS("data/flux_data_kit_site-info.rds") %>%
-  filter(
-    sitename == "AT-Neu"
-  )
+#' Download MODIS LAI/FPAR
+#'
+#' Download MODIS LAI/FPAR data and save data to file
+#' or return internally
+#'
+#' @param df
+#' @param path
+#'
+#' @return
+#' @export
 
 fdk_download_modis <- function(
   df,
@@ -24,20 +27,20 @@ fdk_download_modis <- function(
     "FparLai_QC"
   )
 
-df_modis <- try(
-      MODISTools::mt_subset(
-      site_name = as.character(df['sitename']),
-      lat = df['lat'],
-      lon = df['lon'],
-      product = product,
-      band = bands,
-      start = "2000-01-01",
-      end = format(Sys.time(), "%Y-%m-%d"),
-      km_lr = 1,
-      km_ab = 1,
-      internal = TRUE
-    )
-  )
+# df_modis <- try(
+#       MODISTools::mt_subset(
+#       site_name = as.character(df['sitename']),
+#       lat = df['lat'],
+#       lon = df['lon'],
+#       product = product,
+#       band = bands,
+#       start = "2000-01-01",
+#       end = format(Sys.time(), "%Y-%m-%d"),
+#       km_lr = 1,
+#       km_ab = 1,
+#       internal = TRUE
+#     )
+#   )
 
 
   # if(inherits(df_modis, "try-error") ) {
@@ -45,7 +48,7 @@ df_modis <- try(
   # }
 
 
-  saveRDS(df_modis, "data/modis.rds")
+  # saveRDS(df_modis, "data/modis.rds")
   df_modis <- readRDS("data/modis.rds")
 
   # remove pixels not surrounding
@@ -129,18 +132,14 @@ df_modis <- try(
     ) |>
     ungroup()
 
-  print(str(lai))
-  print(str(lai_ts))
-  plot(as.Date(lai_ts$calendar_date), lai_ts$lai_w)
-
   ######################################
   ### Gapfill and smooth with spline ###
   ######################################
 
-  #Set x values
+  # Set x values
   x <- 1:nrow(lai_ts)
 
-  #Define spline function
+  # Define spline function
   func <- splinefun(
     x = x,
     y = lai_ts$lai_w,
@@ -148,11 +147,11 @@ df_modis <- try(
     ties = mean
     )
 
-  #Gapfill with spline (and cap negative values)
+  # Gapfill with spline (and cap negative values)
   lai_spline <- func(seq(min(x), max(x), by=1))
   lai_spline[lai_spline < 0] <- 0
 
-  #Smooth with spline (and cap negative values)
+  # Smooth with spline (and cap negative values)
   smooth_lai_ts = smooth.spline(x, lai_spline)$y
   smooth_lai_ts[smooth_lai_ts < 0] <- 0
 
@@ -368,23 +367,5 @@ df_modis <- try(
   if (any(is.na(modis_tseries))) { stop("Missing values in final MODIS time series")}
 
 
-  ######################################
-  ### Add LAI time series to NC file ###
-  ######################################
-
-  #Save to file
-
-  # Define variable:
-  laivar = ncvar_def('LAI_MODIS', '-', list(site_nc[[s]]$dim[[1]], site_nc[[s]]$dim[[2]], site_nc[[s]]$dim[[3]]),
-                     missval=-9999,longname='MODIS 8-daily LAI')
-  # Add variable and then variable data:
-  site_nc[[s]] = ncvar_add(site_nc[[s]], laivar)
-  ncvar_put(site_nc[[s]], 'LAI_MODIS', modis_tseries)
-
-  #Close file handle
-  nc_close(site_nc[[s]])
 
 }
-
-fdk_download_modis(df = bla)
-

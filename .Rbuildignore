@@ -7,7 +7,6 @@
 ^data$
 ^analysis$
 ^vignettes$
-^R$
 ^src$
 
 # R-markdown files in the root folder.

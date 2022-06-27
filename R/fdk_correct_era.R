@@ -1,10 +1,23 @@
+#' Corrects ERA data
+#'
+#' Corrects ERA data of a FluxnetLSM file (changes the file)
+#' locally, if a path is provided a new file is created.
+#'
+#' @param infile_met input netcdf filename
+#' @param outfile_met optional output netcdf filename
+#' @param outdir output directory
+#' @param qc_info quality control info
+#' @param new_qc quality control parameters
+#'
+#' @return corrects an existing ERA-Interim FluxnetLSM file in place
+#' @export
+
 fdk_correct_era <- function(
     infile_met,
     outfile_met,
     outdir,
     qc_info,
-    new_qc,
-    global_co2
+    new_qc
     ) {
 
   # check that qc_info matches site
@@ -285,8 +298,7 @@ fdk_correct_era <- function(
   #Open file handle
   nc_out <- nc_open(outfile_met, write=TRUE)
 
-
-  #MODIS
+  # MODIS
   if (qc_info$LAI == "MODIS") {
 
     default_lai    <- "LAI_MODIS"
@@ -296,7 +308,7 @@ fdk_correct_era <- function(
     alt_source <- "Copernicus"
 
 
-  #Copernicus
+  # Copernicus
   } else if (qc_info$LAI == "Copernicus") {
 
 
@@ -306,28 +318,33 @@ fdk_correct_era <- function(
     alt_lai    <- "LAI_MODIS"
     alt_source <- "MODIS"
 
-
-  #Else stop
+  # Else stop
   } else if (!is.na(qc_info$LAI)) {
     stop("Incorrect LAI specified in qc_info")
   }
 
 
-  #Rename LAI
+  # Rename LAI
   nc_out <- ncvar_rename(nc_out, default_lai, "LAI")
   nc_out <- ncvar_rename(nc_out, alt_lai, "LAI_alternative")
 
 
-  #Add source in attribute data
-  ncatt_put(nc=nc_out, varid="LAI",
-            attname="source", attval=default_source)
+  # Add source in attribute data
+  ncatt_put(
+    nc = nc_out,
+    varid="LAI",
+    attname="source",
+    attval=default_source
+    )
 
-  ncatt_put(nc=nc_out, varid="LAI_alternative",
-            attname="source", attval=alt_source)
-
+  ncatt_put(
+    nc = nc_out,
+    varid = "LAI_alternative",
+    attname = "source",
+    attval = alt_source
+    )
 
   #Close file handle
   nc_close(nc_out)
 
-
-} #function
+}

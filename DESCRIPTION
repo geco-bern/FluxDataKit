@@ -1,6 +1,6 @@
-Package: flux-data-kit
+Package: FluxDataKit
 Title: Flux Data Kit
-Version: 0.1
+Version: 0.9
 Authors@R: c(
   person(
     family = "Hufkens",
@@ -12,14 +12,14 @@ Authors@R: c(
 Description: A processing workflow for aggregated flux and remote sensing data.
 License: AGPL-3
 Depends:
-    R (>=4.2)
+    R (>= 4.2)
 Imports:
     tidyverse,
     chron,
     ncdf4,
     stats,
-    utils,
-    tools
+    tools,
+    utils
 Suggests:
     knitr,
     rmarkdown,
@@ -28,4 +28,4 @@ VignetteBuilder:
     knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.2.0
