@@ -1,13 +1,10 @@
 
 #' Download MODIS LAI/FPAR
 #'
-#' Download MODIS LAI/FPAR data and save data to file
-#' or return internally
+#' @param df data frame with site info
+#' @param path path where to store the data
 #'
-#' @param df
-#' @param path
-#'
-#' @return
+#' @return smoothed time series of LAI/FPAR
 #' @export
 
 fdk_download_modis <- function(
@@ -15,9 +12,19 @@ fdk_download_modis <- function(
   path
   ) {
 
-  print("bla")
+  #----- settings and startup -----
 
-  # Download MODIS data
+  # Exception for US-ORv, wetland site with no MODIS LAI available
+  if (df['sitename'] == "US-ORv") return(NULL)
+
+  # extract the range of the data to consider
+  # and where required extrapolate to missing
+  # years
+  start_year <- as.numeric(df['year_start'])
+  end_year <- as.numeric(df['year_end'])
+
+  # set products and band names for the
+  # download
   product <- "MCD15A2H"
   bands <- c(
     "Lai_500m",
@@ -26,6 +33,8 @@ fdk_download_modis <- function(
     "Fpar_500m",
     "FparLai_QC"
   )
+
+  #----- data download -----
 
 # df_modis <- try(
 #       MODISTools::mt_subset(
@@ -42,54 +51,37 @@ fdk_download_modis <- function(
 #     )
 #   )
 
-
   # if(inherits(df_modis, "try-error") ) {
   #   stop("MODIS data download failed")
   # }
 
-
-  # saveRDS(df_modis, "data/modis.rds")
+  #saveRDS(df_modis, "data/modis.rds")
   df_modis <- readRDS("data/modis.rds")
 
-  # remove pixels not surrounding
-  # the center pixel and only
-  # retain good quality data
+  #----- QC screening -----
 
-  lai <- df_modis |>
-    filter(
-      band == "Lai_500m"
-    ) |>
-    mutate(
-      value = value * as.numeric(scale)
+  # apply scaling factors, ignore if not available
+  df_modis <- df_modis |>
+    dplyr::mutate(
+      value = ifelse(!is.na(as.numeric(scale)),
+                     value * as.numeric(scale),
+                     value),
+      calendar_date = as.Date(calendar_date)
     )
 
-  qc <- df_modis |>
-    filter(
-      band == "FparLai_QC"
-    ) |>
-    select(
-      calendar_date, pixel, value
+  df_modis <- df_modis |>
+    pivot_wider(
+      id_cols = c(site, calendar_date, pixel),
+      names_from = band,
+      values_from = value
     ) |>
     rename(
-      'qc' = 'value'
+      'lai' = 'Lai_500m',
+      'sd_lai' = 'LaiStdDev_500m',
+      'sd_fpar' = 'FparStdDev_500m',
+      'fpar' = 'Fpar_500m',
+      'qc' = 'FparLai_QC'
     )
-
-  sd <- df_modis |>
-    filter(
-      band == "LaiStdDev_500m"
-    ) |>
-    mutate(
-      value = value * as.numeric(scale)
-    ) |>
-    select(
-      calendar_date, pixel, value
-    ) |>
-    rename(
-      'sd' = 'value'
-    )
-
-  lai <- left_join(lai, qc)
-  lai <- left_join(lai, sd)
 
   # Extracting pixels in the centre and immediately around it (*)
   # These correspond to a radius of 500m around site coordinates
@@ -99,67 +91,78 @@ fdk_download_modis <- function(
   # Random bit integer format, ask Martin if need to work these out again...
   qc_flags <- c(0, 2, 24 ,26, 32, 34, 56, 58)
 
-  lai <- lai |>
+  df_modis <- df_modis |>
     mutate(
-      value = ifelse(
+      lai = ifelse(
         !(qc %in% qc_flags),
         NA,
-        value
+        lai
       ),
-      value = ifelse(is.na(sd), NA, value),
-      value = ifelse(value > 10, NA, value)
+      fpar = ifelse(
+        !(qc %in% qc_flags),
+        NA,
+        fpar
+      ),
+      lai = ifelse(is.na(sd_lai), NA, lai),
+      lai = ifelse(lai > 10, NA, lai),
+      fpar = ifelse(is.na(sd_fpar), NA, fpar),
+      fpar = ifelse(fpar > 1, NA, fpar)
     ) |>
     filter(
       pixel %in% pixel_no
     )
 
-  #Exception for US-ORv, wetland site with no MODIS LAI available
-  if (df['sitename'] == "US-ORv") return(NULL)
+  #---- Apply weighted mean ----
 
-  lai <- lai |>
+  df_modis_mean <- df_modis |>
     group_by(site, calendar_date) |>
     mutate(
-      c = n(),
-      weights = (1/sd^2) / sum(1/sd^2, na.rm=TRUE)
+      weights_lai = (1/sd_lai^2) / sum(1/sd_lai^2, na.rm=TRUE),
+      weights_fpar = (1/sd_lai^2) / sum(1/sd_lai^2, na.rm=TRUE)
     ) |>
-    ungroup()
-
-  lai_ts <- lai |>
-    group_by(site, calendar_date) |>
     summarize(
-      test = mean(value, na.rm = TRUE),
-      lai_w = stats::weighted.mean(value, w = weights, na.rm = TRUE)
+      lai = stats::weighted.mean(lai, w = weights_lai, na.rm = TRUE),
+      fpar = stats::weighted.mean(fpar, w = weights_lai, na.rm = TRUE)
     ) |>
     ungroup()
 
-  ######################################
-  ### Gapfill and smooth with spline ###
-  ######################################
+  #---- expand dates ----
 
-  # Set x values
-  x <- 1:nrow(lai_ts)
+  # use full years only FIX FIX FIX
+  dates <- seq.Date(
+    min(df_modis_mean$calendar_date),
+    max(df_modis_mean$calendar_date),
+    by = "day"
+  )
 
-  # Define spline function
+  dates <- data.frame(
+    calendar_date = dates,
+    idx = 1:length(dates)
+  )
+
+  df_modis_mean <- dplyr::left_join(dates, df_modis_mean)
+
+  #---- smoothing / gapfilling ----
+
+  #Define spline function
   func <- splinefun(
-    x = x,
-    y = lai_ts$lai_w,
-    method="fmm",
+    x = df_modis_mean$idx,
+    y = df_modis_mean$lai,
+    method = "fmm",
     ties = mean
     )
 
-  # Gapfill with spline (and cap negative values)
-  lai_spline <- func(seq(min(x), max(x), by=1))
+  #Gapfill with spline (and cap negative values)
+  lai_spline <- func(df_modis_mean$idx)
   lai_spline[lai_spline < 0] <- 0
 
-  # Smooth with spline (and cap negative values)
-  smooth_lai_ts = smooth.spline(x, lai_spline)$y
+  #Smooth with spline (and cap negative values)
+  smooth_lai_ts = smooth.spline(df_modis_mean$idx, lai_spline)$y
   smooth_lai_ts[smooth_lai_ts < 0] <- 0
 
-  # #Test
+  # Test
   plot(lai_spline, type='l', ylim = c(0,10))
-  lines(lai_ts$lai_w, col='red')
-  lines(smooth_lai_ts, col='blue')
-
+  points(df_modis_mean$lai, col='red')
 
   #######################################
   ### Add missing time steps in MODIS ###
@@ -209,22 +212,20 @@ fdk_download_modis <- function(
   ### Create climatology ###
   ##########################
 
+  # Each year has 46 time steps, but first and last year are incomplete
 
-  #Each year has 46 time steps, but first and last year are incomplete
+  # Create climatological average for each time step
 
-  #Create climatological average for each time step
-
-  #Check that time series starts on 1 Jan
+  # Check that time series starts on 1 Jan
   if (!(format(lai_time[1], "%m-%d") == "01-01")) { stop("Time series does not start 1 Jan") }
 
-
-  #Find time steps for last (incomplete) year
+  # Find time steps for last (incomplete) year
   last_year <- which(grepl(modis_endyr, lai_time))
 
-  #MODIS has 46 time steps per year
+  # MODIS has 46 time steps per year
   no_tsteps <- length(which(grepl(modis_startyr , lai_time)))
 
-  #Initialise
+  # Initialise
   modis_clim <- vector(length=no_tsteps)
 
   for (c in 1:no_tsteps) {
@@ -240,7 +241,7 @@ fdk_download_modis <- function(
 
   }
 
-  #Check that no NA values
+  # Check that no NA values
   if (any(is.na(modis_clim))) {
 
     missing <- which(is.na(modis_clim))
@@ -272,12 +273,9 @@ fdk_download_modis <- function(
   #Add rolling mean anomaly to climatology
   lai_clim_anomalies <- modis_clim_all + anomaly
 
-
-
   ###################################
   ### Match with site time series ###
   ###################################
-
 
   #Get timing info for site
   site_start_time <- ncatt_get(site_nc[[s]], "time")$units
@@ -291,15 +289,15 @@ fdk_download_modis <- function(
   endyr      <- startyr + nyr - 1
 
 
-  #Add climatological values to smoothed lai time series
+  # Add climatological values to smoothed lai time series
 
   if ((startyr < modis_startyr)) {
 
-    #Overwrite original time series with new extended data
+    # Overwrite original time series with new extended data
     lai_clim_anomalies <- append(rep(modis_clim, modis_startyr - startyr),
                                  lai_clim_anomalies)
 
-    #Add new time stamps
+    # Add new time stamps
     extended_lai_time <- vector()
     for (y in startyr:(modis_startyr-1)) {
 
@@ -367,5 +365,20 @@ fdk_download_modis <- function(
   if (any(is.na(modis_tseries))) { stop("Missing values in final MODIS time series")}
 
 
+  ######################################
+  ### Add LAI time series to NC file ###
+  ######################################
+
+  #Save to file
+
+  # Define variable:
+  laivar = ncvar_def('LAI_MODIS', '-', list(site_nc[[s]]$dim[[1]], site_nc[[s]]$dim[[2]], site_nc[[s]]$dim[[3]]),
+                     missval=-9999,longname='MODIS 8-daily LAI')
+  # Add variable and then variable data:
+  site_nc[[s]] = ncvar_add(site_nc[[s]], laivar)
+  ncvar_put(site_nc[[s]], 'LAI_MODIS', modis_tseries)
+
+  #Close file handle
+  nc_close(site_nc[[s]])
 
 }

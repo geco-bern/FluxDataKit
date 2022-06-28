@@ -15,6 +15,9 @@ fdk_process_lsm(df, out_path, format = "fluxnet", save_tmp_files = TRUE)
 
 \item{save_tmp_files}{retain temporary files (TRUE or FALSE)}
 }
+\value{
+
+}
 \description{
 Convert FLUXNET data to land surface model compatible netcdf files, using
 the FluxnetLSM package and PLUMBER2 based workflows.

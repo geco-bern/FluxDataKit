@@ -21,6 +21,9 @@ flux_corrections(
 \arguments{
 \item{qh_cor_name}{}
 }
+\value{
+
+}
 \description{
 Additional flux corrections
 }

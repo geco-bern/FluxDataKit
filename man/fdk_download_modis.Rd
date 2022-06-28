@@ -7,9 +7,13 @@
 fdk_download_modis(df, path)
 }
 \arguments{
-\item{path}{}
+\item{df}{data frame with site info}
+
+\item{path}{path where to store the data}
+}
+\value{
+smoothed time series of LAI/FPAR
 }
 \description{
-Download MODIS LAI/FPAR data and save data to file
-or return internally
+Download MODIS LAI/FPAR
 }
