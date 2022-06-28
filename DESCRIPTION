@@ -19,7 +19,8 @@ Imports:
     ncdf4,
     stats,
     tools,
-    utils
+    utils,
+    zoo
 Suggests:
     knitr,
     rmarkdown,

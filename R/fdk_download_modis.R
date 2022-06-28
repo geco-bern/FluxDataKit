@@ -142,12 +142,17 @@ fdk_download_modis <- function(
 
   df_modis_mean <- dplyr::left_join(dates, df_modis_mean)
 
+  sp <- df_modis_mean %>%
+    filter(
+      !is.na(lai)
+    )
+
   #---- smoothing / gapfilling ----
 
   #Define spline function
   func <- splinefun(
-    x = df_modis_mean$idx,
-    y = df_modis_mean$lai,
+    x = sp$idx,
+    y = sp$lai,
     method = "fmm",
     ties = mean
     )
@@ -230,13 +235,13 @@ fdk_download_modis <- function(
 
   for (c in 1:no_tsteps) {
 
-    #Indices for whole years
+    # Indices for whole years
     inds <- seq(c, by=no_tsteps, length.out=floor(length(lai_time)/no_tsteps))
 
-    #Add last year if applicable
+    # Add last year if applicable
     if( c <= length(last_year)) { inds <- append(inds, last_year[c]) }
 
-    #Calculate average for time step
+    # Calculate average for time step
     modis_clim[c] <- mean(smooth_lai_ts[inds], na.rm=TRUE)
 
   }
@@ -254,35 +259,32 @@ fdk_download_modis <- function(
     }
   }
 
-
-
   ###################################
   ### Calculate running anomalies ###
   ###################################
 
-  #Initialise
+  # Initialise
   lai_clim_anomalies <- rep(NA, length(lai_time))
 
   #Repeat climatology for whole time series
   modis_clim_all <- rep_len(modis_clim, length(lai_time))
 
-
-  #Calculate running mean anomaly (+/- 6 months either side of each time step)
+  # Calculate running mean anomaly (+/- 6 months either side of each time step)
   anomaly <- rollmean(smooth_lai_ts - modis_clim_all, k=12, fill=NA)
 
-  #Add rolling mean anomaly to climatology
+  # Add rolling mean anomaly to climatology
   lai_clim_anomalies <- modis_clim_all + anomaly
 
   ###################################
   ### Match with site time series ###
   ###################################
 
-  #Get timing info for site
+  # Get timing info for site
   site_start_time <- ncatt_get(site_nc[[s]], "time")$units
   site_time       <- ncvar_get(site_nc[[s]], "time")
   site_tstep_size <- 86400 / (site_time[2] - site_time[1])
 
-  #Extract year
+  # Extract year
   startyr    <- as.numeric(substr(site_start_time, start=15, stop=18))
   obs_length <- length(site_time)
   nyr        <- round(obs_length/(site_tstep_size*365))
@@ -305,13 +307,12 @@ fdk_download_modis <- function(
                                                               by=lai_time[2]-lai_time[1], length.out=no_tsteps))
     }
 
-    #Overwrite lai_time with new time series
+    # Overwrite lai_time with new time series
     lai_time <- append(extended_lai_time, lai_time)
 
   }
 
-
-  #Check if remaining NA values from missing time steps, gapfill if found
+  # Check if remaining NA values from missing time steps, gapfill if found
   if (any(is.na(lai_clim_anomalies))) {
 
     #Find missing values
@@ -323,7 +324,7 @@ fdk_download_modis <- function(
 
   }
 
-  #Find modis time step corresponding to site start time
+  # Find modis time step corresponding to site start time
   start_ind <- which(lai_time == paste0(startyr, "-01-01"))
   end_ind   <- tail(which(grepl(endyr, lai_time)), 1) #Last index of end year
 
@@ -331,32 +332,28 @@ fdk_download_modis <- function(
   modis_ts_for_site   <- lai_clim_anomalies[start_ind:end_ind]
   modis_time_for_site <- lai_time[start_ind:end_ind]
 
-
   #Repeat modis time series to create a time series matching site time step
   modis_tseries <- vector()
 
-
-  #Loop through time steps
+  # Loop through time steps
   for (t in 1:length(modis_time_for_site)) {
 
     #Last time step
     if (t == length(modis_time_for_site)) {
 
-      #Use the number of time steps that ensures final time series matches the length of site data
+      # Use the number of time steps that ensures final time series matches the length of site data
       modis_tseries <- append(modis_tseries, rep(modis_ts_for_site[t], length(site_time) - length(modis_tseries)))
 
-      #All other time steps
+      # All other time steps
     } else {
 
       time_diff <- modis_time_for_site[t+1] - modis_time_for_site[t]
 
-      #Repeat each days estimate by the number of days and time steps per day
+      # Repeat each days estimate by the number of days and time steps per day
       modis_tseries <- append(modis_tseries, rep(modis_ts_for_site[t], time_diff * site_tstep_size))
 
     }
-
   }
-
 
   #Check that the number of time steps match
   if (length(modis_tseries) != length(site_time)) stop("MODIS and site time steps don't match")
