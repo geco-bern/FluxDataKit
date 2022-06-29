@@ -4,9 +4,6 @@
 #' locally, if a path is provided a new file is created.
 #'
 #' @param infile_met input netcdf filename
-#' @param outfile_met optional output netcdf filename
-#' @param outdir output directory
-#' @param qc_info quality control info
 #' @param new_qc quality control parameters
 #'
 #' @return corrects an existing ERA-Interim FluxnetLSM file in place
@@ -14,14 +11,8 @@
 
 fdk_correct_era <- function(
     infile_met,
-    outfile_met,
-    outdir,
-    qc_info,
     new_qc
     ) {
-
-  # check that qc_info matches site
-  if (!grepl(qc_info$Site_code, outfile_met)) stop("QC info does not match site")
 
   # - gets desired years
   # - fixes CO2 if applicable
@@ -29,16 +20,19 @@ fdk_correct_era <- function(
   # - checks that no missing values in met data
 
   # THIS SHOULD COME FROM THE FILE NOT EXTERNAL
-  site_code <- qc_info$Site_code
+  # site_code <- qc_info$Site_code
 
   # Open nc file handle
-  met_nc <- nc_open(infile_met)
+  met_nc <- ncdf4::nc_open(infile_met, write = TRUE)
+
+  # extract site code from file (global attributes)
+  site_code <- ncdf4::ncatt_get(met_nc, 0)$site_code
 
   # Get time vector
-  time <- ncvar_get(met_nc, "time")
+  time <- ncdf4::ncvar_get(met_nc, "time")
 
   # Get time units
-  time_units <- strsplit(ncatt_get(met_nc, "time")$units, "seconds since ")[[1]][2]
+  time_units <- strsplit(ncdf4::ncatt_get(met_nc, "time")$units, "seconds since ")[[1]][2]
 
   # Convert to Y-M-D h-m-s
   time_date <- as.POSIXct(time, origin=time_units, tz="GMT")
@@ -57,14 +51,14 @@ fdk_correct_era <- function(
   vars <- names(met_nc$var)
 
   # Load variable data
-  var_data <- lapply(vars, function(x) ncvar_get(met_nc, x))
+  var_data <- lapply(vars, function(x) ncdf4::ncvar_get(met_nc, x))
 
   # Set names
   names(var_data) <- vars
 
 
   # Get variable attributes
-  att_data <- lapply(vars, function(x) ncatt_get(met_nc, x))
+  att_data <- lapply(vars, function(x) ncdf4::ncatt_get(met_nc, x))
 
   #Set names
   names(att_data) <- vars
@@ -74,31 +68,27 @@ fdk_correct_era <- function(
 
   # If replacing CO2 with global CO2
 
-  if (qc_info$Global_CO2) {
+  # download/load annual mean atmospheric CO2
+  global_co2 <- read.table(
+    "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_mlo.csv",
+    header = TRUE,
+    skip = 55,
+    sep = ",")
 
-    # download/load annual mean atmospheric CO2
-    global_co2 <- read.table(
-      "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_mlo.csv",
-      header = TRUE,
-      skip = 55,
-      sep = ",")
+  # loop through years
+  co2_ts <- sapply(years, function(x) global_co2[which(global_co2 == x), 2])
 
-    # loop through years
-    co2_ts <- sapply(years, function(x) global_co2[which(global_co2 == x), 2])
+  # Replace values in CO2 variable
+  var_data$CO2air <- co2_ts
 
-    # Replace values in CO2 variable
-    var_data$CO2air <- co2_ts
+  # Set QC values to missing
+  var_data$CO2air_qc <- rep(new_qc, length(time))
 
-    # Set QC values to missing
-    var_data$CO2air_qc <- rep(new_qc, length(time))
+  # Replace gapfill percentage (now 100%)
+  att_data$CO2air["Gap-filled_%"] <- 100
 
-    # Replace gapfill percentage (now 100%)
-    att_data$CO2air["Gap-filled_%"] <- 100
-
-    #Add information to metadata
-    att_data$CO2air$CO2_correction <- "Global CO2 (annual Mauna Loa time series)"
-
-  }
+  #Add information to metadata
+  att_data$CO2air$CO2_correction <- "Global CO2 (annual Mauna Loa time series)"
 
   #---- Check for additional site corrections -----
 
@@ -118,8 +108,9 @@ fdk_correct_era <- function(
   #---- Adjust time period ----
 
   # Get years to process
-  start_yr <- qc_info$Start_year
-  end_yr   <- qc_info$End_year
+  # NOT SURE WHAT THIS EVEN DOES??
+  start_yr <- 1
+  end_yr   <- 0
 
   #---- Adjust length of time-varying variables ----
 
@@ -138,7 +129,6 @@ fdk_correct_era <- function(
     new_start_year <- years[1] + start_yr -1
     new_end_year   <- years[length(years)] + end_yr #end_yr negative so need to sum
 
-
     # Start and end indices
     start_ind <- which(years == new_start_year)[1]
     end_ind   <- tail(which(years == new_end_year), 1)
@@ -147,7 +137,10 @@ fdk_correct_era <- function(
     new_time_unit <- paste0("seconds since ", new_start_year, "-01-01 00:00:00")
 
     # New time vector
-    time_var <- seq(0, by=60*60*24 / tsteps_per_day, length.out=length(c(start_ind:end_ind)))
+    time_var <- seq(
+      0,
+      by=60*60*24 / tsteps_per_day,
+      length.out=length(c(start_ind:end_ind)))
 
     # Change dimensions and values for time-varying data
     for (v in vars[var_inds]) {
@@ -219,132 +212,109 @@ fdk_correct_era <- function(
   # Should have two available, check that they are there
 
   if (length(lai_vars) != 2) {
-    stop(paste0("LAI variables not available, check site: ", site_code))
-  }
+    warning(paste0("LAI variables not available, check site: ", site_code))
+  } else {
 
-  #---- Update attributes ----
+    #---- Update LAI attributes ----
 
-  # Need to update missing and gap-filled percentages
+    # Need to update missing and gap-filled percentages
 
-  for (v in names(att_data)) {
+    for (v in names(att_data)) {
 
-    # Missing percentage
-    if (any(names(att_data[[v]]) == "Missing_%")) {
-      att_data[[v]]["Missing_%"] <-  round(
-        length(which(is.na(var_data[[v]])))/length(var_data[[v]]) * 100,
-        digits = 1
+      # Missing percentage
+      if (any(names(att_data[[v]]) == "Missing_%")) {
+        att_data[[v]]["Missing_%"] <-  round(
+          length(which(is.na(var_data[[v]])))/length(var_data[[v]]) * 100,
+          digits = 1
         )
-    }
+      }
 
-    # Gap-filled percentage
-    if (any(names(att_data[[v]]) == "Gap-filled_%")) {
-      att_data[[v]]["Gap-filled_%"] <- round(
-        length(which(var_data[[paste0(v, "_qc")]] > 0)) / length(var_data[[paste0(v, "_qc")]]) * 100,
-        digits = 1
+      # Gap-filled percentage
+      if (any(names(att_data[[v]]) == "Gap-filled_%")) {
+        att_data[[v]]["Gap-filled_%"] <- round(
+          length(which(var_data[[paste0(v, "_qc")]] > 0)) / length(var_data[[paste0(v, "_qc")]]) * 100,
+          digits = 1
         )
+      }
     }
   }
 
-
-  #---- write files ----
-
-  # Get dimensions from input file
-  new_dims <- met_nc$dim
-
-  # Get variables from input file
-  new_vars <- met_nc$var
-
-  # New file handle
-  out_nc <- nc_create(outfile_met, vars = new_vars)
-
-  # Get global attributes
-  global_atts <- ncatt_get(met_nc, varid=0)
-
-  # Add new QC flag value to metadata
-  global_atts$QC_flag_descriptions <- paste0(
-    global_atts$QC_flag_descriptions,", Post-processed: ", new_qc)
-
-  # Add to file
-  # For some reason this crashes if using lapply, loop works ok-ish
-  for(a in 1:length(global_atts)){
-    ncatt_put(out_nc, varid=0, attname=names(global_atts)[a],
-              attval=unlist(global_atts[a]))
-  }
-
-  # Write variables to output file
-  for (v in names(new_vars)) {
-    ncvar_put(nc=out_nc, varid=new_vars[[v]],
-              vals=var_data[[v]])
-  }
-
-  # Write attributes to output file
-  for (v in names(att_data)) {
-    for (a in names(att_data[[v]]))
-      ncatt_put(nc=out_nc, varid=new_vars[[v]],
-                attname=a, attval=att_data[[v]][[a]])
-  }
-
-  # Close output file
-  nc_close(out_nc)
+  # #---- write files ----
+  #
+  # # Get dimensions from input file
+  # new_dims <- met_nc$dim
+  #
+  # # Get variables from input file
+  # new_vars <- met_nc$var
+  #
+  # # New file handle
+  # out_nc <- nc_create(outfile_met, vars = new_vars)
+  #
+  # # Get global attributes
+  # global_atts <- ncatt_get(met_nc, varid=0)
+  #
+  # # Add new QC flag value to metadata
+  # global_atts$QC_flag_descriptions <- paste0(
+  #   global_atts$QC_flag_descriptions,", Post-processed: ", new_qc)
+  #
+  # # Add to file
+  # # For some reason this crashes if using lapply, loop works ok-ish
+  # for(a in 1:length(global_atts)){
+  #   ncatt_put(out_nc, varid=0, attname=names(global_atts)[a],
+  #             attval=unlist(global_atts[a]))
+  # }
+  #
+  # # Write variables to output file
+  # for (v in names(new_vars)) {
+  #   ncvar_put(nc=out_nc, varid=new_vars[[v]],
+  #             vals=var_data[[v]])
+  # }
+  #
+  # # Write attributes to output file
+  # for (v in names(att_data)) {
+  #   for (a in names(att_data[[v]]))
+  #     ncatt_put(nc=out_nc, varid=new_vars[[v]],
+  #               attname=a, attval=att_data[[v]][[a]])
+  # }
+  #
+  # # Close output file
+  # nc_close(out_nc)
 
   # Close original file handle
-  nc_close(met_nc)
+  ncdf4::nc_close(met_nc)
 
-  ##########################
-  ### Select default LAI ###
-  ##########################
+  # NEEDS LAI VALUES, put in CHECK
 
-
-  #Open file handle
-  nc_out <- nc_open(outfile_met, write=TRUE)
-
-  # MODIS
-  if (qc_info$LAI == "MODIS") {
-
-    default_lai    <- "LAI_MODIS"
-    default_source <- "MODIS"
-
-    alt_lai    <- "LAI_Copernicus"
-    alt_source <- "Copernicus"
-
-
-  # Copernicus
-  } else if (qc_info$LAI == "Copernicus") {
-
-
-    default_lai    <- "LAI_Copernicus"
-    default_source <- "Copernicus"
-
-    alt_lai    <- "LAI_MODIS"
-    alt_source <- "MODIS"
-
-  # Else stop
-  } else if (!is.na(qc_info$LAI)) {
-    stop("Incorrect LAI specified in qc_info")
-  }
-
-
-  # Rename LAI
-  nc_out <- ncvar_rename(nc_out, default_lai, "LAI")
-  nc_out <- ncvar_rename(nc_out, alt_lai, "LAI_alternative")
-
-
-  # Add source in attribute data
-  ncatt_put(
-    nc = nc_out,
-    varid="LAI",
-    attname="source",
-    attval=default_source
-    )
-
-  ncatt_put(
-    nc = nc_out,
-    varid = "LAI_alternative",
-    attname = "source",
-    attval = alt_source
-    )
-
-  #Close file handle
-  nc_close(nc_out)
+  # # Open file handle
+  # nc_out <- ncdf4::nc_open(infile_met, write=TRUE)
+  #
+  # # MODIS
+  # default_lai    <- "LAI_MODIS"
+  # default_source <- "MODIS"
+  #
+  # alt_lai    <- "LAI_Copernicus"
+  # alt_source <- "Copernicus"
+  #
+  # # Rename LAI
+  # nc_out <- ncdf4::ncvar_rename(nc_out, default_lai, "LAI")
+  # nc_out <- ncdf4::ncvar_rename(nc_out, alt_lai, "LAI_alternative")
+  #
+  # # Add source in attribute data
+  # ncdf4::ncatt_put(
+  #   nc = nc_out,
+  #   varid="LAI",
+  #   attname="source",
+  #   attval=default_source
+  #   )
+  #
+  # ncdf4::ncatt_put(
+  #   nc = nc_out,
+  #   varid = "LAI_alternative",
+  #   attname = "source",
+  #   attval = alt_source
+  #   )
+#
+#   # Close file handle
+#   ncdf4::nc_close(nc_out)
 
 }
