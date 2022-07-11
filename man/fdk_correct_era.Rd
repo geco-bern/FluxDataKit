@@ -4,16 +4,10 @@
 \alias{fdk_correct_era}
 \title{Corrects ERA data}
 \usage{
-fdk_correct_era(infile_met, outfile_met, outdir, qc_info, new_qc)
+fdk_correct_era(infile_met, new_qc)
 }
 \arguments{
 \item{infile_met}{input netcdf filename}
-
-\item{outfile_met}{optional output netcdf filename}
-
-\item{outdir}{output directory}
-
-\item{qc_info}{quality control info}
 
 \item{new_qc}{quality control parameters}
 }

@@ -56,13 +56,11 @@ fdk_correct_era <- function(
   # Set names
   names(var_data) <- vars
 
-
   # Get variable attributes
   att_data <- lapply(vars, function(x) ncdf4::ncatt_get(met_nc, x))
 
   #Set names
   names(att_data) <- vars
-
 
   #---- Correct CO2 using global records ----
 

@@ -92,36 +92,36 @@ fdk_process_lsm <- function(
 
       #---- Run analysis ----
 
-      # status <- try(
-      #   suppressWarnings(
-      #     suppressMessages(
-      #       convert_fluxnet_to_netcdf(
-      #         infile = infile,
-      #         site_code = x['sitename'],
-      #         out_path = tmp_path,
-      #         met_gapfill = "ERAinterim",
-      #         flux_gapfill = "statistical",
-      #         era_file = era_file,
-      #         missing_met = missing_met,
-      #         missing_flux = missing_flux,
-      #         gapfill_met_tier1 = gapfill_met_tier1,
-      #         gapfill_met_tier2 = gapfill_met_tier2,
-      #         gapfill_flux=gapfill_flux, min_yrs=min_yrs,
-      #         check_range_action = "warn",
-      #         include_all_eval=TRUE
-      #       )
-      #     )
-      #   )
-      # )
-      #
-      # if(inherits(status, "try-error")){
-      #   warning("conversion failed --- skipping")
-      #   return(invisible())
-      # }
+      status <- try(
+        suppressWarnings(
+          suppressMessages(
+            convert_fluxnet_to_netcdf(
+              infile = infile,
+              site_code = x['sitename'],
+              out_path = tmp_path,
+              met_gapfill = "ERAinterim",
+              flux_gapfill = "statistical",
+              era_file = era_file,
+              missing_met = missing_met,
+              missing_flux = missing_flux,
+              gapfill_met_tier1 = gapfill_met_tier1,
+              gapfill_met_tier2 = gapfill_met_tier2,
+              gapfill_flux=gapfill_flux, min_yrs=min_yrs,
+              check_range_action = "warn",
+              include_all_eval=TRUE
+            )
+          )
+        )
+      )
+
+      if(inherits(status, "try-error")){
+        warning("conversion failed --- skipping")
+        return(invisible())
+      }
 
       #----- Corrections ----
 
-      message("applying corrections")
+      message("applying ERA corrections")
 
       era_file <- list.files(
         tmp_path,
@@ -131,10 +131,25 @@ fdk_process_lsm <- function(
       )
 
       # meteorological corrections
+      # written to ncdf file
       fdk_correct_era(
         infile_met = era_file,
         new_qc = 101
         )
+
+      message("applying FLUX corrections")
+
+      flux_file <- list.files(
+        tmp_path,
+        utils::glob2rx("*Flux.nc"),
+        full.names = TRUE,
+        recursive = TRUE
+      )
+
+      # correct energy balance
+      fdk_flux_corrections(
+        infile = flux_file
+      )
 
       #----- Downloading and adding MODIS data ----
 

@@ -4,7 +4,13 @@
 \alias{fdk_process_lsm}
 \title{Generate LSM data}
 \usage{
-fdk_process_lsm(df, out_path, format = "fluxnet", save_tmp_files = TRUE)
+fdk_process_lsm(
+  df,
+  out_path,
+  format = "fluxnet",
+  save_tmp_files = TRUE,
+  overwrite = TRUE
+)
 }
 \arguments{
 \item{df}{dataframe with sites to process}
@@ -14,9 +20,6 @@ fdk_process_lsm(df, out_path, format = "fluxnet", save_tmp_files = TRUE)
 \item{format}{the format of the output (fluxnet = FLUXNET formatting)}
 
 \item{save_tmp_files}{retain temporary files (TRUE or FALSE)}
-}
-\value{
-
 }
 \description{
 Convert FLUXNET data to land surface model compatible netcdf files, using
