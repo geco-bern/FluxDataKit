@@ -1,9 +1,10 @@
 pandoc: 2.17.1.1
-pkgdown: 2.0.5
+pkgdown: 2.0.3
 pkgdown_sha: ~
 articles:
   01_setup: 01_setup.html
   02_data_coverage: 02_data_coverage.html
-  03_data_use: 03_data_use.html
-last_built: 2022-06-27T13:22Z
+  03_data_generation: 03_data_generation.html
+  04_data_use: 04_data_use.html
+last_built: 2022-07-13T12:39Z
 

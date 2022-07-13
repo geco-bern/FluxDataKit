@@ -10,7 +10,13 @@
     <loc>/articles/02_data_coverage.html</loc>
   </url>
   <url>
+    <loc>/articles/03_data_generation.html</loc>
+  </url>
+  <url>
     <loc>/articles/03_data_use.html</loc>
+  </url>
+  <url>
+    <loc>/articles/04_data_use.html</loc>
   </url>
   <url>
     <loc>/articles/index.html</loc>
@@ -43,6 +49,9 @@
     <loc>/reference/fdk_download_modis.html</loc>
   </url>
   <url>
+    <loc>/reference/fdk_flux_corrections.html</loc>
+  </url>
+  <url>
     <loc>/reference/fdk_format_drivers.html</loc>
   </url>
   <url>
@@ -53,6 +62,9 @@
   </url>
   <url>
     <loc>/reference/fdk_setup_sofun.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fdk_smooth_ts.html</loc>
   </url>
   <url>
     <loc>/reference/flux_corrections.html</loc>

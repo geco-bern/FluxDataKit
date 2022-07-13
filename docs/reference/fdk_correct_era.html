@@ -41,7 +41,10 @@ locally, if a path is provided a new file is created."><meta name="twitter:card"
       <a href="../articles/02_data_coverage.html">Data coverage</a>
     </li>
     <li>
-      <a href="../articles/03_data_use.html">Data use</a>
+      <a href="../articles/03_data_generation.html">Data generation</a>
+    </li>
+    <li>
+      <a href="../articles/04_data_use.html">Data use</a>
     </li>
   </ul></li>
         
@@ -65,36 +68,19 @@ locally, if a path is provided a new file is created.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_correct_era</span><span class="op">(</span><span class="va">infile_met</span>, <span class="va">outfile_met</span>, <span class="va">outdir</span>, <span class="va">qc_info</span>, <span class="va">new_qc</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">fdk_correct_era</span><span class="op">(</span><span class="va">infile_met</span>, <span class="va">new_qc</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>infile_met</dt>
 <dd><p>input netcdf filename</p></dd>
-
-
-<dt>outfile_met</dt>
-<dd><p>optional output netcdf filename</p></dd>
-
-
-<dt>outdir</dt>
-<dd><p>output directory</p></dd>
-
-
-<dt>qc_info</dt>
-<dd><p>quality control info</p></dd>
-
-
 <dt>new_qc</dt>
 <dd><p>quality control parameters</p></dd>
-
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>corrects an existing ERA-Interim FluxnetLSM file in place</p>
+    <p>corrects an existing ERA-Interim FluxnetLSM file in place</p>
     </div>
 
   </div>

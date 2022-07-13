@@ -27,7 +27,7 @@ library(dplyr)
 library(rsofun)
 
 # read in the data, only retain the first two sites for this demo
-df <- readRDS("../data/p_model_drivers/site_based_drivers.rds")[1:2,]
+df <- readRDS("../data/p_model_drivers/site_based_drivers.rds")[1,]
 modis <- readRDS("../data/modis_data.rds") %>%
   rename(
     'modis' = 'data'
@@ -40,7 +40,7 @@ library(rsofun)
 library(dplyr)
 
 # read in the data
-df <- readRDS("data/p_model_drivers/site_based_drivers.rds")[1:2,]
+df <- readRDS("data/p_model_drivers/site_based_drivers.rds")[1,]
 ```
 
 ```{r}

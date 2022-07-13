@@ -1,6 +1,6 @@
 # Fluxnet aggregation project
 
-This project is the framework used to create the LEMONTREE flux data kit, a dataset with consistent model drivers for use and re-use. The formatting of the data follows the requirements of the [rsofun]() package. However, additional fields will be included to expand research into the domains of machine learning.
+This project is the framework used to create the LEMONTREE flux data kit, a dataset with consistent model drivers for use and re-use. The formatting of the data ultimately follows the requirements of the [rsofun]() package. However, additional fields will be included to expand research into the domains of machine learning. More so, the package generates intermediates which adhere to the PLUMBER2 processing workflow. Hence, while generating `rsofun` drivers the package generates intermediate files which are compatible with land surface modelling (netcdf) formats. This effort therefore serves two communities or uses cases.
 
 The data sources from various ecosystem flux data providers or datasets, most prominently these are the FLUXNET2015 dataset, the OneFlux data (an amended version of FLUXNET2015), ICOS processed data, and Plumber2 data. The latter includes many of the AsiaFlux and OzFlux sites, in addition to the FLUXNET2015 dataset.
 
@@ -16,13 +16,13 @@ All data are (currently) aggregated to a daily level to limit the file size and 
 
 ## Workflow & PLUMBER-X
 
-The back-end of the package leverages the FluxnetLSM and FluxnetEO packages to create a workflow which is largely consistent with the code to generate the PLUMBER2 dataset (see exceptions below), while integrating the FluxnetEO dataset to provide ancillary remote sensing data (for machine learning processes). In short, as a side effect of the generation of the p-model driver data one can create land surface model compatible data (in line with the PLUMBER2 dataset).
+The back-end of the package leverages the FluxnetLSM and FluxnetEO packages to create a workflow which is largely consistent with the code to generate the PLUMBER2 dataset (see exceptions below), while integrating the FluxnetEO dataset to provide ancillary remote sensing data (for machine learning processes). In short, as a side effect of the generation of the p-model driver data one can create land surface model compatible data (in line with the current PLUMBER2 dataset).
 
 ## Data structure
 
 ### PLUMBER-X
 
-As an intermediate step to the generation of the p-model driver data the package creates a dataset in line with the PLUMBER2 land surface modelling dataset. These data aren't necessarily retained (as temporary intermediates), but one can specify to retain these temporary files if they serve a purpose within your workflow. The workflow also allows for rolling releases of PLUMBER-X datasets as soon as new FLUXNET compatible data releases come available. For the goals of the PLUMBER dataset I refert to the original publication ([Ukkola et al. 2022](https://essd.copernicus.org/articles/14/449/2022/essd-14-449-2022.pdf)). The workflow as outlined below (and in the paper) is followed aside from selecting MODIS as the default LAI product (and providing additional FPAR data using the same workflow), and for consistency only global annual CO2 data is used and no site level measurements.
+As an intermediate step to the generation of the p-model driver data the package creates a dataset in line with the PLUMBER2 land surface modelling dataset. These data aren't necessarily retained (as temporary intermediates), but one can specify to retain these temporary files if they serve a purpose within your workflow. The workflow also allows for rolling releases of PLUMBER-X datasets as soon as new FLUXNET compatible data releases come available. For the goals of the PLUMBER dataset I refer to the original publication ([Ukkola et al. 2022](https://essd.copernicus.org/articles/14/449/2022/essd-14-449-2022.pdf)). The workflow as outlined below (and in the paper) is followed aside from selecting MODIS as the default LAI product (and providing additional FPAR data using the same workflow), and for consistency only global annual CO2 data is used and no site level measurements.
 
 ![](https://essd.copernicus.org/articles/14/449/2022/essd-14-449-2022-f01.png)
 
@@ -42,7 +42,7 @@ We used the gapfilled and corrected FluxnetLSM data to provide p-model driver da
 | ccov_int | %                | cloud cover                                                          |
 | snow     | mm               | precipitaton as snow                                                 |
 | rain     | mm               | precipitation                                                        |
-| fapar    |                  | fraction of photosynthetic active radiation (sourced from FluxnetEO) |
+| fapar    |                  | fraction of photosynthetic active radiation                          |
 | co2      | ppm              | atmospheric co2 concentration                                        |
 | doy      | integer          | Day of Year                                                          |
 | tmin     | C                | daily minimum temperature                                            |
@@ -52,8 +52,16 @@ Most of these fields are taken from the *in-situ* ERA-Interim gapfilled FluxnetL
 
 ### ancillary remote sensing data
 
-For machine learning or other modelling purposes we provide ancillary MODIS based remote sensing data as described in the FluxnetEO dataset. We refer to the original publication and our [FluxnetEO]() package for easy reading and processing of the data.
+For machine learning or other modelling purposes we provide ancillary MODIS based remote sensing data as described in the FluxnetEO dataset. We refer to the original publication and our [FluxnetEO](https://bg.copernicus.org/articles/19/2805/2022/) package for easy reading and processing of the data.
 
 ## Acknowledgements
 
 The flux data kit is part of the LEMONTREE project and funded by Schmidt Futures and under the umbrella of the Virtual Earth System Research Institute (VESRI).
+
+## References
+
+Ukkola, Anna M., Gab Abramowitz, and Martin G. De Kauwe. "A flux tower dataset tailored for land model evaluation." Earth System Science Data 14.2 (2022): 449-461.
+
+Ukkola, A. M., Haughton, N., De Kauwe, M. G., Abramowitz, G., and Pitman, A. J.: FluxnetLSM R package (v1.0): a community tool for processing FLUXNET data for use in land surface modelling, Geosci. Model Dev., 10, 3379-3390, 2017
+
+Walther, Sophia, et al. "A view from space on global flux towers by MODIS and Landsat: the FluxnetEO data set." Biogeosciences 19.11 (2022): 2805-2840.

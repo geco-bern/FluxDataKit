@@ -41,7 +41,10 @@ the FluxnetLSM package and PLUMBER2 based workflows."><meta name="twitter:card" 
       <a href="../articles/02_data_coverage.html">Data coverage</a>
     </li>
     <li>
-      <a href="../articles/03_data_use.html">Data use</a>
+      <a href="../articles/03_data_generation.html">Data generation</a>
+    </li>
+    <li>
+      <a href="../articles/04_data_use.html">Data use</a>
     </li>
   </ul></li>
         
@@ -65,26 +68,25 @@ the FluxnetLSM package and PLUMBER2 based workflows.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_process_lsm</span><span class="op">(</span><span class="va">df</span>, <span class="va">out_path</span>, format <span class="op">=</span> <span class="st">"fluxnet"</span>, save_tmp_files <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">fdk_process_lsm</span><span class="op">(</span>
+  <span class="va">df</span>,
+  <span class="va">out_path</span>,
+  format <span class="op">=</span> <span class="st">"fluxnet"</span>,
+  save_tmp_files <span class="op">=</span> <span class="cn">TRUE</span>,
+  overwrite <span class="op">=</span> <span class="cn">TRUE</span>
+<span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>df</dt>
 <dd><p>dataframe with sites to process</p></dd>
-
-
 <dt>out_path</dt>
 <dd><p>output directory</p></dd>
-
-
 <dt>format</dt>
 <dd><p>the format of the output (fluxnet = FLUXNET formatting)</p></dd>
-
-
 <dt>save_tmp_files</dt>
 <dd><p>retain temporary files (TRUE or FALSE)</p></dd>
-
 </dl></div>
 
   </div>

@@ -41,7 +41,10 @@ into a nested data frame with one row for each site"><meta name="twitter:card" c
       <a href="../articles/02_data_coverage.html">Data coverage</a>
     </li>
     <li>
-      <a href="../articles/03_data_use.html">Data use</a>
+      <a href="../articles/03_data_generation.html">Data generation</a>
+    </li>
+    <li>
+      <a href="../articles/04_data_use.html">Data use</a>
     </li>
   </ul></li>
         
@@ -65,7 +68,7 @@ into a nested data frame with one row for each site</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_collect_drivers</span><span class="op">(</span><span class="va">site_info</span>, <span class="va">params_siml</span>, <span class="va">meteo</span>, <span class="va">fapar</span>, <span class="va">co2</span>, <span class="va">params_soil</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">fdk_collect_drivers</span><span class="op">(</span><span class="va">site_info</span>, <span class="va">params_siml</span>, <span class="va">meteo</span>, <span class="va">fapar</span>, <span class="va">co2</span>, <span class="va">params_soil</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -74,37 +77,24 @@ into a nested data frame with one row for each site</p>
 <dd><p>A data frame containing site meta info (rows for sites).
 Required columns are: <code>"sitename", "date_start",
 "date_end", "lon", "lat", "elv"</code>.</p></dd>
-
-
 <dt>params_siml</dt>
 <dd><p>A nested data frame with rows for each site containing
 simulation parameters by site.</p></dd>
-
-
 <dt>meteo</dt>
 <dd><p>A nested data frame with rows for each site and meteo
 forcing data time series nested inside a column named <code>"data"</code></p></dd>
-
-
 <dt>fapar</dt>
 <dd><p>A nested data frame with rows for each site and fAPAR
 forcing data time series nested inside a column named <code>"data"</code></p></dd>
-
-
 <dt>co2</dt>
 <dd><p>A nested data frame with rows for each site and CO2
 forcing data time series nested inside a column named <code>"data"</code></p></dd>
-
-
 <dt>params_soil</dt>
 <dd><p>Soil texture data descriptor</p></dd>
-
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>a rsofun input data frame</p>
+    <p>a rsofun input data frame</p>
     </div>
 
   </div>

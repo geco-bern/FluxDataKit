@@ -65,7 +65,10 @@
       <a href="../articles/02_data_coverage.html">Data coverage</a>
     </li>
     <li>
-      <a href="../articles/03_data_use.html">Data use</a>
+      <a href="../articles/03_data_generation.html">Data generation</a>
+    </li>
+    <li>
+      <a href="../articles/04_data_use.html">Data use</a>
     </li>
   </ul>
 </li>
@@ -98,32 +101,16 @@ Hufkens</h4>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
-<p>To setup the project first clone the git repository</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>git clone https<span class="sc">:</span><span class="er">//</span>github.com<span class="sc">/</span>computationales<span class="sc">/</span>flux_data_kit.git</span></code></pre></div>
-<p>and install all critical packages required in gathering and
-processing the data.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"devtools"</span>,</span>
-<span>    <span class="st">"rvest"</span>,</span>
-<span>    <span class="st">"tidyverse"</span>,</span>
-<span>    <span class="st">"icoscp"</span>,</span>
-<span>    <span class="st">"RCurl"</span>,</span>
-<span>    <span class="st">"XML"</span>,</span>
-<span>    <span class="st">"amerifluxr"</span>,</span>
-<span>    <span class="st">"raster"</span>,</span>
-<span>    <span class="st">"MODISTools"</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span></span>
-<span>  <span class="st">"computationales/ingestr"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span></span>
-<span>  <span class="st">"computationales/rsofun"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<p>Install all critical packages required in gathering and processing
+the data by installing the <code>FluxDataKit</code> package.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span>
+  <span class="st">"computationales/FluxDataKit"</span>
+<span class="op">)</span></code></pre></div>
+<p>In addition clone the project as we’ll need some additional scripts
+which are only available in the source code of the project (see data
+provenance below).</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">git</span> clone https://github.com/computationales/FluxDataKit.git</span></code></pre></div>
 <p>With all tools installed we need to download the required input data
 for aggregation.</p>
 </div>
@@ -131,8 +118,12 @@ for aggregation.</p>
 <h2 id="data-provenance-downloads">data provenance (downloads)<a class="anchor" aria-label="anchor" href="#data-provenance-downloads"></a>
 </h2>
 <p>A list of numbered scripts is provided in the <code>data-raw</code>
-directory which govern the downloading and compiling of intermediate
-data. The numbered scripts should be run in sequence.</p>
+directory of the cloned project, and which govern the downloading and
+compiling of intermediate data. The numbered scripts should be run in
+sequence. All code is written in <code>R</code> and should be executed
+in the project environment of the <code>FluxDataKit</code> package
+(i.e. open the FluxDataKit.proj file in RStudio or make sure you have
+set the topmost directory to the project folder).</p>
 <p>Due to login-walls, or missing API infrastructure, most data
 downloads are still manual instead of automated. The below section
 therefore links to the locations where you can manually get the data. No
@@ -149,16 +140,16 @@ location you may use soft links.</p>
 available meta-data through either API calls or scraping the data
 downloaded in the previous step (setup / data collection).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/01_collect_meta-data.R"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/01_collect_meta-data.R"</span><span class="op">)</span></code></pre></div>
 <p>Given the various datasets, and at times overlap between the datasets
 a priority in processing is given to more recent (hopefully) and more
 complete datasets. In order of processing this means that OneFlux has
 priority over FLUXNET2015, and Plumber2. ICOS data has priority over
 FLUXNET2015 for European sites. Overall, Plumber2 mostly fills in the
 remaining sites in Asia and Australia. The final picking order is
-thus:</p>
+specified and processed by calling the below script.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/02_compile_final_site_list.R"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/02_compile_final_site_list.R"</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="flux-data">Flux data<a class="anchor" aria-label="anchor" href="#flux-data"></a>
@@ -307,6 +298,8 @@ included in the repository due to its small size.</p>
 <div class="section level3">
 <h3 id="remote-sensing-data">Remote sensing data<a class="anchor" aria-label="anchor" href="#remote-sensing-data"></a>
 </h3>
+<pre><code>- Due to recent changes in the GEE policy this routine is no longer valid
+migration to the MODISTools workflow is foreseen</code></pre>
 <p>We include various MODIS products to complement the flux data. Data
 are downloaded from Google Earth Engine (GEE) using the gee_subset
 python toolkit using the {ingestr} package. Data are stored in a product
@@ -348,16 +341,6 @@ expanded over time.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD15A3H#bands" class="external-link">MCD15A3H</a></td>
-<td align="left">Fpar</td>
-<td align="left">0.01</td>
-</tr>
-<tr class="even">
-<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD15A3H#bands" class="external-link">MCD15A3H</a></td>
-<td align="left">Lai</td>
-<td align="left">0.1</td>
-</tr>
-<tr class="odd">
 <td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD15A2H" class="external-link">MOD15A2H</a></td>
 <td align="left">Fpar_500m</td>
 <td align="left">0.01</td>
@@ -372,27 +355,13 @@ expanded over time.</p>
 <td align="left">Gpp</td>
 <td align="left">0.0001</td>
 </tr>
-<tr class="even">
-<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A1" class="external-link">MOD11A1</a></td>
-<td align="left">LST_Day_1km</td>
-<td align="left">0.02</td>
-</tr>
-<tr class="odd">
-<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD43A4" class="external-link">MCD43A4</a></td>
-<td align="left">Nadir_Reflectance_Band(1-7)</td>
-<td align="left">0.0001</td>
-</tr>
-<tr class="even">
-<td><a href="https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MODOCGA" class="external-link">MODOCGA</a></td>
-<td align="left">sur_refl_b(08-15)</td>
-<td align="left">0.0001</td>
-</tr>
 </tbody>
 </table>
 <p>Data is subsequently compiled into a consistent tidy format organized
 by site name and stored in <code>data/modis_data.rds</code> using the
 <code>05_combine_modis_data.R</code> script. For details on the products
 we refer to the links in the table above.</p>
+<p>Additional data is provided by the FluxnetEO dataset.</p>
 </div>
 </div>
   </div>

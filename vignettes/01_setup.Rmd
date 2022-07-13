@@ -10,36 +10,21 @@ vignette: >
 
 # Setup
 
-To setup the project first clone the git repository
+Install all critical packages required in gathering and processing the data by
+installing the `FluxDataKit` package.
 
 ```r
-git clone https://github.com/computationales/flux_data_kit.git
+devtools::install_github(
+  "computationales/FluxDataKit"
+)
 ```
 
-and install all critical packages required in gathering and processing the data.
+In addition clone the project as we'll need some additional scripts which are
+only available in the source code of the project (see data provenance below).
 
-```r
-install.packages(
-  c(
-    "devtools",
-    "rvest",
-    "tidyverse",
-    "icoscp",
-    "RCurl",
-    "XML",
-    "amerifluxr",
-    "raster",
-    "MODISTools"
-  )
-)
 
-devtools::install_github(
-  "computationales/ingestr"
-)
-
-devtools::install_github(
-  "computationales/rsofun"
-)
+```bash
+  git clone https://github.com/computationales/FluxDataKit.git
 ```
 
 With all tools installed we need to download the required input data for
@@ -47,9 +32,12 @@ aggregation.
 
 # data provenance (downloads)
 
-A list of numbered scripts is provided in the `data-raw` directory which govern
-the downloading and compiling of intermediate data. The numbered scripts should
-be run in sequence.
+A list of numbered scripts is provided in the `data-raw` directory of the cloned
+project, and which govern the downloading and compiling of intermediate data. 
+The numbered scripts should be run in sequence. All code is written in `R` and
+should be executed in the project environment of the `FluxDataKit` package
+(i.e. open the FluxDataKit.proj file in RStudio or make sure you have set the
+topmost directory to the project folder).
 
 Due to login-walls, or missing API infrastructure, most data downloads are still
 manual instead of automated. The below section therefore links to the locations
@@ -76,7 +64,7 @@ in processing is given to more recent (hopefully) and more complete datasets. In
 order of processing this means that OneFlux has priority over FLUXNET2015, and 
 Plumber2. ICOS data has priority over FLUXNET2015 for European sites. Overall, 
 Plumber2 mostly fills in the remaining sites in Asia and Australia. The final
-picking order is thus:
+picking order is specified and processed by calling the below script.
 
 ```r
 source("data-raw/02_compile_final_site_list.R")
@@ -168,6 +156,11 @@ is also included in the repository due to its small size.
 
 ## Remote sensing data
 
+```
+- Due to recent changes in the GEE policy this routine is no longer valid
+migration to the MODISTools workflow is foreseen
+```
+
 We include various MODIS products to complement the flux data. Data are downloaded
 from Google Earth Engine (GEE) using the gee_subset python toolkit using the {ingestr}
 package. Data are stored in a product by product basis. in the `data-raw/modis/`
@@ -184,21 +177,18 @@ computer. For setup instructions we refer to [the GEE docs](https://developers.g
 |-----------|:---------------------:|:-----------|
 | MODXXX |  ~7GB | `data-raw/modis/raw/`
 
-
 Below you find a table of all downloaded data products we consider relevant
 within the context of model development. These might be expanded over time.
 
 | product   |      band      |  multiplier |
 |-----------|:---------------------|:-----------|
-| [MCD15A3H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD15A3H#bands) |  Fpar | 0.01
-| [MCD15A3H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD15A3H#bands) |  Lai | 0.1
 | [MOD15A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD15A2H) | Fpar_500m | 0.01 
 | [MOD15A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD15A2H) | Lai_500m | 0.1 
 | [MOD17A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MOD17A2H) | Gpp | 0.0001 
-| [MOD11A1](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A1) | LST_Day_1km | 0.02
-| [MCD43A4](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD43A4) | Nadir_Reflectance_Band(1-7) | 0.0001 
-| [MODOCGA](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MODOCGA) | sur_refl_b(08-15) | 0.0001
 
 Data is subsequently compiled into a consistent tidy format organized by site
 name and stored in `data/modis_data.rds` using the `05_combine_modis_data.R` 
 script. For details on the products we refer to the links in the table above.
+
+Additional data is provided by the FluxnetEO dataset.
+
