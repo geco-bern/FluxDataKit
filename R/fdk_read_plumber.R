@@ -55,7 +55,6 @@ fdk_read_plumber <- function(
   # remove trailing / leading white spaces
   # in IGBP classes
   df$IGBP_veg_short <- trimws(df$IGBP_veg_short)
-  #df$IGBP_veg_long <- trimws(df$IGBP_veg_long)
 
   # drop long names
   df <- subset(df, select = -IGBP_veg_long)

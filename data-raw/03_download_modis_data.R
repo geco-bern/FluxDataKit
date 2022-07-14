@@ -12,43 +12,22 @@ sites$year_end <- as.numeric(format(Sys.Date(), "%Y"))
 
 bundles <-
   c(
-    #"modis_fpar",
-    # "modis_lst_aqua",
-    # "modis_lst_terra",
-    # "modis_lai",
-    # "modis_gpp",
-    # "modis_refl_1",
-    # "modis_refl_2",
-    # "modis_refl_3",
-    # "modis_refl_4",
-    # "modis_refl_5",
-    # "modis_refl_6",
-    # "modis_refl_7"
-    "modis_refl_8"
-    # "modis_refl_9",
-    # "modis_refl_10",
-    # "modis_refl_11",
-    # "modis_refl_12",
-    # "modis_refl_13",
-    # "modis_refl_14",
-    # "modis_refl_15",
-    # "modis_refl_16"
+    "modis_fpar",
+    "modis_lai"
   )
 
 lapply(bundles, function(bundle){
 
   # feedback
-  message("processing GEE data product: ")
+  message("Downloading MODIS data: ")
 
   # feedback
   message(paste("  - ", bundle))
 
-  settings_gee <- get_settings_gee(
-    bundle            = bundle,
-    python_path       = "/usr/bin/python3", # on linux
-    gee_path          = "./src/gee_subset/src/gee_subset",
-    data_path         = "data-raw/modis/",
-    method_interpol   = ifelse(bundle == "modis_fpar","linear","linear"),
+  settings_modis <- get_settings_modis(
+    bundle = bundle,
+    data_path = "data-raw/modis/test/",
+    method_interpol   = "linear",
     keep              = FALSE,
     overwrite_raw     = FALSE,
     overwrite_interpol= TRUE
@@ -58,11 +37,10 @@ lapply(bundles, function(bundle){
   df_modis <-
       try(ingest(
       sites,
-      source = "gee",
-      settings = settings_gee,
+      source = "modis",
+      settings = settings_modis,
       parallel = FALSE
     ))
 
-  break
   return(invisible())
 })

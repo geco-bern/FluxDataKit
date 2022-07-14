@@ -162,4 +162,3 @@ fluxnet_list <- fluxnet_list %>%
 
 saveRDS(fluxnet_list, file = "data-raw/meta_data/fluxnet_meta-data.rds", compress = "xz")
 
-

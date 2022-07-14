@@ -77,35 +77,6 @@ fluxnet <- readRDS("data-raw/meta_data/fluxnet_meta-data.rds") %>%
     product = "fluxnet2015"
   )
 
-# ameriflux <- readRDS("data-raw/meta_data/amf_meta-data.rds") %>%
-#   filter(
-#     DATA_POLICY != "LEGACY"
-#   ) %>%
-#   mutate(
-#     DATA_START = ifelse(is.na(DATA_START),as.numeric(TOWER_BEGAN), DATA_START)
-#   ) %>%
-#   rename(
-#     'sitename' = 'SITE_ID',
-#     'lat' = 'LOCATION_LAT',
-#     'lon' = 'LOCATION_LONG',
-#     'elv' = 'LOCATION_ELEV',
-#     'date_start' = 'DATA_START',
-#     'date_end' = 'DATA_END',
-#     'koeppen_code' = 'CLIMATE_KOEPPEN'
-#   ) %>%
-#   dplyr::select(
-#     sitename,
-#     lat,
-#     lon,
-#     elv,
-#     koeppen_code,
-#     date_start,
-#     date_end
-#   )%>%
-#   mutate(
-#     product = "ameriflux"
-#   )
-
 # 4. plumber
 plumber <- readRDS("data-raw/meta_data/plumber_meta-data.rds") %>%
   rename(

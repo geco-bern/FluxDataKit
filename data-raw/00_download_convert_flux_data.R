@@ -1,4 +1,8 @@
 library(rvest)
+library(tidyverse)
+library(ingestr)
+
+# 1. Download PLUMBER data ----
 
 # set destination path
 dest_path <- "data-raw/flux_data/plumber/"
@@ -49,3 +53,7 @@ apply(catalogues, 1, function(cat){
   # don't return anything
   return(invisible())
 })
+
+# 2. Run the conversion script next ----
+
+message("Please manually download ICOS/FLUXNET2015/ONEFLUX data")

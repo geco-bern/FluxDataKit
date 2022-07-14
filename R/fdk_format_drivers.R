@@ -191,15 +191,10 @@ fdk_format_drivers <- function(
         ),
 
         tmin = min(temp, na.rm = TRUE),
-
         tmax = max(temp, na.rm = TRUE),
-
         temp = mean(temp, na.rm = TRUE),
-
         prec = sum(prec, na.rm = TRUE),
-
         vpd = mean(vpd, na.rm = TRUE),
-
         patm = mean(patm, na.rm = TRUE),
 
         # radiation values are averages for
