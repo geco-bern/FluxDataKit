@@ -325,10 +325,12 @@ fdk_correct_era <- function(
   # )
 
   # Close file handle
-  ncdf4::nc_close(outfile_met)
+  ncdf4::nc_close(nc_out)
 
   # rename file
-  # TODO
-
-
+  file.copy(
+    outfile_met,
+    infile_met
+  )
+  file.remove(outfile_met)
 }
