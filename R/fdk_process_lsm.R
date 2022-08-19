@@ -5,16 +5,19 @@
 #' the FluxnetLSM package and PLUMBER2 based workflows.
 #'
 #' @param df dataframe with sites to process
-#' @param out_path output directory
+#' @param out_path output directory for processed data
+#' @param modis_path where to store downloaded MODIS data
 #' @param format the format of the output (fluxnet = FLUXNET formatting)
 #' @param save_tmp_files retain temporary files (TRUE or FALSE)
 #'
-#' @return
+#' @return LSM compatible netcdf files in the output directory, with
+#'  intermediary files saved upon request
 #' @export
 
 fdk_process_lsm <- function(
     df,
     out_path,
+    modis_path,
     format = "fluxnet",
     save_tmp_files = TRUE,
     overwrite = TRUE
@@ -92,7 +95,11 @@ fdk_process_lsm <- function(
 
       #---- Run analysis ----
 
-      status <- try(
+      # This is based upon
+      # https://github.com/aukkola/PLUMBER2/
+      # Step1_Process_all_available_flux_sites_for_PLUMBER2.R
+
+      nc_files <- try(
         suppressWarnings(
           suppressMessages(
             convert_fluxnet_to_netcdf(
@@ -114,84 +121,46 @@ fdk_process_lsm <- function(
         )
       )
 
-      if(inherits(status, "try-error")){
-        warning("conversion failed --- skipping")
+      if(inherits(nc_files, "try-error")){
+        warning("conversion failed --- skipping this site")
         return(invisible())
       }
+
+      #----- Downloading and adding MODIS data ----
+
+      # This is based upon
+      # https://github.com/aukkola/PLUMBER2/
+      # Step2_Process_MODIS_LAI_for_all_sites.R
+      message("Merging in MODIS LAI/FPAR data")
+
+      fdk_download_modis(
+          df = x,
+          path = modis_path,
+          nc_file = nc_files$met
+        )
 
       #----- Corrections ----
 
       message("applying ERA corrections")
 
-      era_file <- list.files(
-        tmp_path,
-        utils::glob2rx("*Met.nc"),
-        full.names = TRUE,
-        recursive = TRUE
-      )
-
       # meteorological corrections
       # written to ncdf file
       fdk_correct_era(
-        infile_met = era_file,
+        infile_met = nc_files$met,
         new_qc = 101
         )
 
       message("applying FLUX corrections")
 
-      flux_file <- list.files(
-        tmp_path,
-        utils::glob2rx("*Flux.nc"),
-        full.names = TRUE,
-        recursive = TRUE
-      )
-
       # correct energy balance
       fdk_flux_corrections(
-        infile = flux_file
+        infile = nc_files$flux
       )
-
-      #----- Downloading and adding MODIS data ----
-
-      if(FALSE) {
-
-        modis_data <- fdk_download_modis(
-          df,
-          path
-        )
-
-        # Define variable:
-        laivar <- ncvar_def(
-          'LAI_MODIS',
-          '-',
-          list(site_nc[[s]]$dim[[1]], site_nc[[s]]$dim[[2]], site_nc[[s]]$dim[[3]]),
-          missval = -9999,
-          longname ='MODIS 8-daily LAI'
-        )
-
-        # Add variable and then variable data:
-        site_nc[[s]] <- ncvar_add(
-          site_nc[[s]],
-          laivar
-        )
-
-        ncvar_put(
-          site_nc[[s]],
-          'LAI_MODIS',
-          modis_tseries
-        )
-
-        #Close file handle
-        nc_close(site_nc[[s]])
-      }
-
 
       #----- Convert to FLUXNET formatting ----
 
       if(format == "fluxnet") {
-
         message("converting to fluxnet")
-
         message("saving data in your output directory")
       }
     })

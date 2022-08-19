@@ -1,15 +1,22 @@
 
 #' Download MODIS LAI/FPAR
 #'
+#' Downloads and smooths MODIS LAI/FPAR values
+#' for merging into the final LSM model data.
+#' Smoothing interpolates values to an half-hourly
+#' time step.
+#'
 #' @param df data frame with site info
-#' @param path path where to store the data
+#' @param path path where to store the MODIS data
+#' @param nc_file netcdf file containing the LSM processed flux data
 #'
 #' @return smoothed time series of LAI/FPAR
 #' @export
 
 fdk_download_modis <- function(
   df,
-  path
+  path,
+  nc_file
   ) {
 
   #----- settings and startup -----
@@ -36,6 +43,8 @@ fdk_download_modis <- function(
 
   #----- data download -----
 
+  # Check if data exists, if not download
+
 # df_modis <- try(
 #       MODISTools::mt_subset(
 #       site_name = as.character(df['sitename']),
@@ -52,10 +61,10 @@ fdk_download_modis <- function(
 #   )
 
   # if(inherits(df_modis, "try-error") ) {
-  #   stop("MODIS data download failed")
+  #   warning("MODIS data download failed")
   # }
 
-  #saveRDS(df_modis, "data/modis.rds")
+  #saveRDS(df_modis, file = "data/modis.rds")
   df_modis <- readRDS("data/modis.rds")
 
   #----- QC screening -----
@@ -139,18 +148,30 @@ fdk_download_modis <- function(
 
   df_modis_mean <- dplyr::left_join(
     dates,
-    df_modis_mean
+    df_modis_mean,
+    by = "calendar_date"
   )
 
   #---- smoothing / gapfilling ----
 
-  # TODO
+  # Smooth gapfill and include LAI
+  # into the netcdf file
 
   fdk_smooth_ts(
-    df_modis_mean$calendar_date,
-    df_modis_mean$lai
+    dates = df_modis_mean$calendar_date,
+    values = df_modis_mean$lai,
+    variable = "LAI",
+    start_year = min_year,
+    end_year = max_year,
+    nc_file = nc_file
   )
 
-
-
+  fdk_smooth_ts(
+    dates = df_modis_mean$calendar_date,
+    values = df_modis_mean$lai,
+    variable = "FPAR",
+    start_year = min_year,
+    end_year = max_year,
+    nc_file = nc_file
+  )
 }

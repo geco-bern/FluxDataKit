@@ -17,10 +17,10 @@ fdk_correct_era <- function(
   # - gets desired years
   # - fixes CO2 if applicable
   # - applies other fixes if applicable
-  # - checks that no missing values in met data
+  # - checks for no missing values in met data
 
-  # THIS SHOULD COME FROM THE FILE NOT EXTERNAL
-  # site_code <- qc_info$Site_code
+  # set temporary nc file
+  outfile_met <-  file.path(tempdir(), "fluxnetlsm/tmp_met.nc")
 
   # Open nc file handle
   met_nc <- ncdf4::nc_open(infile_met, write = TRUE)
@@ -67,11 +67,19 @@ fdk_correct_era <- function(
   # If replacing CO2 with global CO2
 
   # download/load annual mean atmospheric CO2
-  global_co2 <- read.table(
+  # read data dynamically
+  global_co2 <- try(
+    read.table(
     "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_mlo.csv",
     header = TRUE,
     skip = 55,
     sep = ",")
+    )
+
+  # if data isn't available stop processing
+  if(inherits(global_co2,"try-error")){
+    stop("Can't download NOAA CO2 data, check internet connection!")
+  }
 
   # loop through years
   co2_ts <- sapply(years, function(x) global_co2[which(global_co2 == x), 2])
@@ -107,7 +115,7 @@ fdk_correct_era <- function(
 
   # Get years to process
   # NOT SURE WHAT THIS EVEN DOES??
-  start_yr <- 1
+  start_yr <- 2
   end_yr   <- 0
 
   #---- Adjust length of time-varying variables ----
@@ -181,10 +189,10 @@ fdk_correct_era <- function(
 
     # File name without path
     filename <- basename(outfile_met)
+    outdir <- dirname(outfile_met)
 
     # Replace file name with new years
     outfile_met <- paste0(outdir, gsub("[0-9]{4}-[0-9]{4}", new_yr_label, filename))
-
   }
 
   #---- Check for missing vals in met data ----
@@ -211,108 +219,116 @@ fdk_correct_era <- function(
 
   if (length(lai_vars) != 2) {
     warning(paste0("LAI variables not available, check site: ", site_code))
-  } else {
+  }
 
-    #---- Update LAI attributes ----
+  for (v in names(att_data)) {
 
-    # Need to update missing and gap-filled percentages
+    # Missing percentage
+    if (any(names(att_data[[v]]) == "Missing_%")) {
+      att_data[[v]]["Missing_%"] <-  round(
+        length(which(is.na(var_data[[v]])))/length(var_data[[v]]) * 100,
+        digits = 1
+      )
+    }
 
-    for (v in names(att_data)) {
-
-      # Missing percentage
-      if (any(names(att_data[[v]]) == "Missing_%")) {
-        att_data[[v]]["Missing_%"] <-  round(
-          length(which(is.na(var_data[[v]])))/length(var_data[[v]]) * 100,
-          digits = 1
-        )
-      }
-
-      # Gap-filled percentage
-      if (any(names(att_data[[v]]) == "Gap-filled_%")) {
-        att_data[[v]]["Gap-filled_%"] <- round(
-          length(which(var_data[[paste0(v, "_qc")]] > 0)) / length(var_data[[paste0(v, "_qc")]]) * 100,
-          digits = 1
-        )
-      }
+    # Gap-filled percentage
+    if (any(names(att_data[[v]]) == "Gap-filled_%")) {
+      att_data[[v]]["Gap-filled_%"] <- round(
+        length(which(var_data[[paste0(v, "_qc")]] > 0)) / length(var_data[[paste0(v, "_qc")]]) * 100,
+        digits = 1
+      )
     }
   }
 
-  # #---- write files ----
-  #
-  # # Get dimensions from input file
-  # new_dims <- met_nc$dim
-  #
-  # # Get variables from input file
-  # new_vars <- met_nc$var
-  #
-  # # New file handle
-  # out_nc <- nc_create(outfile_met, vars = new_vars)
-  #
-  # # Get global attributes
-  # global_atts <- ncatt_get(met_nc, varid=0)
-  #
-  # # Add new QC flag value to metadata
-  # global_atts$QC_flag_descriptions <- paste0(
-  #   global_atts$QC_flag_descriptions,", Post-processed: ", new_qc)
-  #
-  # # Add to file
-  # # For some reason this crashes if using lapply, loop works ok-ish
-  # for(a in 1:length(global_atts)){
-  #   ncatt_put(out_nc, varid=0, attname=names(global_atts)[a],
-  #             attval=unlist(global_atts[a]))
-  # }
-  #
-  # # Write variables to output file
-  # for (v in names(new_vars)) {
-  #   ncvar_put(nc=out_nc, varid=new_vars[[v]],
-  #             vals=var_data[[v]])
-  # }
-  #
-  # # Write attributes to output file
-  # for (v in names(att_data)) {
-  #   for (a in names(att_data[[v]]))
-  #     ncatt_put(nc=out_nc, varid=new_vars[[v]],
-  #               attname=a, attval=att_data[[v]][[a]])
-  # }
-  #
+  #---- write files ----
+
+  # Get dimensions from input file
+  new_dims <- met_nc$dim
+
+  # Get variables from input file
+  new_vars <- met_nc$var
+
+  # New file handle
+  out_nc <- ncdf4::nc_create(outfile_met, vars = new_vars)
+
+  # Get global attributes
+  global_atts <- ncdf4::ncatt_get(met_nc, varid=0)
+
+  # Add new QC flag value to metadata
+  global_atts$QC_flag_descriptions <- paste0(
+    global_atts$QC_flag_descriptions,", Post-processed: ", new_qc)
+
+  # Add to file
+  # For some reason this crashes if using lapply, loop works ok-ish
+  for(a in 1:length(global_atts)){
+    ncdf4::ncatt_put(out_nc, varid=0, attname=names(global_atts)[a],
+              attval=unlist(global_atts[a]))
+  }
+
+  # Write variables to output file
+  for (v in names(new_vars)) {
+    ncdf4::ncvar_put(nc=out_nc, varid=new_vars[[v]],
+              vals=var_data[[v]])
+  }
+
+  # Write attributes to output file
+  for (v in names(att_data)) {
+    for (a in names(att_data[[v]]))
+      ncdf4::ncatt_put(nc=out_nc, varid=new_vars[[v]],
+                attname=a, attval=att_data[[v]][[a]])
+  }
+
   # # Close output file
-  # nc_close(out_nc)
+  ncdf4::nc_close(out_nc)
 
   # Close original file handle
   ncdf4::nc_close(met_nc)
 
-  # NEEDS LAI VALUES, put in CHECK
+  #----- default LAI check ----
 
-  # # Open file handle
-  # nc_out <- ncdf4::nc_open(infile_met, write=TRUE)
-  #
-  # # MODIS
-  # default_lai    <- "LAI_MODIS"
-  # default_source <- "MODIS"
-  #
-  # alt_lai    <- "LAI_Copernicus"
-  # alt_source <- "Copernicus"
-  #
-  # # Rename LAI
-  # nc_out <- ncdf4::ncvar_rename(nc_out, default_lai, "LAI")
-  # nc_out <- ncdf4::ncvar_rename(nc_out, alt_lai, "LAI_alternative")
-  #
-  # # Add source in attribute data
-  # ncdf4::ncatt_put(
-  #   nc = nc_out,
-  #   varid="LAI",
-  #   attname="source",
-  #   attval=default_source
-  #   )
-  #
+  # Open file handle
+  nc_out <- ncdf4::nc_open(outfile_met, write=TRUE)
+
+  # MODIS
+  default_lai    <- "LAI_MODIS"
+  default_fpar <- "FPAR_MODIS"
+  default_source <- "MODIS"
+
+  alt_lai    <- "LAI_Copernicus"
+  alt_source <- "Copernicus"
+
+  # Rename LAI
+  nc_out <- ncdf4::ncvar_rename(nc_out, default_lai, "LAI")
+  nc_out <- ncdf4::ncvar_rename(nc_out, default_fpar, "FPAR")
+  #nc_out <- ncdf4::ncvar_rename(nc_out, alt_lai, "LAI_alternative")
+
+  # Add source in attribute data
+  ncdf4::ncatt_put(
+    nc = nc_out,
+    varid = "LAI",
+    attname = "source",
+    attval = default_source
+  )
+
+  ncdf4::ncatt_put(
+    nc = nc_out,
+    varid = "FPAR",
+    attname = "source",
+    attval = default_source
+  )
+
   # ncdf4::ncatt_put(
   #   nc = nc_out,
   #   varid = "LAI_alternative",
   #   attname = "source",
   #   attval = alt_source
-  #   )
-#
-#   # Close file handle
-#   ncdf4::nc_close(nc_out)
+  # )
+
+  # Close file handle
+  ncdf4::nc_close(outfile_met)
+
+  # rename file
+  # TODO
+
 
 }

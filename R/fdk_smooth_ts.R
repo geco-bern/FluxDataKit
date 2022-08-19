@@ -8,7 +8,7 @@
 #' @param variable what MODIS variable is processed (LAI or FPAR)
 #' @param start_year a start year of the desired series
 #' @param end_year an end year of the desired series
-#' @param nc_file FluxnetLSM netcdf file to amend, scaling
+#' @param nc_file FluxnetLSM netcdf ERA Met file to amend, scaling
 #'  the data to the respective time step required
 #'
 #' @return a data frame with smoothed gapfilled time series
@@ -27,11 +27,12 @@ fdk_smooth_ts <- function(
   x <- 1:length(dates)
 
   # Define spline function
-  func = splinefun(
+  func <- splinefun(
     x = x,
     y = values,
     method = "fmm",
-    ties = mean)
+    ties = mean
+    )
 
   # Gapfill with spline (and cap negative values)
   spline_values <- func(seq(min(x), max(x), by=1))
@@ -145,9 +146,6 @@ fdk_smooth_ts <- function(
   clim_anomalies <- modis_clim_all + anomaly
 
   if(missing(nc_file)){
-
-    plot(smooth_values)
-    points(clim_anomalies, col = "red")
 
     message("returning climate anomalies")
     return(clim_anomalies)

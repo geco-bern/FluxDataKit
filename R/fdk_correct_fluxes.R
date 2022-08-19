@@ -1,17 +1,18 @@
 
-#' Flux corrections
+#' Flux corrections routine
 #'
-#' Additional flux corrections
+#' Wrapper for the energy balance correction and subsetting of
+#' reported (valid) years
 #'
-#' @param infile
-#' @param qle_name
-#' @param qh_name
-#' @param rnet_name
-#' @param qg_name
-#' @param qle_cor_name
-#' @param qh_cor_name
+#' @param infile input netcdf file
+#' @param qle_name latent heat
+#' @param qh_name sensible heat
+#' @param rnet_name respiration?
+#' @param qg_name quality control
+#' @param qle_cor_name quality control
+#' @param qh_cor_name quality control
 #'
-#' @return
+#' @return energy balance corrected netcdf file
 #' @export
 
 fdk_flux_corrections <- function(
@@ -131,7 +132,6 @@ fdk_flux_corrections <- function(
   # NOT SURE WHAT THIS EVEN DOES??
   start_yr <- 1
   end_yr   <- 0
-
 
   # If need to adjust
   if (start_yr > 1 | end_yr < 0) {

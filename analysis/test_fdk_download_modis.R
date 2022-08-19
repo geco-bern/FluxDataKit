@@ -99,8 +99,8 @@ df_modis_mean <- dplyr::left_join(
   df_modis_mean
   )
 
-fdk_smooth_ts(
+test <- fdk_smooth_ts(
   df_modis_mean$calendar_date,
-  df_modis_mean$lai
+  df_modis_mean$fpar
 )
 
