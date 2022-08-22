@@ -258,7 +258,6 @@ fdk_smooth_ts <- function(
     }
 
     message("writing MODIS data to netcdf file")
-
     variable_short <- paste0(variable, "_MODIS")
 
     # Define variable:

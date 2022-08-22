@@ -18,9 +18,7 @@ fdk_correct_era <- function(
   # - fixes CO2 if applicable
   # - applies other fixes if applicable
   # - checks for no missing values in met data
-
-  # set temporary nc file
-  outfile_met <-  file.path(tempdir(), "fluxnetlsm/tmp_met.nc")
+  tmp_met <- file.path(tempdir(), "fluxnetlsm//temp_met.nc")
 
   # Open nc file handle
   met_nc <- ncdf4::nc_open(infile_met, write = TRUE)
@@ -99,7 +97,6 @@ fdk_correct_era <- function(
   #---- Check for additional site corrections -----
 
   # Check if any apply to this site
-
   site_fixes <- site_exceptions(
     site_code,
     var_data,
@@ -187,12 +184,6 @@ fdk_correct_era <- function(
     # New years
     new_yr_label <- paste0(new_start_year, "-", new_end_year)
 
-    # File name without path
-    filename <- basename(outfile_met)
-    outdir <- dirname(outfile_met)
-
-    # Replace file name with new years
-    outfile_met <- paste0(outdir, gsub("[0-9]{4}-[0-9]{4}", new_yr_label, filename))
   }
 
   #---- Check for missing vals in met data ----
@@ -216,10 +207,10 @@ fdk_correct_era <- function(
   lai_vars <- vars[which(grepl("LAI_", vars))]
 
   # Should have two available, check that they are there
-
-  if (length(lai_vars) != 2) {
-    warning(paste0("LAI variables not available, check site: ", site_code))
-  }
+  # Koen: not applicable anymore, only including LAI and FPAR
+  #if (length(lai_vars) != 2) {
+  #  warning(paste0("LAI variables not available, check site: ", site_code))
+  #}
 
   for (v in names(att_data)) {
 
@@ -249,7 +240,7 @@ fdk_correct_era <- function(
   new_vars <- met_nc$var
 
   # New file handle
-  out_nc <- ncdf4::nc_create(outfile_met, vars = new_vars)
+  out_nc <- ncdf4::nc_create(infile_met, vars = new_vars)
 
   # Get global attributes
   global_atts <- ncdf4::ncatt_get(met_nc, varid=0)
@@ -287,7 +278,7 @@ fdk_correct_era <- function(
   #----- default LAI check ----
 
   # Open file handle
-  nc_out <- ncdf4::nc_open(outfile_met, write=TRUE)
+  nc_out <- ncdf4::nc_open(infile_met, write=TRUE)
 
   # MODIS
   default_lai    <- "LAI_MODIS"
@@ -327,10 +318,25 @@ fdk_correct_era <- function(
   # Close file handle
   ncdf4::nc_close(nc_out)
 
-  # rename file
-  file.copy(
-    outfile_met,
-    infile_met
-  )
-  file.remove(outfile_met)
+  # rename the orignal file if time
+  # varying components are changed
+  # see above
+
+  # If need to adjust
+  if (start_yr > 1 | end_yr < 0) {
+
+    # File name without path
+    filename <- gsub("[0-9]{4}-[0-9]{4}", new_yr_label, basename(infile_met))
+    print(filename)
+    outdir <- dirname(infile_met)
+
+    # Replace file name with new years
+    file.rename(
+      infile_met,
+      file.path(outdir, filename)
+    )
+
+    # reset infile_met
+    infile_met <- file.path(outdir, filename)
+  }
 }

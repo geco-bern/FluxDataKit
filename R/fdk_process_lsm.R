@@ -31,6 +31,16 @@ fdk_process_lsm <- function(
     }
   }
 
+  # Set path to NA if missing
+  # can't forward missing elements
+  # to other functions within
+  # a lapply() which also
+  # calls its own function
+  # and is sand-boxed in ways
+  if(missing(modis_path)){
+    modis_path <- NA
+  }
+
   # create full data path
   df$data_path <- file.path(df$data_path, df$product)
 
@@ -133,6 +143,8 @@ fdk_process_lsm <- function(
       # Step2_Process_MODIS_LAI_for_all_sites.R
       message("Merging in MODIS LAI/FPAR data")
 
+      # function to download and or
+      # process MODIS data (LAI/FPAR)
       fdk_download_modis(
           df = x,
           path = modis_path,

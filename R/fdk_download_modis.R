@@ -1,5 +1,84 @@
-
 #' Download MODIS LAI/FPAR
+#'
+#' Downloads and smooths MODIS LAI/FPAR values
+#' for merging into the final LSM model data.
+#' Smoothing interpolates values to an half-hourly
+#' time step.
+#'
+#' @param df data frame with site info
+#' @param path path where to store the MODIS data
+#'
+#' @return raw MODIS data saved to a desired path
+#' @export
+
+fdk_download_modis <- function(
+    df,
+    path
+) {
+
+  #----- settings and startup -----
+
+  apply(df, 1, function(x){
+
+    # Exception for US-ORv, wetland site with no MODIS LAI available
+    if (df['sitename'] == "US-ORv") return(NULL)
+
+    # extract the range of the data to consider
+    # and where required extrapolate to missing
+    # years
+    start_year <- as.numeric(df['year_start'])
+    end_year <- as.numeric(df['year_end'])
+
+    # set products and band names for the
+    # download
+    product <- "MCD15A2H"
+    bands <- c(
+      "Lai_500m",
+      "LaiStdDev_500m",
+      "FparStdDev_500m",
+      "Fpar_500m",
+      "FparLai_QC"
+    )
+
+    #----- data download -----
+
+    # Check if data exists, if not download
+
+    # downloading data
+    df_modis <- try(
+      MODISTools::mt_subset(
+        site_name = as.character(df['sitename']),
+        lat = df['lat'],
+        lon = df['lon'],
+        product = product,
+        band = bands,
+        start = "2000-01-01",
+        end = format(Sys.time(), "%Y-%m-%d"),
+        km_lr = 1,
+        km_ab = 1,
+        internal = TRUE
+      )
+    )
+
+    if(inherits(df_modis, "try-error") ) {
+      warning("MODIS data download failed")
+      return(NULL)
+    }
+
+    # write data to file
+    write.table(
+      df_modis,
+      file.path(path, paste0(x['sitename'], "_MODIS_data.csv")),
+      col.names = TRUE,
+      row.names = FALSE,
+      quote = FALSE,
+      sep = ","
+    )
+
+  })
+}
+
+#' match MODIS LAI/FPAR to ERA data
 #'
 #' Downloads and smooths MODIS LAI/FPAR values
 #' for merging into the final LSM model data.
@@ -10,10 +89,11 @@
 #' @param path path where to store the MODIS data
 #' @param nc_file netcdf file containing the LSM processed flux data
 #'
-#' @return smoothed time series of LAI/FPAR
+#' @return smoothed time series of LAI/FPAR integrated in the meteorological
+#' (ERA) data
 #' @export
 
-fdk_download_modis <- function(
+fdk_match_modis <- function(
   df,
   path,
   nc_file
@@ -45,34 +125,50 @@ fdk_download_modis <- function(
 
   # Check if data exists, if not download
 
-# df_modis <- try(
-#       MODISTools::mt_subset(
-#       site_name = as.character(df['sitename']),
-#       lat = df['lat'],
-#       lon = df['lon'],
-#       product = product,
-#       band = bands,
-#       start = "2000-01-01",
-#       end = format(Sys.time(), "%Y-%m-%d"),
-#       km_lr = 1,
-#       km_ab = 1,
-#       internal = TRUE
-#     )
-#   )
+  if (is.na(path)){
 
-  # if(inherits(df_modis, "try-error") ) {
-  #   warning("MODIS data download failed")
-  # }
+    # downloading data
+    df_modis <- try(
+          MODISTools::mt_subset(
+          site_name = as.character(df['sitename']),
+          lat = df['lat'],
+          lon = df['lon'],
+          product = product,
+          band = bands,
+          start = "2000-01-01",
+          end = format(Sys.time(), "%Y-%m-%d"),
+          km_lr = 1,
+          km_ab = 1,
+          internal = TRUE
+        )
+      )
 
-  #saveRDS(df_modis, file = "data/modis.rds")
-  df_modis <- readRDS("data/modis.rds")
+    if(inherits(df_modis, "try-error") ) {
+      warning("MODIS data download failed")
+      return(NULL)
+    }
+  } else {
+
+    # df_modis <- read.table(
+    #   file.path(path, paste0(df["sitename"],"_MODIS.csv")),
+    #   sep = ",",
+    #   header = TRUE
+    #   )
+
+    # read in data
+    df_modis <- readRDS("data/modis.rds")
+  }
 
   #----- QC screening -----
 
   # apply scaling factors, ignore if not available
+  # TODO: check coercian warnings on ifelse()
+  # mixing types on QC flags?
   df_modis <- df_modis |>
+    dplyr::filter(site == df['sitename']) |>
     dplyr::mutate(
-      value = ifelse(!is.na(as.numeric(scale)),
+      scale = ifelse(scale == "Not Available", NA, scale),
+      value = ifelse(!is.na(scale),
                      value * as.numeric(scale),
                      value),
       calendar_date = as.Date(calendar_date)
