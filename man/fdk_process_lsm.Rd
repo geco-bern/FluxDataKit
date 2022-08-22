@@ -7,6 +7,7 @@
 fdk_process_lsm(
   df,
   out_path,
+  modis_path,
   format = "fluxnet",
   save_tmp_files = TRUE,
   overwrite = TRUE
@@ -15,11 +16,17 @@ fdk_process_lsm(
 \arguments{
 \item{df}{dataframe with sites to process}
 
-\item{out_path}{output directory}
+\item{out_path}{output directory for processed data}
+
+\item{modis_path}{where to store downloaded MODIS data}
 
 \item{format}{the format of the output (fluxnet = FLUXNET formatting)}
 
 \item{save_tmp_files}{retain temporary files (TRUE or FALSE)}
+}
+\value{
+LSM compatible netcdf files in the output directory, with
+ intermediary files saved upon request
 }
 \description{
 Convert FLUXNET data to land surface model compatible netcdf files, using

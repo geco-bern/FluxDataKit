@@ -17,7 +17,7 @@ fdk_smooth_ts(dates, values, variable, start_year, end_year, nc_file)
 
 \item{end_year}{an end year of the desired series}
 
-\item{nc_file}{FluxnetLSM netcdf file to amend, scaling
+\item{nc_file}{FluxnetLSM netcdf ERA Met file to amend, scaling
 the data to the respective time step required}
 }
 \value{

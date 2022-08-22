@@ -2,14 +2,10 @@
 % Please edit documentation in R/fdk_correct_fluxes.R
 \name{fdk_flux_corrections}
 \alias{fdk_flux_corrections}
-\title{Flux corrections}
+\title{Flux corrections routine}
 \usage{
 fdk_flux_corrections(
   infile,
-  qc_info,
-  outfile,
-  outdir,
-  new_qc,
   qle_name = "Qle",
   qh_name = "Qh",
   rnet_name = "Rnet",
@@ -19,8 +15,24 @@ fdk_flux_corrections(
 )
 }
 \arguments{
-\item{qh_cor_name}{}
+\item{infile}{input netcdf file}
+
+\item{qle_name}{latent heat}
+
+\item{qh_name}{sensible heat}
+
+\item{rnet_name}{respiration?}
+
+\item{qg_name}{quality control}
+
+\item{qle_cor_name}{quality control}
+
+\item{qh_cor_name}{quality control}
+}
+\value{
+energy balance corrected netcdf file
 }
 \description{
-Additional flux corrections
+Wrapper for the energy balance correction and subsetting of
+reported (valid) years
 }

@@ -104,60 +104,20 @@ fdk_match_modis <- function(
   # Exception for US-ORv, wetland site with no MODIS LAI available
   if (df['sitename'] == "US-ORv") return(NULL)
 
-  # extract the range of the data to consider
-  # and where required extrapolate to missing
-  # years
-  start_year <- as.numeric(df['year_start'])
-  end_year <- as.numeric(df['year_end'])
-
-  # set products and band names for the
-  # download
-  product <- "MCD15A2H"
-  bands <- c(
-    "Lai_500m",
-    "LaiStdDev_500m",
-    "FparStdDev_500m",
-    "Fpar_500m",
-    "FparLai_QC"
+  df_modis <- try(read.table(
+    file.path(path, paste0(df["sitename"],"_MODIS.csv")),
+    sep = ",",
+    header = TRUE
+    )
   )
 
-  #----- data download -----
-
-  # Check if data exists, if not download
-
-  if (is.na(path)){
-
-    # downloading data
-    df_modis <- try(
-          MODISTools::mt_subset(
-          site_name = as.character(df['sitename']),
-          lat = df['lat'],
-          lon = df['lon'],
-          product = product,
-          band = bands,
-          start = "2000-01-01",
-          end = format(Sys.time(), "%Y-%m-%d"),
-          km_lr = 1,
-          km_ab = 1,
-          internal = TRUE
-        )
-      )
-
-    if(inherits(df_modis, "try-error") ) {
-      warning("MODIS data download failed")
-      return(NULL)
-    }
-  } else {
-
-    # df_modis <- read.table(
-    #   file.path(path, paste0(df["sitename"],"_MODIS.csv")),
-    #   sep = ",",
-    #   header = TRUE
-    #   )
-
-    # read in data
-    df_modis <- readRDS("data/modis.rds")
+  if (inherits(df_modis, "try-error")) {
+    warning("MODIS data not found, please download data for this site.")
+    return(NULL)
   }
+
+  # read in data
+  df_modis <- readRDS("data/modis.rds")
 
   #----- QC screening -----
 

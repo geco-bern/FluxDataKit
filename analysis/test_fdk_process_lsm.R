@@ -18,9 +18,14 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
     sitename == "AT-Neu"
   )
 
+if (!file.exists("data-raw/modis_new/AT-Neu_MODIS_data.csv")) {
+  fdk_download_modis(sites, path = "data-raw/modis_new/")
+}
+
 fdk_process_lsm(
   sites,
   out_path = "data/tmp/",
+  modis_path = "data-raw/modis_new/",
   format = "lsm",
   overwrite = TRUE
   )

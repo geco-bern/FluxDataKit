@@ -145,7 +145,7 @@ fdk_process_lsm <- function(
 
       # function to download and or
       # process MODIS data (LAI/FPAR)
-      fdk_download_modis(
+      fdk_match_modis(
           df = x,
           path = modis_path,
           nc_file = nc_files$met
