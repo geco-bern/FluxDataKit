@@ -105,7 +105,7 @@ fdk_match_modis <- function(
   if (df['sitename'] == "US-ORv") return(NULL)
 
   df_modis <- try(read.table(
-    file.path(path, paste0(df["sitename"],"_MODIS.csv")),
+    file.path(path, paste0(df["sitename"],"_MODIS_data.csv")),
     sep = ",",
     header = TRUE
     )
@@ -116,16 +116,10 @@ fdk_match_modis <- function(
     return(NULL)
   }
 
-  # read in data
-  df_modis <- readRDS("data/modis.rds")
-
   #----- QC screening -----
 
   # apply scaling factors, ignore if not available
-  # TODO: check coercian warnings on ifelse()
-  # mixing types on QC flags?
   df_modis <- df_modis |>
-    dplyr::filter(site == df['sitename']) |>
     dplyr::mutate(
       scale = ifelse(scale == "Not Available", NA, scale),
       value = ifelse(!is.na(scale),

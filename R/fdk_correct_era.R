@@ -14,12 +14,6 @@ fdk_correct_era <- function(
     new_qc
     ) {
 
-  # - gets desired years
-  # - fixes CO2 if applicable
-  # - applies other fixes if applicable
-  # - checks for no missing values in met data
-  tmp_met <- file.path(tempdir(), "fluxnetlsm//temp_met.nc")
-
   # Open nc file handle
   met_nc <- ncdf4::nc_open(infile_met, write = TRUE)
 
@@ -279,6 +273,8 @@ fdk_correct_era <- function(
 
   # Open file handle
   nc_out <- ncdf4::nc_open(infile_met, write=TRUE)
+
+  if ()
 
   # MODIS
   default_lai    <- "LAI_MODIS"
