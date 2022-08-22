@@ -198,13 +198,7 @@ fdk_correct_era <- function(
   }
 
   # First check that LAI data is available
-  lai_vars <- vars[which(grepl("LAI_", vars))]
-
-  # Should have two available, check that they are there
-  # Koen: not applicable anymore, only including LAI and FPAR
-  #if (length(lai_vars) != 2) {
-  #  warning(paste0("LAI variables not available, check site: ", site_code))
-  #}
+  modis_vars <- vars[which(grepl("_MODIS", vars))]
 
   for (v in names(att_data)) {
 
@@ -274,45 +268,43 @@ fdk_correct_era <- function(
   # Open file handle
   nc_out <- ncdf4::nc_open(infile_met, write=TRUE)
 
-  if ()
+  # Should have two available, check that they are there
+  # Koen: not applicable anymore, only including LAI and FPAR
+  if (length(modis_vars) != 2) {
+    warning(paste0("LAI variables not available, check site: ", site_code))
+  } else {
 
-  # MODIS
-  default_lai    <- "LAI_MODIS"
-  default_fpar <- "FPAR_MODIS"
-  default_source <- "MODIS"
+    # MODIS
+    default_lai    <- "LAI_MODIS"
+    default_fpar <- "FPAR_MODIS"
+    default_source <- "MODIS"
 
-  alt_lai    <- "LAI_Copernicus"
-  alt_source <- "Copernicus"
+    alt_lai    <- "LAI_Copernicus"
+    alt_source <- "Copernicus"
 
-  # Rename LAI
-  nc_out <- ncdf4::ncvar_rename(nc_out, default_lai, "LAI")
-  nc_out <- ncdf4::ncvar_rename(nc_out, default_fpar, "FPAR")
-  #nc_out <- ncdf4::ncvar_rename(nc_out, alt_lai, "LAI_alternative")
+    # Rename LAI
+    nc_out <- ncdf4::ncvar_rename(nc_out, default_lai, "LAI")
+    nc_out <- ncdf4::ncvar_rename(nc_out, default_fpar, "FPAR")
+    #nc_out <- ncdf4::ncvar_rename(nc_out, alt_lai, "LAI_alternative")
 
-  # Add source in attribute data
-  ncdf4::ncatt_put(
-    nc = nc_out,
-    varid = "LAI",
-    attname = "source",
-    attval = default_source
-  )
+    # Add source in attribute data
+    ncdf4::ncatt_put(
+      nc = nc_out,
+      varid = "LAI",
+      attname = "source",
+      attval = default_source
+    )
 
-  ncdf4::ncatt_put(
-    nc = nc_out,
-    varid = "FPAR",
-    attname = "source",
-    attval = default_source
-  )
+    ncdf4::ncatt_put(
+      nc = nc_out,
+      varid = "FPAR",
+      attname = "source",
+      attval = default_source
+    )
 
-  # ncdf4::ncatt_put(
-  #   nc = nc_out,
-  #   varid = "LAI_alternative",
-  #   attname = "source",
-  #   attval = alt_source
-  # )
-
-  # Close file handle
-  ncdf4::nc_close(nc_out)
+    # Close file handle
+    ncdf4::nc_close(nc_out)
+  }
 
   # rename the orignal file if time
   # varying components are changed
@@ -323,7 +315,6 @@ fdk_correct_era <- function(
 
     # File name without path
     filename <- gsub("[0-9]{4}-[0-9]{4}", new_yr_label, basename(infile_met))
-    print(filename)
     outdir <- dirname(infile_met)
 
     # Replace file name with new years
