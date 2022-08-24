@@ -138,6 +138,7 @@ fdk_convert_lsm <- function(
       WS_F = "Wind",
       PA_F = "Psurf",
       CO2_F_MDS = "CO2air",
+
       # FLUXES
       NETRAD = "Rnet",
       USTAR = "Ustar",
@@ -156,6 +157,7 @@ fdk_convert_lsm <- function(
       GPP_DT_VUT_SE = "GPP_DT_se",
       RECO_NT_VUT_REF = "Resp",
       RECO_NT_VUT_SE = "Resp_se",
+
       # MODIS data
       LAI = "LAI",
       FPAR = "FPAR"
@@ -227,7 +229,7 @@ fdk_convert_lsm <- function(
   # save data to file, using FLUXNET formatting
   if (fluxnet_format && !missing(out_path)) {
 
-    message("writing datat to file")
+    message("writing data to file")
     filename <- sprintf("FLX_%s_PLUMBER_FULLSET_HH_%s_%s_2-3.csv",
                         site,
                         start_year,

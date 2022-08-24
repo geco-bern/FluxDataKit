@@ -70,21 +70,21 @@ required for a p-model run in rsofun.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">fdk_format_drivers</span><span class="op">(</span>
-  <span class="va">siteinfo</span>,
-  params_siml <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>spinup <span class="op">=</span> <span class="cn">TRUE</span>, spinupyears <span class="op">=</span> <span class="fl">10</span>, recycle <span class="op">=</span> <span class="fl">1</span>, soilmstress <span class="op">=</span> <span class="cn">FALSE</span>,
-    tempstress <span class="op">=</span> <span class="cn">FALSE</span>, calc_aet_fapar_vpd <span class="op">=</span> <span class="cn">FALSE</span>, in_ppfd <span class="op">=</span> <span class="cn">TRUE</span>, in_netrad <span class="op">=</span> <span class="cn">FALSE</span>,
-    outdt <span class="op">=</span> <span class="fl">1</span>, ltre <span class="op">=</span> <span class="cn">FALSE</span>, ltne <span class="op">=</span> <span class="cn">FALSE</span>, ltrd <span class="op">=</span> <span class="cn">FALSE</span>, ltnd <span class="op">=</span> <span class="cn">FALSE</span>, lgr3 <span class="op">=</span> <span class="cn">TRUE</span>, lgn3
-    <span class="op">=</span> <span class="cn">FALSE</span>, lgr4 <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,
-  params_modl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>kphio <span class="op">=</span> <span class="fl">0.09423773</span>, soilm_par_a <span class="op">=</span> <span class="fl">0.33349283</span>, soilm_par_b <span class="op">=</span>
-    <span class="fl">1.45602286</span><span class="op">)</span>,
-  df_soiltexture <span class="op">=</span> <span class="fu">bind_rows</span><span class="op">(</span>top <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>layer <span class="op">=</span> <span class="st">"top"</span>, fsand <span class="op">=</span> <span class="fl">0.4</span>, fclay <span class="op">=</span> <span class="fl">0.3</span>, forg
-    <span class="op">=</span> <span class="fl">0.1</span>, fgravel <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, bottom <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>layer <span class="op">=</span> <span class="st">"bottom"</span>, fsand <span class="op">=</span> <span class="fl">0.4</span>, fclay <span class="op">=</span> <span class="fl">0.3</span>,
-    forg <span class="op">=</span> <span class="fl">0.1</span>, fgravel <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>,
-  freq <span class="op">=</span> <span class="st">"hh"</span>,
-  <span class="va">product</span>,
-  verbose <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_format_drivers</span><span class="op">(</span></span>
+<span>  <span class="va">siteinfo</span>,</span>
+<span>  params_siml <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>spinup <span class="op">=</span> <span class="cn">TRUE</span>, spinupyears <span class="op">=</span> <span class="fl">10</span>, recycle <span class="op">=</span> <span class="fl">1</span>, soilmstress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    tempstress <span class="op">=</span> <span class="cn">FALSE</span>, calc_aet_fapar_vpd <span class="op">=</span> <span class="cn">FALSE</span>, in_ppfd <span class="op">=</span> <span class="cn">TRUE</span>, in_netrad <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    outdt <span class="op">=</span> <span class="fl">1</span>, ltre <span class="op">=</span> <span class="cn">FALSE</span>, ltne <span class="op">=</span> <span class="cn">FALSE</span>, ltrd <span class="op">=</span> <span class="cn">FALSE</span>, ltnd <span class="op">=</span> <span class="cn">FALSE</span>, lgr3 <span class="op">=</span> <span class="cn">TRUE</span>, lgn3</span>
+<span>    <span class="op">=</span> <span class="cn">FALSE</span>, lgr4 <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  params_modl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>kphio <span class="op">=</span> <span class="fl">0.09423773</span>, soilm_par_a <span class="op">=</span> <span class="fl">0.33349283</span>, soilm_par_b <span class="op">=</span></span>
+<span>    <span class="fl">1.45602286</span><span class="op">)</span>,</span>
+<span>  df_soiltexture <span class="op">=</span> <span class="fu">bind_rows</span><span class="op">(</span>top <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>layer <span class="op">=</span> <span class="st">"top"</span>, fsand <span class="op">=</span> <span class="fl">0.4</span>, fclay <span class="op">=</span> <span class="fl">0.3</span>, forg <span class="op">=</span></span>
+<span>    <span class="fl">0.1</span>, fgravel <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, bottom <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>layer <span class="op">=</span> <span class="st">"bottom"</span>, fsand <span class="op">=</span> <span class="fl">0.4</span>, fclay <span class="op">=</span> <span class="fl">0.3</span>, forg</span>
+<span>    <span class="op">=</span> <span class="fl">0.1</span>, fgravel <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  freq <span class="op">=</span> <span class="st">"hh"</span>,</span>
+<span>  <span class="va">product</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -92,20 +92,33 @@ required for a p-model run in rsofun.</p>
     <dl><dt>siteinfo</dt>
 <dd><p>data frame using minimum information required
 being five columns: sitename, lon, lat, year_start, year_end</p></dd>
+
+
 <dt>params_siml</dt>
 <dd><p>simulation parameters (preset)</p></dd>
+
+
 <dt>params_modl</dt>
 <dd><p>model parameters (preset)</p></dd>
+
+
 <dt>df_soiltexture</dt>
 <dd><p>soil data specifics (preset)</p></dd>
+
+
 <dt>product</dt>
 <dd><p>which flux product to use</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>provide verbose output (default = FALSE)</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>returns an rsofun compatible driver file for the provided
+    
+
+<p>returns an rsofun compatible driver file for the provided
  sites</p>
     </div>
     <div id="details">

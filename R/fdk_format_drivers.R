@@ -8,7 +8,7 @@
 #' arguments, but could be altered after
 #' the fact if desired.
 #'
-#' @param siteinfo data frame using minimum information required
+#' @param site_info data frame using minimum information required
 #' being five columns: sitename, lon, lat, year_start, year_end
 #' @param params_siml simulation parameters (preset)
 #' @param params_modl model parameters (preset)
@@ -20,7 +20,7 @@
 #'  sites
 
 fdk_format_drivers <- function(
-  siteinfo,
+  site_info,
   params_siml = list(
     spinup             = TRUE,  # to bring soil moisture to steady state
     spinupyears        = 10,    # 10 is enough for soil moisture.
@@ -59,53 +59,58 @@ fdk_format_drivers <- function(
       fgravel = 0.1)
   ),
   freq = "hh",
-  product,
+  path,
   verbose = TRUE
   ){
 
   #---- start-up checks ----
 
-  # check format of the siteinfo
-  names(siteinfo) %in% c("sitename","lon","lat","start_year","end_year","elv")
+  # check format of the site_info
+  names(site_info) %in% c("sitename","lon","lat","start_year","end_year","elv")
 
-  #---- complement siteinfo with WHC based on S_CWDX80 ----
+  #---- complement site_info with WHC based on S_CWDX80 ----
 
   # some feedback on the processing
-  if(verbose){
+  if(verbose) {
     message("Processing WHC data ....")
   }
 
-  # bail if not on euler
-  if(grepl('eu-', Sys.info()['nodename'])){
+  # don't include water holding capacity
+  # via cwdx80 if not on Euler, Balder or Dash
+  if(grepl('eu-', Sys.info()['nodename'])) {
 
-    if(verbose){
+    if(verbose) {
       message("Processing cwdx80 data on server ....")
     }
 
       filn <- "data-raw/ancillary_data/cwdx80/cwdx80.nc"
-      siteinfo <- siteinfo %>%
+      site_info <- site_info |>
         left_join(rbeni::extract_nc(
-          dplyr::select(siteinfo,
+          dplyr::select(site_info,
                         sitename,
                         lon,
                         lat),
-          filn) %>%
-            unnest(data) %>%
+          filn) |>
+            unnest(data) |>
             rename(whc = V1),
           by = c("sitename", "lon", "lat")
         )
 
     # median values
-    whc_median <- median(siteinfo$whc, na.rm = TRUE)
+    whc_median <- median(site_info$whc, na.rm = TRUE)
 
     # append info
-    siteinfo <- siteinfo %>%
+    site_info <- site_info |>
       mutate(
         whc = ifelse(
           is.na(whc),
           whc_median,
           whc
-          ))
+          )
+        )
+  } else {
+    # dummy variable
+    whc_median <- NA
   }
 
   #---- grabbing data environmental data from FLUX archives ----
@@ -122,28 +127,13 @@ fdk_format_drivers <- function(
     remove_neg   = FALSE
   )
 
-  if (product == "oneflux"){
-    path = "data-raw/flux_data/oneflux/"
-  }
-
-  if (product == "icos"){
-    path = "data-raw/flux_data/icos/"
-  }
-
-  if (product == "plumber"){
-    path = "data-raw/flux_data/plumber_fluxnet/"
-  }
-
-  if (product == "fluxnet2015"){
-    path = "data-raw/flux_data/fluxnet2015/"
-  }
-
+  message("processing flux data using {ingestr}")
   ddf_flux <- ingest(
-    siteinfo = siteinfo %>% slice(1:3),
+    siteinfo = site_info |> slice(1:3),
     source   = "fluxnet",
     getvars  = list(
-      gpp = "GPP_NT_VUT_REF",
-      gpp_unc = "GPP_NT_VUT_SE",
+      gpp = "GPP_DT_VUT_REF",
+      gpp_unc = "GPP_DT_VUT_SE",
       temp = "TA_F_MDS",
       prec = "P_F",
       vpd = "VPD_F_MDS",
@@ -151,8 +141,9 @@ fdk_format_drivers <- function(
       ppfd = "SW_IN_F_MDS",
       netrad = "NETRAD",
       wind = "WS",
-      co2_air = "CO2_F_MDS"
-      #sw_up = "SW_OUT",
+      co2_air = "CO2_F_MDS",
+      lai = "LAI",
+      fpar = "FPAR"
       #lw_down = "LW_IN_F_MDS",
       #le = "LE_F_MDS",
       #le_cor = "LE_CORR",
@@ -163,24 +154,27 @@ fdk_format_drivers <- function(
     ),
     dir = path,
     settings = settings_fluxnet,
-    timescale= "hh"
+    timescale = freq
   )
+
+  print(head(ddf_flux$data[[1]]))
 
   # GPP conversion factor
   # in FLUXNET given in umolCO2 m-2 s-1. converted to gC m-2 d-1
   c_molmass <- 12.0107  # molar mass of C
   gpp_coversion <- 1e-6 * 60 * 60 * 24 * c_molmass
 
-
   #----- Calculate daily values from half-hourly measurements ----
 
-  if (freq != "hh"){
+  message("Converting HH values to Daily values...")
+
+  if (freq == "hh"){
     data <- ddf_flux$data[[1]]
-    data <- data %>%
+    data <- data |>
       mutate(
         date = as.Date(date)
-      ) %>%
-      group_by(date) %>%
+      ) |>
+      group_by(date) |>
       summarize(
 
         # Daily summary values
@@ -197,6 +191,10 @@ fdk_format_drivers <- function(
         vpd = mean(vpd, na.rm = TRUE),
         patm = mean(patm, na.rm = TRUE),
 
+        # missing values
+        snow = 0,
+        co2_air = mean(co2_air, na.rm = TRUE),
+
         # radiation values are averages for
         # days with more than 50% of values
         # available
@@ -212,6 +210,10 @@ fdk_format_drivers <- function(
           NA
         ),
 
+        # remote sensing data
+        lai = mean(lai, na.rm = TRUE),
+        fapar = mean(fpar, na.rm = TRUE),
+
         # tally the number of HH values
         # included in the dialy data for QA/QC
         gpp_qc = length(which(!is.na(gpp))),
@@ -222,7 +224,7 @@ fdk_format_drivers <- function(
         netrad_qc = length(which(!is.na(netrad))),
         ppdf_qc = length(which(!is.na(ppfd)))
 
-      ) %>%
+      ) |>
       mutate(
         tmin = ifelse(is.infinite(tmin), NA, tmin),
         tmax = ifelse(is.infinite(tmax), NA, tmax)
@@ -233,121 +235,98 @@ fdk_format_drivers <- function(
 
   } else {
     data <- ddf_flux$data[[1]]
-    ddf_flux$data[[1]] <- data %>%
+    ddf_flux$data[[1]] <- data |>
       mutate(
         date_time = date,
         date = as.Date(date)
       )
   }
 
-  if (freq != "hh"){
-
-    #---- Processing CRU data (for cloud cover CCOV) ----
-    if(verbose){
-      message("Processing CRU data ....")
-    }
-
-    # adjust this with your local path
-    ddf_cru <- ingest(
-      siteinfo = siteinfo,
-      source    = "cru",
-      getvars   = "ccov",
-      dir       = "data-raw/ancillary_data/cru/",
-      settings = list(correct_bias = NULL)
-    )
-
-    # memory intensive, purge memory
-    gc()
-
-    #---- Merging climate data ----
-    if(verbose){
-      message("Merging climate data ....")
-    }
-
-    # merge all climate drivers into
-    # one format
-    ddf_meteo <- ddf_flux %>%
-      tidyr::unnest(data) %>%
-      left_join(
-        ddf_cru %>%
-          tidyr::unnest(data),
-        by = c("sitename", "date")
-      ) %>%
-      group_by(sitename) %>%
-      tidyr::nest()
-
-    #---- Append CO2 data ----
-    #
-    # CHECK SOURCE DATA
-    if(verbose){
-      message("Append CO2 data ....")
-    }
-
-    # grab the CO2 data matching date ranges
-    df_co2 <- ingest(
-      siteinfo,
-      source  = "co2_cmip",
-      verbose = FALSE,
-      dir = "data-raw/ancillary_data/co2/"
-    )
-
-    #---- Append FAPAR data ----
-
-    if(verbose){
-      message("Append FAPAR data ....")
-    }
-
-    if (!dir.exists("data-raw/modis/raw/")){
-      stop("no FAPAR data found - download first")
-    }
-
-    settings_gee <- get_settings_gee(
-        bundle            = "modis_fpar",
-        # doesn't matter data should be downloaded
-        python_path       = "/usr/bin/python3",
-        gee_path          = "./src/gee_subset/src/gee_subset",
-        data_path         = "data-raw/modis/",
-        # use linear interpolation (good enough and simple/ predictable)
-        method_interpol   = "linear",
-        keep              = FALSE,
-        overwrite_raw     = FALSE,
-        overwrite_interpol= TRUE
-      )
-
-      # run the ingest routine
-      df_fapar <-
-            ingest(
-            siteinfo,
-            source = "gee",
-            settings = settings_gee,
-            parallel = FALSE
-          )
-
-      # rename loess column to fapar as required
-      # for input below
-      df_fapar <- df_fapar %>%
-        dplyr::mutate(
-          data = purrr::map(data, ~ dplyr::mutate(., fapar = loess))
-          )
+  #---- Processing CRU data (for cloud cover CCOV) ----
+  if(verbose){
+    message("Processing CRU data ....")
   }
+
+  # adjust this with your local path
+  # ddf_cru <- ingest(
+  #   site_info = site_info,
+  #   source    = "cru",
+  #   getvars   = "ccov",
+  #   dir       = "data-raw/ancillary_data/cru/",
+  #   settings = list(correct_bias = NULL)
+  # )
+
+  # memory intensive, purge memory
+  gc()
+
+  #---- Merging climate data ----
+  if(verbose){
+    message("Merging climate data ....")
+  }
+
+  # merge all climate drivers into
+  # one format
+  ddf_flux$data[[1]]$ccov <- 1
+
+  # ddf_meteo <- ddf_flux |>
+  #   tidyr::unnest(data) |>
+  #   left_join(
+  #     ddf_cru |>
+  #       tidyr::unnest(data),
+  #     by = c("sitename", "date")
+  #   ) |>
+  #   group_by(sitename) |>
+  #   tidyr::nest()
+
+
+  #---- Append CO2 data ----
+  #
+  # CHECK SOURCE DATA
+  if(verbose){
+    message("Append CO2 data ....")
+  }
+
+  # grab the CO2 data matching date ranges
+  # df_co2 <- ingest(
+  #   site_info,
+  #   source  = "co2_cmip",
+  #   verbose = FALSE,
+  #   dir = "data-raw/ancillary_data/co2/"
+  # )
+
+  # rename loess column to fapar as required
+  # for input below
+  df_co2 <- ddf_flux |>
+    dplyr::mutate(
+      data = purrr::map(data, ~ dplyr::mutate(., co2 = co2_air))
+    )
+
+  #---- Append FAPAR data ----
+
+  if(verbose){
+    message("Append FAPAR data ....")
+  }
+
+  # rename loess column to fapar as required
+  # for input below
+  df_fapar <- ddf_flux |>
+    dplyr::mutate(
+      data = purrr::map(data, ~ dplyr::mutate(., fapar = fapar))
+    )
 
   #---- Format p-model driver data ----
   if(verbose){
     message("Combining all driver data ....")
   }
 
-  if(freq != "hh"){
-    output <- collect_drivers_sofun(
-      site_info      = siteinfo,
-      params_siml    = params_siml,
-      meteo          = ddf_meteo,
-      fapar          = df_fapar,
-      co2            = df_co2,
-      params_soil    = df_soiltexture
-    )
-  } else {
-    output <- ddf_flux
-  }
+  output <- rsofun::collect_drivers_sofun(
+    site_info      = site_info,
+    params_siml    = params_siml,
+    meteo          = ddf_flux,
+    fapar          = df_fapar,
+    co2            = df_co2,
+    params_soil    = df_soiltexture
+  )
 
   # return data, either a driver
   # or processed output

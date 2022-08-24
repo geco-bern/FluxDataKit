@@ -218,7 +218,7 @@ fdk_match_modis <- function(
 
   fdk_smooth_ts(
     dates = df_modis_mean$calendar_date,
-    values = df_modis_mean$lai,
+    values = df_modis_mean$fpar,
     variable = "FPAR",
     start_year = min_year,
     end_year = max_year,
