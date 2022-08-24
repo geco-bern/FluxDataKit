@@ -157,8 +157,6 @@ fdk_format_drivers <- function(
     timescale = freq
   )
 
-  print(head(ddf_flux$data[[1]]))
-
   # GPP conversion factor
   # in FLUXNET given in umolCO2 m-2 s-1. converted to gC m-2 d-1
   c_molmass <- 12.0107  # molar mass of C

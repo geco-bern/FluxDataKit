@@ -43,6 +43,9 @@
     <loc>/reference/fdk_collect_drivers.html</loc>
   </url>
   <url>
+    <loc>/reference/fdk_convert_lsm.html</loc>
+  </url>
+  <url>
     <loc>/reference/fdk_correct_era.html</loc>
   </url>
   <url>
@@ -53,6 +56,9 @@
   </url>
   <url>
     <loc>/reference/fdk_format_drivers.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fdk_match_modis.html</loc>
   </url>
   <url>
     <loc>/reference/fdk_process_lsm.html</loc>

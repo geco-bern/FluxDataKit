@@ -101,7 +101,7 @@ Hufkens</h4>
 <div class="section level2">
 <h2 id="compiling-data">Compiling data<a class="anchor" aria-label="anchor" href="#compiling-data"></a>
 </h2>
-<p>As mentioned in the introduction (once all requierd data are
+<p>As mentioned in the introduction (once all required data are
 downloaded) the <code>FluxDataKit</code> package ensures the proper
 compilation of <code>rsofun</code> driver data. Although we will
 distribute a finished dataset the below instructions allow you to
@@ -124,42 +124,75 @@ will only save the netcdf intermediates that are otherwise used for
 formatting p-model compatible data and will not include any other
 ancillary data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># load the sites to process</span>
-<span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/flux_data_kit_site-info.rds"</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span>
-    <span class="va">sitename</span> <span class="op">==</span> <span class="st">"BE-Vie"</span>
-  <span class="op">)</span>
-
-<span class="co"># process the data</span>
-<span class="fu"><a href="../reference/fdk_process_lsm.html">fdk_process_lsm</a></span><span class="op">(</span>
-  <span class="va">sites</span>,
-  out_path <span class="op">=</span> <span class="st">"/your/output/directory/"</span>,
-  format <span class="op">=</span> <span class="st">"lsm"</span>,
-  overwrite <span class="op">=</span> <span class="cn">TRUE</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># load the sites to process</span></span>
+<span><span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/flux_data_kit_site-info.rds"</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="va">sitename</span> <span class="op">==</span> <span class="st">"AT-Neu"</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># output LSM formatted data</span></span>
+<span><span class="fu"><a href="../reference/fdk_process_lsm.html">fdk_process_lsm</a></span><span class="op">(</span></span>
+<span>  <span class="va">sites</span>,</span>
+<span>  out_path <span class="op">=</span> <span class="st">"data/tmp/"</span>,</span>
+<span>  modis_path <span class="op">=</span> <span class="st">"data-raw/modis/"</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"lsm"</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="p-model-rsofun-formatting">p-model (rsofun) formatting<a class="anchor" aria-label="anchor" href="#p-model-rsofun-formatting"></a>
+<h3 id="fluxnet-formatting">FLUXNET formatting<a class="anchor" aria-label="anchor" href="#fluxnet-formatting"></a>
 </h3>
-<p>By default the format parameter is set to “p-model”, providing
-<code>rsofun</code> compatible output.</p>
+<p>By default the format parameter is set to “lsm”, providing land
+surface model netcdf files as output. You can specify “fluxnet” to
+convert the data to <code>rsofun</code> compatible FLXUNET output.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># read in demo data</span></span>
+<span><span class="co"># for AT-Neu site (as LSM data)</span></span>
+<span><span class="co"># convert to the HH fluxnet format</span></span>
+<span><span class="va">fluxnet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fdk_convert_lsm.html">fdk_convert_lsm</a></span><span class="op">(</span></span>
+<span>  site <span class="op">=</span> <span class="st">"AT-Neu"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"/your/input/directory/"</span>,</span>
+<span>  fluxnet_format <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  meta_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  out_path <span class="op">=</span> <span class="st">"/your/output/directory/"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># in line processing doing the same</span></span>
+<span><span class="fu"><a href="../reference/fdk_process_lsm.html">fdk_process_lsm</a></span><span class="op">(</span></span>
+<span>  <span class="va">sites</span>,</span>
+<span>  out_path <span class="op">=</span> <span class="st">"/your/output/directory/"</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"fluxnet"</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="p-model-rsofun-and-machine-learning-formatting-todo">p-model (rsofun) and Machine Learning formatting (TODO)<a class="anchor" aria-label="anchor" href="#p-model-rsofun-and-machine-learning-formatting-todo"></a>
+</h3>
 <p>In addition, MODIS data can be merged from the FluxnetEO dataset
 using the R package <a href="https://github.com/computationales/FluxnetEO" class="external-link">with the same
 name</a>. The latter ensures that rsofun driver (and target) data are
 ammended with MODIS data for, among others, machine learning
 projects.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/fdk_process_lsm.html">fdk_process_lsm</a></span><span class="op">(</span>
-  <span class="va">sites</span>,
-  out_path <span class="op">=</span> <span class="st">"/your/output/directory/"</span>,
-  format <span class="op">=</span> <span class="st">"p-model"</span>,
-  overwrite <span class="op">=</span> <span class="cn">TRUE</span>
-  <span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># read in demo data</span></span>
+<span><span class="co"># for AT-Neu site (as LSM data)</span></span>
+<span><span class="co"># convert to the HH fluxnet format</span></span>
+<span><span class="va">fluxnet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fdk_convert_lsm.html">fdk_convert_lsm</a></span><span class="op">(</span></span>
+<span>  site <span class="op">=</span> <span class="st">"AT-Neu"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"/your/input/directory/"</span>,</span>
+<span>  fluxnet_format <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  meta_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  out_path <span class="op">=</span> <span class="st">"/your/output/directory/"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># in line processing doing the same</span></span>
+<span><span class="fu"><a href="../reference/fdk_process_lsm.html">fdk_process_lsm</a></span><span class="op">(</span></span>
+<span>  <span class="va">sites</span>,</span>
+<span>  out_path <span class="op">=</span> <span class="st">"/your/output/directory/"</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"fluxnet"</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 </div>
-</div>
-<div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h2>
 </div>
   </div>
 

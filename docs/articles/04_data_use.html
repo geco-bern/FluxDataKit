@@ -113,35 +113,35 @@ per ususal in R and are safely ignored during model optimization in
 the <a href="https://computationales.github.io/rsofun/articles/pmodel_use.html#calibrating-model-parameters" class="external-link">vignette
 in the rsofun package</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/computationales/rsofun" class="external-link">rsofun</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span>
-
-<span class="co"># read in the data</span>
-<span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/p_model_drivers/site_based_drivers.rds"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/computationales/rsofun" class="external-link">rsofun</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># read in the data</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/p_model_drivers/site_based_drivers.rds"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># optimized parameters from previous</span>
-<span class="co"># work</span>
-<span class="va">params_modl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
-    kphio           <span class="op">=</span> <span class="fl">0.09423773</span>,
-    soilm_par_a     <span class="op">=</span> <span class="fl">0.33349283</span>,
-    soilm_par_b     <span class="op">=</span> <span class="fl">1.45602286</span>,
-    tau_acclim_tempstress <span class="op">=</span> <span class="fl">10</span>,
-    par_shape_tempstress  <span class="op">=</span> <span class="fl">0.0</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># optimized parameters from previous</span></span>
+<span><span class="co"># work</span></span>
+<span><span class="va">params_modl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    kphio           <span class="op">=</span> <span class="fl">0.09423773</span>,</span>
+<span>    soilm_par_a     <span class="op">=</span> <span class="fl">0.33349283</span>,</span>
+<span>    soilm_par_b     <span class="op">=</span> <span class="fl">1.45602286</span>,</span>
+<span>    tau_acclim_tempstress <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>    par_shape_tempstress  <span class="op">=</span> <span class="fl">0.0</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># run the model for these parameters</span>
-<span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">rsofun</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rsofun/man/runread_pmodel_f.html" class="external-link">runread_pmodel_f</a></span><span class="op">(</span>
-  drivers <span class="op">=</span> <span class="va">df</span>,
-  par <span class="op">=</span> <span class="va">params_modl</span>,
-  makecheck <span class="op">=</span> <span class="cn">FALSE</span>
-  <span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## <span style="color: #949494;"># A tibble: 1 × 3</span></span>
-<span class="co">## <span style="color: #949494;"># Rowwise: </span></span>
-<span class="co">##   sitename site_info         data             </span>
-<span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>           </span>
-<span class="co">## <span style="color: #BCBCBC;">1</span> SE-Nor   <span style="color: #949494;">&lt;tibble [1 × 11]&gt;</span> <span style="color: #949494;">&lt;df [2,555 × 15]&gt;</span></span></code></pre>
+<code class="sourceCode R"><span><span class="co"># run the model for these parameters</span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">rsofun</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rsofun/man/runread_pmodel_f.html" class="external-link">runread_pmodel_f</a></span><span class="op">(</span></span>
+<span>  drivers <span class="op">=</span> <span class="va">df</span>,</span>
+<span>  par <span class="op">=</span> <span class="va">params_modl</span>,</span>
+<span>  makecheck <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># Rowwise: </span></span></span>
+<span><span class="co">##   sitename site_info         data             </span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>           </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> SE-Nor   <span style="color: #949494;">&lt;tibble [1 × 11]&gt;</span> <span style="color: #949494;">&lt;df [2,555 × 16]&gt;</span></span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="modis-data">MODIS data<a class="anchor" aria-label="anchor" href="#modis-data"></a>
@@ -150,21 +150,22 @@ in the rsofun package</a>.</p>
 with the p-model drivers. To combine both datasets you can simply merge
 them by sitename.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># load modis data and rename the data column</span>
-<span class="va">modis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/modis_data.rds"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>
-    <span class="st">'modis'</span> <span class="op">=</span> <span class="st">'data'</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># load modis data and rename the data column</span></span>
+<span><span class="va">modis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/modis_gee_data.rds"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span></span>
+<span>    <span class="st">'modis'</span> <span class="op">=</span> <span class="st">'data'</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <p>Then do a simple left join on the available p-model data.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># join datas</span>
-<span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">modis</span>, by <span class="op">=</span> <span class="st">"sitename"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## <span style="color: #949494;"># A tibble: 1 × 6</span></span>
-<span class="co">## <span style="color: #949494;"># Rowwise: </span></span>
-<span class="co">##   sitename forcing               params_siml site_info params_soil      modis   </span>
-<span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>  </span>
-<span class="co">## <span style="color: #BCBCBC;">1</span> SE-Nor   <span style="color: #949494;">&lt;tibble [2,555 × 18]&gt;</span> &lt;tibble&gt;    &lt;tibble&gt;  <span style="color: #949494;">&lt;tibble [2 × 5]&gt;</span> &lt;tibble&gt;</span></code></pre>
+<code class="sourceCode R"><span><span class="co"># join datas</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">modis</span>, by <span class="op">=</span> <span class="st">"sitename"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># Rowwise: </span></span></span>
+<span><span class="co">##   sitename forcing               params_siml       site_info params_s…¹ modis   </span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>  </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> SE-Nor   <span style="color: #949494;">&lt;tibble [2,555 × 18]&gt;</span> <span style="color: #949494;">&lt;tibble [1 × 18]&gt;</span> &lt;tibble&gt;  &lt;tibble&gt;   &lt;tibble&gt;</span></span>
+<span><span class="co">## <span style="color: #949494;"># … with abbreviated variable name ¹​params_soil</span></span></span></code></pre>
 <p>All MODIS data is provided in a long format, so a conversion to a
 wide format sorted by date is required before merging it with the
 forcing data as provided for p-model model exercises.</p>
