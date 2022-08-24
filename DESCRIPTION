@@ -25,6 +25,8 @@ Suggests:
     knitr,
     rmarkdown,
     dplyr
+Remotes:
+    computationales/FluxnetLSM
 VignetteBuilder:
     knitr
 Encoding: UTF-8

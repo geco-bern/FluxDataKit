@@ -8,7 +8,7 @@ fdk_process_lsm(
   df,
   out_path,
   modis_path,
-  format = "fluxnet",
+  format = "lsm",
   save_tmp_files = TRUE,
   overwrite = TRUE
 )

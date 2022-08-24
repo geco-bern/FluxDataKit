@@ -26,7 +26,7 @@ lapply(bundles, function(bundle){
 
   settings_modis <- get_settings_modis(
     bundle = bundle,
-    data_path = "data-raw/modis/test/",
+    data_path = "data-raw/modis_gee/",
     method_interpol   = "linear",
     keep              = FALSE,
     overwrite_raw     = FALSE,

@@ -11,7 +11,7 @@ data <- sites %>%
 
     # get files
     files <- list.files(
-      "data-raw/modis/raw/",
+      "data-raw/modis_gee/raw/",
       glob2rx(sprintf("%s*.csv",
             .$sitename)),
       full.names = TRUE)
@@ -32,4 +32,4 @@ data <- sites %>%
   nest()
 
 # save all data (compressed)
-saveRDS(data, file = "data/modis_data.rds", compress = "xz")
+saveRDS(data, file = "data/modis_gee_data.rds", compress = "xz")

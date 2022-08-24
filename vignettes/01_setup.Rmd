@@ -22,7 +22,6 @@ devtools::install_github(
 In addition clone the project as we'll need some additional scripts which are
 only available in the source code of the project (see data provenance below).
 
-
 ```bash
   git clone https://github.com/computationales/FluxDataKit.git
 ```
@@ -72,9 +71,9 @@ source("data-raw/02_compile_final_site_list.R")
 
 ## Flux data
 
-All ecosystem flux sources should be downloaded at half-hourly (HH) rates, unless
-otherwise specified. Data sources and final paths are listed below. Top level
-paths for flux data are considered to be sufficient for further processing.
+All ecosystem flux sources should be downloaded at half-hourly (HH) rates. Data 
+sources and final paths are listed below. Top level paths for flux data are 
+considered to be sufficient for further processing.
 
 Estimated data sizes are provided to indicate network load, although for most
 these downloads should be easily manageable from a download and storage perspective.
@@ -138,7 +137,7 @@ Detailed links to original publications and data are provided below.
 ### Rooting zone water storage capacity
 
 Global rooting zone water storage capacity can be
-[downloaded here](https://zenodo.org/record/5515246).
+[downloaded here](https://zenodo.org/record/5515246) (Stocket et al. 2020).
 
 ### Koeppen-Geiger (included in repo)
 
@@ -158,14 +157,52 @@ is also included in the repository due to its small size.
 
 ```
 - Due to recent changes in the GEE policy this routine is no longer valid
-migration to the MODISTools workflow is foreseen
+migration to the MODISTools workflow is covered by new routines see below
+for legacy support
 ```
+
+### MODISTools
+
+MODIS data can be gathered for offline processing (recommended) using the
+`fdk_download_modis()` function. This function takes a list of sites and
+meta-data to download the required data using the `MODISTools` package.
+
+With the site list generated or manually populated you can download the data
+stored in the `data-raw/modis/` directory as:
+
+```r
+sites <- readRDS("data/flux_data_kit_site-info.rds")
+
+fdk_download_modis(
+  df = sites,
+  path = "data-raw/modis/"
+)
+```
+
+Consider that this will take a while and is preferably wrapped in a script
+to be executed in the background. For one off sites the above method is valid.
+For batch processing we refer tot the `04_download_modis_data.R` script in the 
+`data-raw` directory.
+
+### FluxnetEO
+
+To supplement the land surface model driver data, and the derived p-model (rsofun)
+input, we used the `FluxnetEO` product (Walther et al. 2022) and similarly named 
+[package](https://computationales.github.io/FluxnetEO/).
+
+Data is provided as [zipped archives](https://meta.icos-cp.eu/collections/tEAkpU6UduMMONrFyym5-tUW) 
+and total considerable amounts of data, which requires ample storage space. 
+The MODIS dataset has a compressed size of ~32 GB, which results in an uncompressed 
+size of ~68 GB. The LandSat dataset exceeds 150 GB compressed 
+(this data will currently not be considered).
+
+### Google Earth Engine (deprecated / not used - documented for further reference)
 
 We include various MODIS products to complement the flux data. Data are downloaded
 from Google Earth Engine (GEE) using the gee_subset python toolkit using the {ingestr}
 package. Data are stored in a product by product basis. in the `data-raw/modis/`
-directory. Data is downloaded using the `02_download_modis_data.R` script and
-raw data stored in `data-raw/modis/raw`.
+directory. Data is downloaded using the `XX_download_modis_data.R` script and
+raw data stored in `data-raw/modis_gee/raw`.
 
 Note that downloading this data requires a functioning GEE API instance on your
 computer. For setup instructions we refer to [the GEE docs](https://developers.google.com/earth-engine/guides/python_install).
@@ -175,7 +212,7 @@ computer. For setup instructions we refer to [the GEE docs](https://developers.g
 
 | product   |      data volume      |  data path |
 |-----------|:---------------------:|:-----------|
-| MODXXX |  ~7GB | `data-raw/modis/raw/`
+| MODXXX |  ~7GB | `data-raw/modis_gee/raw/`
 
 Below you find a table of all downloaded data products we consider relevant
 within the context of model development. These might be expanded over time.
@@ -187,8 +224,11 @@ within the context of model development. These might be expanded over time.
 | [MOD17A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MOD17A2H) | Gpp | 0.0001 
 
 Data is subsequently compiled into a consistent tidy format organized by site
-name and stored in `data/modis_data.rds` using the `05_combine_modis_data.R` 
+name and stored in `data/modis_gee_data.rds` using the `XX_combine_modis_data.R` 
 script. For details on the products we refer to the links in the table above.
 
-Additional data is provided by the FluxnetEO dataset.
+# References
+
+Walther, S., Besnard, S., Nelson, J. A., El-Madany, T. S., Migliavacca, M., Weber, U., Carvalhais, N., Ermida, S. L., Brümmer, C., Schrader, F., Prokushkin, A. S., Panov, A. V., and Jung, M.: Technical note: A view from space on global flux towers by MODIS and Landsat: the FluxnetEO data set, Biogeosciences, 19, 2805–2840, https://doi.org/10.5194/bg-19-2805-2022, 2022.
+
 

@@ -18,7 +18,7 @@ fdk_process_lsm <- function(
     df,
     out_path,
     modis_path,
-    format = "fluxnet",
+    format = "lsm",
     save_tmp_files = TRUE,
     overwrite = TRUE
     ) {
@@ -180,8 +180,7 @@ fdk_process_lsm <- function(
   #---- cleanup of files ----
 
   # copy "raw" netcdf files to output path
-  # if requested (format != fluxnet)
-  if(format != "fluxnet") {
+  if(format == "lsm") {
     nc_files <- list.files(
       path = file.path(tempdir(), "fluxnetlsm"),
       pattern = "*.nc",
@@ -194,6 +193,11 @@ fdk_process_lsm <- function(
       to = out_path,
       overwrite = TRUE
     )
+  } else {
+
+    # convert plumber data (LSM formatted data)
+    # to rsofun compatible data using read_plumber()
+
   }
 
   # delete tmp files if requested

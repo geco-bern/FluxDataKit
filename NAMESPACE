@@ -2,6 +2,7 @@
 
 export(fdk_balance_energy)
 export(fdk_collect_drivers)
+export(fdk_convert_lsm)
 export(fdk_correct_era)
 export(fdk_download_modis)
 export(fdk_flux_corrections)

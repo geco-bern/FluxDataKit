@@ -17,7 +17,7 @@ library(FluxnetEO)
 
 # Compiling data
 
-As mentioned in the introduction (once all requierd data are downloaded) the
+As mentioned in the introduction (once all required data are downloaded) the
 `FluxDataKit` package ensures the proper compilation of `rsofun` driver data.
 Although we will distribute a finished dataset the below instructions allow you
 to recreate these data for a particular site (or sites).
@@ -51,14 +51,16 @@ fdk_process_lsm(
   sites,
   out_path = "/your/output/directory/",
   format = "lsm",
+  modis_path = "data/modis/",
   overwrite = TRUE
   )
 ```
 
 ## p-model (rsofun) formatting
 
-By default the format parameter is set to "p-model", providing `rsofun` compatible
-output.
+By default the format parameter is set to "lsm", providing land surface model
+netcdf files as output. You can specify "fluxnet" to convert the data to
+`rsofun` compatible FLXUNET output.
 
 In addition, MODIS data can be merged from the FluxnetEO dataset using
 the R package [with the same name](https://github.com/computationales/FluxnetEO). 
@@ -73,7 +75,3 @@ fdk_process_lsm(
   overwrite = TRUE
   )
 ```
-
-# References
-
-
