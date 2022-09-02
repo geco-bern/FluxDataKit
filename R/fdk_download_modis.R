@@ -21,13 +21,13 @@ fdk_download_modis <- function(
   apply(df, 1, function(x){
 
     # Exception for US-ORv, wetland site with no MODIS LAI available
-    if (df['sitename'] == "US-ORv") return(NULL)
+    if (x['sitename'] == "US-ORv") {return(NULL)}
 
     # extract the range of the data to consider
     # and where required extrapolate to missing
     # years
-    start_year <- as.numeric(df['year_start'])
-    end_year <- as.numeric(df['year_end'])
+    start_year <- as.numeric(x['year_start'])
+    end_year <- as.numeric(x['year_end'])
 
     # set products and band names for the
     # download
@@ -47,9 +47,9 @@ fdk_download_modis <- function(
     # downloading data
     df_modis <- try(
       MODISTools::mt_subset(
-        site_name = as.character(df['sitename']),
-        lat = df['lat'],
-        lon = df['lon'],
+        site_name = as.character(x['sitename']),
+        lat = x['lat'],
+        lon = x['lon'],
         product = product,
         band = bands,
         start = "2000-01-01",
