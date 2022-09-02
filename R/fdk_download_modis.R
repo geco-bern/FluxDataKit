@@ -7,13 +7,16 @@
 #'
 #' @param df data frame with site info
 #' @param path path where to store the MODIS data
+#' @param force force a new download even if the data exists in the
+#'  output path
 #'
 #' @return raw MODIS data saved to a desired path
 #' @export
 
 fdk_download_modis <- function(
     df,
-    path
+    path,
+    force = FALSE
 ) {
 
   #----- settings and startup -----
@@ -43,6 +46,12 @@ fdk_download_modis <- function(
     #----- data download -----
 
     # Check if data exists, if not download
+    # override with force (to force a new download)
+    if(file.exists(file.path(path, paste0(x['sitename'], "_MODIS_data.csv")))){
+      if(!force){
+        return(NULL)
+      }
+    }
 
     # downloading data
     df_modis <- try(
