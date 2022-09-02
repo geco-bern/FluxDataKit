@@ -106,7 +106,7 @@ fdk_correct_era <- function(
 
   # Get years to process
   # NOT SURE WHAT THIS EVEN DOES??
-  start_yr <- 2
+  start_yr <- 0
   end_yr   <- 0
 
   #---- Adjust length of time-varying variables ----
