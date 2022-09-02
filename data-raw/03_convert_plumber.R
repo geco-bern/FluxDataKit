@@ -14,11 +14,11 @@ df <- readRDS("data/flux_data_kit_site-info.rds") %>%
 df %>%
   rowwise() %>%
   do({
-    ingestr::read_plumber(
+    fdk_read_plumber(
       site = .$sitename,
-      path = "~/data/flux_data_kit/plumber/",
+      path = "data-raw/flux_data/plumber/",
       fluxnet_format = TRUE,
       meta_data = FALSE,
-      out_path = "~/data/flux_data_kit/plumber_fluxnet/"
+      out_path = "data-raw/flux_data/plumber_fluxnet/"
     )
   })

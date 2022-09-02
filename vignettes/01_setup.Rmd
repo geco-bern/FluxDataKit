@@ -130,7 +130,7 @@ Detailed links to original publications and data are provided below.
 
 | product   |      data volume      |  data path |
 |-----------|:---------------------:|:-----------|
-| rooting zone water storage |  ~80MB | `data-raw/ancillary_data/cwdx80/`
+| rooting zone water storage |  ~80MB | `data-raw/ancillary_data/rooting_zone_water_storage/`
 | Koeppen-Geiger |  ~22MB | `data-raw/ancillary_data/koeppen_geiger/`
 | field capacity |  ~4MB | `data-raw/ancillary_data/field_capacity/`
 
@@ -148,10 +148,11 @@ is also included in the repository due to its small size.
 
 ### Field capacity (included in repo)
 
-Koeppen-Geiger climate classifications are downloaded from the recent
-work by [Beck et al. 2018](https://www.nature.com/articles/sdata2018214). Data
-can be downloaded from the [project website](http://www.gloh2o.org/koppen/) but
-is also included in the repository due to its small size.
+Global Gridded Surfaces of Selected Soil Characteristics on the [ORNL DAAC](
+https://daac.ornl.gov/SOILS/guides/IGBP-SurfaceProducts.html) provides field
+capacity values. Data needs to be manually downloaded from the [visualization
+tools](https://webmap.ornl.gov/ogc/dataset.jsp?ds_id=569) for easy export into
+a geotiff format. A ORNL login is required!
 
 ## Remote sensing data
 
