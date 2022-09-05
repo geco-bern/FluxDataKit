@@ -52,7 +52,9 @@ When you want to alter the storage location you may use soft links.
 Meta-data is compiled on a site by site basis using the
 `01_collect_meta-data.R` script. This will compile all easily available
 meta-data through either API calls or scraping the data downloaded in the
-previous step (setup / data collection).
+previous step (setup / data collection). In the current scirpt paths are set
+for data stored in `data-raw`. However, you are free to move the data anywhere
+you like as long as you adjust the paths in the meta-data script.
 
 ```r
 source("data-raw/01_collect_meta-data.R")
