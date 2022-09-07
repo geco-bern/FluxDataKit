@@ -5,35 +5,39 @@
 library(tidyverse)
 library(ingestr)
 source("R/fdk_convert_lsm.R")
+source("R/fdk_downsample.R")
 
 # read in demo data
-fdk_convert_lsm(
-  site = "AT-Neu",
-  path = "data/tmp",
-  fluxnet_format = TRUE,
-  meta_data = FALSE,
-  out_path = "data/tmp"
+# test <- fdk_convert_lsm(
+#   site = "AT-Neu",
+#   path = "data/tmp",
+#   fluxnet_format = TRUE,
+#   meta_data = FALSE
+# )
+
+fdk_downsample_fluxnet(
+  test
 )
 
-settings_fluxnet <- list(
-  getswc       = FALSE,
-  filter_ntdt  = TRUE,
-  threshold_GPP= 0.8,
-  remove_neg   = FALSE,
-  dir_hh = "data/tmp/"
-)
-
-siteinfo <- ingestr::siteinfo_fluxnet2015 %>%
-  filter(sitename == "AT-Neu")
-
-df <- ingest(
-  siteinfo,
-  source    = "fluxnet",
-  getvars   = list("gpp" = "GPP_VUT_REF"),
-  dir       = "data/tmp/",
-  settings  = settings_fluxnet,
-  timescale = "hh",
-  verbose = TRUE
-)
-
-print(df$data)
+# settings_fluxnet <- list(
+#   getswc       = FALSE,
+#   filter_ntdt  = TRUE,
+#   threshold_GPP= 0.8,
+#   remove_neg   = FALSE,
+#   dir_hh = "data/tmp/"
+# )
+#
+# siteinfo <- ingestr::siteinfo_fluxnet2015 %>%
+#   filter(sitename == "AT-Neu")
+#
+# df <- ingest(
+#   siteinfo,
+#   source    = "fluxnet",
+#   getvars   = list("gpp" = "GPP_VUT_REF"),
+#   dir       = "data/tmp/",
+#   settings  = settings_fluxnet,
+#   timescale = "hh",
+#   verbose = TRUE
+# )
+#
+# print(df$data)
