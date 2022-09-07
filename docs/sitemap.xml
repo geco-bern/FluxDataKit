@@ -52,6 +52,9 @@
     <loc>/reference/fdk_download_modis.html</loc>
   </url>
   <url>
+    <loc>/reference/fdk_downsample_fluxnet.html</loc>
+  </url>
+  <url>
     <loc>/reference/fdk_flux_corrections.html</loc>
   </url>
   <url>
@@ -59,6 +62,9 @@
   </url>
   <url>
     <loc>/reference/fdk_match_modis.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fdk_plot.html</loc>
   </url>
   <url>
     <loc>/reference/fdk_process_lsm.html</loc>
