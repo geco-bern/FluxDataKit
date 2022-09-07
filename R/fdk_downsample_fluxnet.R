@@ -22,10 +22,16 @@ fdk_downsample_fluxnet <- function(
   # processing chain.
   # https://fluxnet.org/data/fluxnet2015-dataset/fullset-data-product/
 
+
   df <- df |>
     mutate(
       date = as.Date(TIMESTAMP_START, "%Y%m%d%H%M")
-    ) |>
+    )
+
+  start_year <- format(min(df$date), "%Y")
+  end_year <- format(max(df$date), "%Y")
+
+  df <- df |>
     group_by(date) |>
     summarize(
 

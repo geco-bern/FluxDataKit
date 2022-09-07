@@ -16,7 +16,9 @@ source("R/fdk_downsample.R")
 # )
 
 fdk_downsample_fluxnet(
-  test
+  test,
+  site = "AT-Neu",
+  out_path = "data/tmp/"
 )
 
 # settings_fluxnet <- list(
