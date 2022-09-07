@@ -5,7 +5,7 @@
 \title{Format and run p-model drivers on Euler}
 \usage{
 fdk_format_drivers(
-  siteinfo,
+  site_info,
   params_siml = list(spinup = TRUE, spinupyears = 10, recycle = 1, soilmstress = FALSE,
     tempstress = FALSE, calc_aet_fapar_vpd = FALSE, in_ppfd = TRUE, in_netrad = FALSE,
     outdt = 1, ltre = FALSE, ltne = FALSE, ltrd = FALSE, ltnd = FALSE, lgr3 = TRUE, lgn3
@@ -16,12 +16,12 @@ fdk_format_drivers(
     0.1, fgravel = 0.1), bottom = tibble(layer = "bottom", fsand = 0.4, fclay = 0.3, forg
     = 0.1, fgravel = 0.1)),
   freq = "hh",
-  product,
+  path,
   verbose = TRUE
 )
 }
 \arguments{
-\item{siteinfo}{data frame using minimum information required
+\item{site_info}{data frame using minimum information required
 being five columns: sitename, lon, lat, year_start, year_end}
 
 \item{params_siml}{simulation parameters (preset)}
@@ -30,9 +30,9 @@ being five columns: sitename, lon, lat, year_start, year_end}
 
 \item{df_soiltexture}{soil data specifics (preset)}
 
-\item{product}{which flux product to use}
-
 \item{verbose}{provide verbose output (default = FALSE)}
+
+\item{product}{which flux product to use}
 }
 \value{
 returns an rsofun compatible driver file for the provided

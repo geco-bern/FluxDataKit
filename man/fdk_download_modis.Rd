@@ -4,12 +4,15 @@
 \alias{fdk_download_modis}
 \title{Download MODIS LAI/FPAR}
 \usage{
-fdk_download_modis(df, path)
+fdk_download_modis(df, path, force = FALSE)
 }
 \arguments{
 \item{df}{data frame with site info}
 
 \item{path}{path where to store the MODIS data}
+
+\item{force}{force a new download even if the data exists in the
+output path}
 }
 \value{
 raw MODIS data saved to a desired path

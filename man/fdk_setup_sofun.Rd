@@ -19,7 +19,7 @@ complemented by column 'params_siml' which is a nested list
 of complemented simulation parameters.
 }
 \description{
-Complements the settings based on the site metainfo CSV file or data frame.
+Complements the settings based on the site meta info CSV file or data frame.
 }
 \examples{
 \dontrun{
