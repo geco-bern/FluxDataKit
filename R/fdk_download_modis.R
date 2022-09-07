@@ -45,10 +45,14 @@ fdk_download_modis <- function(
 
     #----- data download -----
 
+    filename <- file.path(path, paste0(x['sitename'], "_MODIS_data.csv"))
+
     # Check if data exists, if not download
     # override with force (to force a new download)
-    if(file.exists(file.path(path, paste0(x['sitename'], "_MODIS_data.csv")))){
+    if(file.exists(filename)){
       if(!force){
+        message(paste0("The file: ", filename, " exists, skipping!
+                       Use force = TRUE to redownload existing files."))
         return(NULL)
       }
     }
@@ -77,7 +81,7 @@ fdk_download_modis <- function(
     # write data to file
     write.table(
       df_modis,
-      file.path(path, paste0(x['sitename'], "_MODIS_data.csv")),
+      filename,
       col.names = TRUE,
       row.names = FALSE,
       quote = FALSE,
