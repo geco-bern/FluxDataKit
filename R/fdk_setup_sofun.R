@@ -1,6 +1,6 @@
 #' Complements the setup settings
 #'
-#' Complements the settings based on the site metainfo CSV file or data frame.
+#' Complements the settings based on the site meta info CSV file or data frame.
 #'
 #' @param site_info A character string specifying the path to the site meta
 #' info file, or a dataframe containing the site meta info.

@@ -19,7 +19,7 @@
 #' @return a rsofun input data frame
 #' @export
 
-fdk_rsovun_drivers <- function(
+fdk_rsofun_drivers <- function(
     site_info,
     params_siml,
     meteo,
