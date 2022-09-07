@@ -1,13 +1,13 @@
-#' Downsample half-hourly data to daily values
+#' Down sample half-hourly data to daily values
 #'
-#' Currently CO2 fluxes can not be downsampled using the
+#' Currently CO2 fluxes can not be down sampled using the
 #' FLUXNET routine due to missing methodology.
 #'
 #' @param df FLUXNET based HH data frame
 #' @param out_path where to store the converted data if converted to
 #'  fluxnet formatting
 #'
-#' @return data frame with daily (DD) downsampled values
+#' @return data frame with daily (DD) down sampled values
 #' @export
 
 fdk_downsample_fluxnet <- function(
@@ -21,7 +21,6 @@ fdk_downsample_fluxnet <- function(
   # therefore note be considered equal to the origianl FLUXNET/ONEFLUX
   # processing chain.
   # https://fluxnet.org/data/fluxnet2015-dataset/fullset-data-product/
-
 
   df <- df |>
     mutate(

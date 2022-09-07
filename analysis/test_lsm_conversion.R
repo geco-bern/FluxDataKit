@@ -5,7 +5,8 @@
 library(tidyverse)
 library(ingestr)
 source("R/fdk_convert_lsm.R")
-source("R/fdk_downsample.R")
+source("R/fdk_downsample_fluxnet.R")
+source("R/fdk_plot.R")
 
 # read in demo data
 # test <- fdk_convert_lsm(
@@ -15,31 +16,14 @@ source("R/fdk_downsample.R")
 #   meta_data = FALSE
 # )
 
-fdk_downsample_fluxnet(
-  test,
+# fdk_downsample_fluxnet(
+#   test,
+#   site = "AT-Neu",
+#   out_path = "data/tmp/"
+# )
+
+fdk_plot(
   site = "AT-Neu",
-  out_path = "data/tmp/"
+  path = "data/tmp/"
 )
 
-# settings_fluxnet <- list(
-#   getswc       = FALSE,
-#   filter_ntdt  = TRUE,
-#   threshold_GPP= 0.8,
-#   remove_neg   = FALSE,
-#   dir_hh = "data/tmp/"
-# )
-#
-# siteinfo <- ingestr::siteinfo_fluxnet2015 %>%
-#   filter(sitename == "AT-Neu")
-#
-# df <- ingest(
-#   siteinfo,
-#   source    = "fluxnet",
-#   getvars   = list("gpp" = "GPP_VUT_REF"),
-#   dir       = "data/tmp/",
-#   settings  = settings_fluxnet,
-#   timescale = "hh",
-#   verbose = TRUE
-# )
-#
-# print(df$data)
