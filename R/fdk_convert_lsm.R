@@ -107,15 +107,15 @@ fdk_convert_lsm <- function(
   # only return meta-data if requested
   # don't merge with meteo data
   if (!meta_data) {
-    print("join")
     # combine meteo and flux data
-    all <- dplyr::left_join(df[[1]], df[[2]])
+    all <- dplyr::full_join(df[[1]], df[[2]], by = "time")
   } else {
-    all <- df
+    # return only the meta-data
+    return(df)
   }
 
   # format data as fluxnet compatible
-  if (fluxnet_format && !meta_data) {
+  if (fluxnet_format) {
     # convert time, and only return
     # FLUXNET formatted columns
 
@@ -128,7 +128,7 @@ fdk_convert_lsm <- function(
         TIMESTAMP_END = format(time + 30 * 60, "%Y%m%d%H%M")
       )
 
-    keys <- c(
+    old <- c(
       # MICROMET
       P_F = "Precip", # in mm -s
       TA_F_MDS = "Tair",
@@ -163,29 +163,20 @@ fdk_convert_lsm <- function(
       FPAR = "FPAR"
     )
 
+    # convert to data frame
+    keys <- data.frame(old)
+    keys$new <- names(old)
+
     # columns to select
     loc <- names(keys[which(keys %in% colnames(all))])
 
-    # loop over key and rename columns
-    for(i in 1:length(keys)) {
-      key <- keys[i]
-      if(key %in% colnames(all)) {
-        new_name <- as.character(names(key))
-        old_name <- as.character(key)
-        all <- all |>
-          dplyr::rename(
-            !!new_name := !!old_name
-          )
-      }
-    }
+    # rename all columns using the keys in the
+    # data frame
+    all <- all |>
+      dplyr::rename_with(~ keys$new, all_of(keys$old))
 
-    # return fluxnet selection
-    all  <- all |>
-      dplyr::select(
-        TIMESTAMP_START,
-        TIMESTAMP_END,
-        !!loc
-      )
+    # subset columns
+    all <- all[c("TIMESTAMP_START","TIMESTAMP_END",keys$new)]
 
     # remaining unit conversions
     # K to C
@@ -229,13 +220,11 @@ fdk_convert_lsm <- function(
   # save data to file, using FLUXNET formatting
   if (fluxnet_format && !missing(out_path)) {
 
-    message("writing data to file")
     filename <- sprintf("FLX_%s_PLUMBER_FULLSET_HH_%s_%s_2-3.csv",
                         site,
                         start_year,
                         end_year
     )
-
     filename <- file.path(
       out_path,
       filename
@@ -249,9 +238,13 @@ fdk_convert_lsm <- function(
       row.names = FALSE,
       sep = ","
     )
-  }
 
-  # return the merged file
-  return(all)
+    message("---> writing data to file:")
+    message(sprintf("   %s", filename))
+
+  } else {
+    # return the merged file
+    return(all)
+  }
 }
 
