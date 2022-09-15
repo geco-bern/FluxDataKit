@@ -69,9 +69,6 @@ site_exceptions <- function(site_code, var_data, att_data, qc_val) {
     att_data$LWdown$`Gap-filled_%` <- round(length(which(var_data$LWdown_qc > 0)) /
                                       length(var_data$LWdown_qc) * 100, digits=1)
 
-
-
-
   } else if (site_code == "BE-Vie") {
 
     # CO2 drift correction, interpolate back from time step 60100

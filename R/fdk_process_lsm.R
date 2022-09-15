@@ -109,10 +109,12 @@ fdk_process_lsm <- function(
       # https://github.com/aukkola/PLUMBER2/
       # Step1_Process_all_available_flux_sites_for_PLUMBER2.R
 
+      message("Converting fluxnet data to netcdf")
+
       nc_files <- try(
         suppressWarnings(
           suppressMessages(
-            convert_fluxnet_to_netcdf(
+            FluxnetLSM::convert_fluxnet_to_netcdf(
               infile = infile,
               site_code = x['sitename'],
               out_path = tmp_path,

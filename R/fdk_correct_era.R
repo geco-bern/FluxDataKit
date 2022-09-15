@@ -193,7 +193,7 @@ fdk_correct_era <- function(
 
     # Check if any missing values
     if (any (is.na(var_data[[v]]))) {
-      stop(paste0("Missing values in ", v, ", site: ", site_code))
+      warning(paste0("Missing values in ", v, ", site: ", site_code))
     }
   }
 
