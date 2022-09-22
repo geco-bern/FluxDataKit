@@ -171,42 +171,38 @@ fdk_process_lsm <- function(
         infile = nc_files$flux
       )
 
-      #----- Convert to FLUXNET formatting ----
+      #----- Export and/or convert to FLUXNET formatting ----
 
-      if(format == "fluxnet") {
-        message("converting to fluxnet")
-        message("saving data in your output directory")
+      # copy "raw" netcdf files to output path
+      if(format == "lsm") {
+
+        # list all flux files
+        files <- list.files(
+          path = file.path(tempdir(), "fluxnetlsm"),
+          pattern = "*.nc",
+          recursive = TRUE,
+          full.names = TRUE
+        )
+
+        # copy files
+        file.copy(
+          from = files,
+          to = out_path,
+          overwrite = TRUE
+        )
+
+        file.remove(files)
+
+      } else {
+          message("converting to fluxnet")
+          message("saving data in your output directory")
       }
     })
-
-  #---- cleanup of files ----
-
-  # copy "raw" netcdf files to output path
-  if(format == "lsm") {
-    nc_files <- list.files(
-      path = file.path(tempdir(), "fluxnetlsm"),
-      pattern = "*.nc",
-      recursive = TRUE,
-      full.names = TRUE
-    )
-
-    file.copy(
-      from = nc_files,
-      to = out_path,
-      overwrite = TRUE
-    )
-  } else {
-
-    # convert plumber data (LSM formatted data)
-    # to rsofun compatible data using read_plumber()
-
-  }
 
   # delete tmp files if requested
   if (!save_tmp_files) {
     message("cleanup all temporary files...")
     unlink(file.path(tempdir(), "fluxnetlsm"), recursive = T)
   }
-
 }
 
