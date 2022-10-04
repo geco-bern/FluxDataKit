@@ -9,6 +9,11 @@
 #' @param modis_path where to store downloaded MODIS data
 #' @param format the format of the output (fluxnet = FLUXNET formatting)
 #' @param save_tmp_files retain temporary files (TRUE or FALSE)
+#' @param site_csv_file CSV file with site meta-data which is parsed to populate
+#'        ancillary data provided with the flux data. By default the hard coded
+#'        packaged data are used, but alternatively an external file can be
+#'        provided. This limits the need to recompile the package when processing
+#'        files which were not originally selected.
 #'
 #' @return LSM compatible netcdf files in the output directory, with
 #'  intermediary files saved upon request
@@ -20,7 +25,12 @@ fdk_process_lsm <- function(
     modis_path,
     format = "lsm",
     save_tmp_files = TRUE,
-    overwrite = TRUE
+    overwrite = TRUE,
+    site_csv_file = system.file(
+      "extdata",
+      "Site_metadata.csv",
+      package = "FluxnetLSM"
+    )
     ) {
 
   # check if files are already processed
@@ -103,6 +113,12 @@ fdk_process_lsm <- function(
       gapfill_flux <- 100
       min_yrs <- 1   #min. number of consecutive years
 
+      # Retrieve default processing options
+      conv_opts <- get_default_conversion_options()
+
+      # Set gapfilling options to ERAinterim
+      conv_opts$metadata_source <- "csv"
+
       #---- Run analysis ----
 
       # This is based upon
@@ -118,6 +134,9 @@ fdk_process_lsm <- function(
               infile = infile,
               site_code = x['sitename'],
               out_path = tmp_path,
+              # manual setting of the site meta-data
+              site_csv_file = site_csv_file,
+              conv_opts = conv_opts,
               met_gapfill = "ERAinterim",
               flux_gapfill = "statistical",
               era_file = era_file,
