@@ -33,13 +33,6 @@ fdk_process_lsm <- function(
     )
     ) {
 
-  # check if files are already processed
-  if(!overwrite){
-    if(any(grepl(df$sitename, list.files(out_path, "*.nc")))) {
-      message(paste0(df$sitename, " files exist, skipping"))
-      return(invisible())
-    }
-  }
 
   # Set path to NA if missing
   # can't forward missing elements
@@ -58,6 +51,16 @@ fdk_process_lsm <- function(
   apply(df, 1, function(x){
 
       message(sprintf("-- processing site: %s", x['sitename']))
+
+
+      # check if files are already processed
+      if(!overwrite){
+        if(any(grepl(x['sitename'], list.files(out_path, "*.nc")))) {
+          message(paste0(x['sitename'], " files exist, skipping"))
+          return(invisible(NULL))
+        }
+      }
+
 
       # Outputs will be saved to this directory
       tmp_path <- file.path(tempdir(), "fluxnetlsm", x['sitename'])
