@@ -48,16 +48,14 @@ write.csv(final_data, file = file.path(tempdir(), "meta_data.csv"))
 
 # read in all site meta-data, only test on
 # SE-Nor to debug FluxnetLSM for now
-sites <- readRDS("data/flux_data_kit_site-info.rds") |>
-  filter(
-    sitename == "SE-Nor"
-  )
+sites <- readRDS("data/flux_data_kit_site-info.rds")
 
 # process all sites
 fdk_process_lsm(
   sites,
-  out_path = "data/test/",
+  out_path = "/data/scratch/PLUMBER_X/",
   modis_path = "data-raw/modis",
   format = "lsm",
-  site_csv_file = file.path(tempdir(), "meta_data.csv")
+  site_csv_file = file.path(tempdir(), "meta_data.csv"),
+  overwrite = FALSE
 )
