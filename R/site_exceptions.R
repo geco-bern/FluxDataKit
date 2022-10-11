@@ -344,8 +344,10 @@ site_exceptions <- function(site_code, var_data, att_data, qc_val) {
     if (att_data$Tair$units != "K") stop("Wrong LWdown units")
     if (length(which(vars == "RH")) == 0) stop("RH not available")
 
-    lwdown <- FluxnetLSM:::SynthesizeLWdown(TairK = var_data$Tair,
-                               RH = var_data$RH)
+    lwdown <- FluxnetLSM:::SynthesizeLWdown(
+      TairK = var_data$Tair,
+      RH = var_data$RH
+      )
 
     #Replace missing with predicted and QC with post-processing value
     na_ind <- which(is.na(var_data$LWdown))
