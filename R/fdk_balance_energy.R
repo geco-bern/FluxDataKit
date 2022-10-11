@@ -42,12 +42,10 @@ fdk_balance_energy <- function(
 
   ### Hour of day ###
   hod_vec <- format(time, format="%H:%M:%S")
-  ch      <- times(hod_vec)
+  ch      <- chron::times(hod_vec)
 
   #Vector of hours from midnight
-  hod <- 60 * hours(ch) + minutes(ch)
-
-
+  hod <- 60 * chron::hours(ch) + chron::minutes(ch)
 
   ##############################
   ### Find good quality data ###
