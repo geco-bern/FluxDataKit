@@ -1,7 +1,6 @@
 #' Plot FluxDataKit output
 #'
-#' @param site a sitename
-#' @param path the path where LSM compatible data are
+#' @param file a fdk file
 #' @param out_path where to store the images
 #' stored
 #'
@@ -9,32 +8,30 @@
 #' @export
 
 fdk_plot <- function(
-    site,
-    path = "data/tmp",
+    file,
     out_path = "data/tmp"
 ){
 
   # Convert to FLUXNET format
   # and easier to read data frame
   # using FLUXNET columns
-  df <- fdk_convert_lsm(
-    site = site,
-    path = path,
-    fluxnet_format = TRUE,
+  df <- fdk_read_plumber(
+    file,
     meta_data = FALSE
   )
 
   df <- df |>
-    mutate(
-      date = as.Date(TIMESTAMP_START, "%Y%m%d%H%M")
-    ) |>
     select(
-      -ends_with("QC"),
-      -ends_with("SE"),
-      -ends_with("UNC"),
-      -starts_with("TIME")
+      -ends_with("qc"),
+      -ends_with("se"),
+      -ends_with("uc"),
+      -longitude,
+      -latitude,
+      -elevation,
+      -starts_with("IGBP"),
+      -reference_height,
+      -canopy_height
     )
-
   nrow <- ncol(df)-1
 
   df <- df |>
@@ -48,10 +45,11 @@ fdk_plot <- function(
     geom_point(
       data = df,
       aes(
-        date,
+        time,
         value,
         group = name
-      )
+      ),
+      colour = rgb(0,0,0, 0.1)
     ) +
     theme_bw() +
     facet_wrap(
@@ -60,11 +58,16 @@ fdk_plot <- function(
       nrow = 14
       )
 
+  # format filename
+  filename <- tools::file_path_sans_ext(basename(file))
+  filename <- file.path(out_path, sprintf("%s_plot.png", filename))
+
   # saving image
   ggsave(
-    file.path(out_path, sprintf("%s_overview_plot.png", site)),
+    filename,
     height = 20,
-    width = 20
+    width = 20,
+    dpi = 150
     )
 }
 
