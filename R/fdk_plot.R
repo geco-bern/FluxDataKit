@@ -2,6 +2,7 @@
 #'
 #' @param file a fdk file
 #' @param out_path where to store the images
+#' @param overwrite overwrite existing files (TRUE or FALSE)
 #' stored
 #'
 #' @return a plot with key variables
@@ -9,8 +10,21 @@
 
 fdk_plot <- function(
     file,
-    out_path = "data/tmp"
+    out_path = "data/tmp",
+    overwrite = FALSE
 ){
+
+  # format filename
+  filename <- tools::file_path_sans_ext(basename(file))
+  filename <- file.path(out_path, sprintf("%s_plot.png", filename))
+
+  # check if files are already processed
+  if(!overwrite){
+    if(file.exists(filename)) {
+      message(" files exist, skipping")
+      return(invisible(NULL))
+    }
+  }
 
   # Convert to FLUXNET format
   # and easier to read data frame
@@ -57,10 +71,6 @@ fdk_plot <- function(
       scales = "free_y",
       nrow = 14
       )
-
-  # format filename
-  filename <- tools::file_path_sans_ext(basename(file))
-  filename <- file.path(out_path, sprintf("%s_plot.png", filename))
 
   # saving image
   ggsave(

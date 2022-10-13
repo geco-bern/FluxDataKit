@@ -4,14 +4,14 @@
 \alias{fdk_plot}
 \title{Plot FluxDataKit output}
 \usage{
-fdk_plot(site, path = "data/tmp", out_path = "data/tmp")
+fdk_plot(file, out_path = "data/tmp", overwrite = FALSE)
 }
 \arguments{
-\item{site}{a sitename}
+\item{file}{a fdk file}
 
-\item{path}{the path where LSM compatible data are}
+\item{out_path}{where to store the images}
 
-\item{out_path}{where to store the images
+\item{overwrite}{overwrite existing files (TRUE or FALSE)
 stored}
 }
 \value{
