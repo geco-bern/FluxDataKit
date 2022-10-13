@@ -61,7 +61,6 @@ fdk_process_lsm <- function(
         }
       }
 
-
       # Outputs will be saved to this directory
       tmp_path <- file.path(tempdir(), "fluxnetlsm", x['sitename'])
 
