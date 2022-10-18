@@ -77,13 +77,26 @@ fdk_process_lsm <- function(
           infile
         )
 
-        # Retrieve ERAinterim file
-        era_file <- FluxnetLSM::get_fluxnet_erai_files(
-          x['data_path'],
-          x['sitename'],
-          resolution = "HH",
-          datasetversion = "[A-Z]{4}-[0-9]{1}"
-        )
+        if (x['product'] == "oneflux" ) {
+
+          # Retrieve ERAinterim file
+          era_file <- FluxnetLSM::get_fluxnet_erai_files(
+            x['data_path'],
+            x['sitename'],
+            resolution = "HH",
+            datasetname = "FLUXNET"
+          )
+
+        } else {
+
+          # Retrieve ERAinterim file
+          era_file <- FluxnetLSM::get_fluxnet_erai_files(
+            x['data_path'],
+            x['sitename'],
+            resolution = "HH",
+            datasetversion = "[A-Z]{4}-[0-9]{1}"
+          )
+        }
 
       } else {
         infile <- FluxnetLSM::get_fluxnet_files(
@@ -130,8 +143,8 @@ fdk_process_lsm <- function(
       message("Converting fluxnet data to netcdf")
 
       nc_files <- try(
-        suppressWarnings(
-          suppressMessages(
+        #suppressWarnings(
+        #  suppressMessages(
             FluxnetLSM::convert_fluxnet_to_netcdf(
               infile = infile,
               site_code = x['sitename'],
@@ -150,8 +163,8 @@ fdk_process_lsm <- function(
               check_range_action = "warn",
               include_all_eval=TRUE
             )
-          )
-        )
+        #  )
+        #)
       )
 
       if(inherits(nc_files, "try-error")){

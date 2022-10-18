@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 library(ingestr)
-library(icoscp)
+library(icoscp) # SPARQL has been taken offline!!
 library(RCurl)
 library(XML)
 library(tidyverse)
@@ -14,10 +14,10 @@ oneflux_path <- "data-raw/flux_data/oneflux/"
 icos_path <- "data-raw/flux_data/icos/"
 fluxnet_path <- "data-raw/flux_data/fluxnet2015/"
 
-#--- plumber metatadata ----
+#--- plumber meta_data ----
 
-# collect Plumber meta-data
-if(!file.exists("data-raw/meta-data/plumber_meta-data.rds")){
+# collect Plumber meta_data
+if(!file.exists("data-raw/meta_data/plumber_meta-data.rds")){
 
 # list files
 files <- list.files(
@@ -36,19 +36,19 @@ df <- do.call("rbind",
   )
 
 # save output to file
-saveRDS(df, file = "data-raw/meta-data/plumber_meta-data.rds", compress = "xz")
+saveRDS(df, file = "data-raw/meta_data/plumber_meta-data.rds", compress = "xz")
 }
 
 #---- ameriflux / fluxnet2015 metadata ----
 
-if(!file.exists("data-raw/meta-data/amf_meta-data.rds")){
+if(!file.exists("data-raw/meta_data/amf_meta_data.rds")){
 amf <- amf_site_info()
-saveRDS(amf, file = "data-raw/meta-data/amf_meta-data.rds", compress = "xz")
+saveRDS(amf, file = "data-raw/meta_data/amf_meta-data.rds", compress = "xz")
 }
 
 #----- oneflux sites ----
 
-if(!file.exists("data-raw/meta-data/oneflux_meta-data.rds")){
+if(!file.exists("data-raw/meta_data/oneflux_meta_data.rds")){
 
 of_sites <- unique(substring(list.files(oneflux_path,"*"),5,10))
 
@@ -65,10 +65,11 @@ oneflux_sites <- amf_site_info() %>%
   SITE_ID %in% of_sites
  )
 
-saveRDS(oneflux_sites, file = "data-raw/meta-data/oneflux_meta-data.rds", compress = "xz")
+saveRDS(oneflux_sites, file = "data-raw/meta_data/oneflux_meta-data.rds", compress = "xz")
 }
 
-#---- ICOS meta-data ----
+#---- ICOS meta_data ----
+if(!file.exists("data-raw/meta_data/icos_meta_data.rds")){
 
 icos_list <- icoscp::icos_stations() %>%
   filter(
@@ -112,9 +113,12 @@ icos_list <- icos_list %>%
 	) %>%
 	left_join(years)
 
-saveRDS(icos_list, file = "data-raw/meta-data/icos_meta-data.rds", compress = "xz")
+saveRDS(icos_list, file = "data-raw/meta_data/icos_meta-data.rds", compress = "xz")
+}
 
-#---- fluxnet2015 meta-data ----
+#---- fluxnet2015 meta_data ----
+
+if(!file.exists("data-raw/meta_data/fluxnet_meta_data.rds")){
 
 fluxnet_list <- read_csv("data-raw/meta_data/fluxnet2015_site_list.csv") %>%
   filter(
@@ -160,5 +164,7 @@ fluxnet_list <- fluxnet_list %>%
   ) %>%
   left_join(years)
 
-saveRDS(fluxnet_list, file = "data-raw/meta_data/fluxnet_meta-data.rds", compress = "xz")
+saveRDS(fluxnet_list, file = "data-raw/meta_data/fluxnet-meta_data.rds", compress = "xz")
+
+}
 
