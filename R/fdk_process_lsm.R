@@ -26,13 +26,8 @@ fdk_process_lsm <- function(
     format = "lsm",
     save_tmp_files = TRUE,
     overwrite = TRUE,
-    site_csv_file = system.file(
-      "extdata",
-      "Site_metadata.csv",
-      package = "FluxnetLSM"
-    )
+    site_csv_file
     ) {
-
 
   # Set path to NA if missing
   # can't forward missing elements
@@ -51,7 +46,6 @@ fdk_process_lsm <- function(
   apply(df, 1, function(x){
 
       message(sprintf("-- processing site: %s", x['sitename']))
-
 
       # check if files are already processed
       if(!overwrite){
@@ -77,7 +71,18 @@ fdk_process_lsm <- function(
           infile
         )
 
+        # Retrieve ERAinterim file
+        era_file <- FluxnetLSM::get_fluxnet_erai_files(
+          x['data_path'],
+          x['sitename'],
+          resolution = "HH",
+          datasetversion = "[A-Z]{4}-[0-9]{1}"
+        )
+
+
         if (x['product'] == "oneflux" ) {
+
+          message("processing oneflux data ")
 
           # Retrieve ERAinterim file
           era_file <- FluxnetLSM::get_fluxnet_erai_files(
@@ -87,22 +92,21 @@ fdk_process_lsm <- function(
             datasetname = "FLUXNET"
           )
 
-        } else {
-
-          # Retrieve ERAinterim file
-          era_file <- FluxnetLSM::get_fluxnet_erai_files(
+          infile <- FluxnetLSM::get_fluxnet_files(
             x['data_path'],
             x['sitename'],
             resolution = "HH",
-            datasetversion = "[A-Z]{4}-[0-9]{1}"
+            datasetname = "FLUXNET",
+            datasetversion = "[0-9]{1}-[0-9]{1}"
           )
         }
 
       } else {
+
         infile <- FluxnetLSM::get_fluxnet_files(
-          x['data_path'],
-          x['sitename'],
-          resolution = "HH"
+            x['data_path'],
+            x['sitename'],
+            resolution = "HH"
         )
 
         # Retrieve dataset version
@@ -131,7 +135,7 @@ fdk_process_lsm <- function(
       # Retrieve default processing options
       conv_opts <- get_default_conversion_options()
 
-      # Set gapfilling options to ERAinterim
+      # Set gap filling options to ERAinterim
       conv_opts$metadata_source <- "csv"
 
       #---- Run analysis ----
