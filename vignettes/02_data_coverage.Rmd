@@ -44,6 +44,25 @@ leaflet(sites) %>%
 
 The below table lists all sites available, for which we also provide a [CSV file](https://github.com/computationales/flux_data_kit/raw/main/data/flux_data_kit_site-info.csv). In the table below we list the FLUXNET abbreviation of all sites, their geographic location and elevation, the source of the data (icos, fluxnet2015, oneflux, plumber), the Koeppen-Geiger code, start and end year, water holding capacity (whc) and IGBP land cover class. This list includes 233 sites (or 1835 site years), from a total of 302. Roughly 70 sites were not included in the final data product due to missing (site specific) data which would limit usability in terms of consistent use for modelling efforts. Further consider that this is the total extent of the data irrespective of further screening of input variables.
 
+The current distribution of available data across different datasets shows a dominance of the recent Ameriflux Oneflux dataset. This is to be expected as this processing chain will ultimately supercede FLUXNET2015 early 2023. Legacy data of FLUXNET2015 and PLUMBER itself will then be deprecated in favour of either ICOS or (FLUXNET) Oneflux processing (per communication with Dario Papale). 
+
+```{r echo = FALSE}
+ggplot(sites) + geom_bar(aes(product)) +
+  labs(x = "") +
+  theme_bw()
+```
+
+Depending on the source of the data the included land cover types vary, with the new Oneflux processing being dominated by mostly agricultural (cropland) sites. Note that these are MODIS remote sensing derived labels and might not fully reflect the local vegetation within the footprint of a flux tower. The lack of consistent meta-data across products makes gathering data on the true vegetation cover within the footprint in consistent and hard to automate. When using the data please consider contacting PIs or online data sources to validate the vegetation / land cover type.
+
+```{r echo = FALSE}
+ggplot(sites) +
+  geom_bar(aes(IGBP)) +
+  labs(x="")  +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+  facet_wrap(~product)
+```
+
 ---
 
 ```{r echo = FALSE}

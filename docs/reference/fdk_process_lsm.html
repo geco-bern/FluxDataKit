@@ -74,7 +74,8 @@ the FluxnetLSM package and PLUMBER2 based workflows.</p>
 <span>  <span class="va">modis_path</span>,</span>
 <span>  format <span class="op">=</span> <span class="st">"lsm"</span>,</span>
 <span>  save_tmp_files <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  site_csv_file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Site_metadata.csv"</span>, package <span class="op">=</span> <span class="st">"FluxnetLSM"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,6 +99,14 @@ the FluxnetLSM package and PLUMBER2 based workflows.</p>
 
 <dt>save_tmp_files</dt>
 <dd><p>retain temporary files (TRUE or FALSE)</p></dd>
+
+
+<dt>site_csv_file</dt>
+<dd><p>CSV file with site meta-data which is parsed to populate
+ancillary data provided with the flux data. By default the hard coded
+packaged data are used, but alternatively an external file can be
+provided. This limits the need to recompile the package when processing
+files which were not originally selected.</p></dd>
 
 </dl></div>
     <div id="value">
