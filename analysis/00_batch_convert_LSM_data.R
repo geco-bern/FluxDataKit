@@ -10,6 +10,9 @@ if(!require(FluxnetLSM)){
   devtools::install_github("computationales/FluxnetLSM")
   }
 
+detach("package:FluxnetLSM", unload = TRUE)
+library(FluxnetLSM)
+
 # read in the fluxnetlsm data
 fls_meta_data <-  csv_data <- read.csv(
   system.file("extdata", "Site_metadata.csv", package = "FluxnetLSM"),
@@ -50,8 +53,7 @@ write.csv(final_data, file = file.path(tempdir(), "meta_data.csv"))
 # SE-Nor to debug FluxnetLSM for now
 sites <- readRDS("data/flux_data_kit_site-info.rds") |>
   filter(
-    product == "oneflux",
-    sitename == "AR-TF1"
+    product == "oneflux"
   ) |>
   mutate(
     data_path = "data-raw/flux_data/"
@@ -60,7 +62,7 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
 # process all sites
 fdk_process_lsm(
   sites,
-  out_path = "/data/scratch/PLUMBER_X/",
+  out_path = "/data/scratch/PLUMBER_X/fluxes/",
   modis_path = "data-raw/modis",
   format = "lsm",
   site_csv_file = file.path(tempdir(), "meta_data.csv"),

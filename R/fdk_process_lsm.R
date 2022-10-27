@@ -148,7 +148,7 @@ fdk_process_lsm <- function(
 
       nc_files <- try(
         #suppressWarnings(
-        #  suppressMessages(
+          suppressMessages(
             FluxnetLSM::convert_fluxnet_to_netcdf(
               infile = infile,
               site_code = x['sitename'],
@@ -167,7 +167,7 @@ fdk_process_lsm <- function(
               check_range_action = "warn",
               include_all_eval=TRUE
             )
-        #  )
+          )
         #)
       )
 
