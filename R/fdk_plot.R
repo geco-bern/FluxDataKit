@@ -39,14 +39,12 @@ fdk_plot <- function(
       -ends_with("qc"),
       -ends_with("se"),
       -ends_with("uc"),
-      -longitude,
-      -latitude,
-      -elevation,
+      -contains("longitude"),
+      -contains("latitude"),
+      -contains("elevation"),
       -starts_with("IGBP"),
-      -reference_height,
-      -canopy_height
+      -ends_with("height")
     )
-  nrow <- ncol(df)-1
 
   df <- df |>
     pivot_longer(

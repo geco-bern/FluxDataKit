@@ -46,7 +46,7 @@ fdk_match_modis <- function(
       value = ifelse(!is.na(scale),
                      value * as.numeric(scale),
                      value),
-      calendar_date = as.Date(calendar_date)
+      calendar_date = as.Date(calendar_date, "%Y-%m-%d")
     )
 
   df_modis <- df_modis |>
@@ -100,6 +100,7 @@ fdk_match_modis <- function(
       lai = stats::weighted.mean(lai, w = weights_lai, na.rm = TRUE),
       fpar = stats::weighted.mean(fpar, w = weights_fpar, na.rm = TRUE)
     )
+
 
   #---- expand dates ----
 

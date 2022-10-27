@@ -173,6 +173,18 @@ fdk_process_lsm <- function(
 
       if(inherits(nc_files, "try-error")){
         warning("conversion failed --- skipping this site")
+
+        # list all flux files
+        files <- list.files(
+          path = file.path(tempdir(), "fluxnetlsm"),
+          pattern = "*.nc",
+          recursive = TRUE,
+          full.names = TRUE
+        )
+
+        # remove all files
+        file.remove(files)
+
         return(invisible())
       }
 
@@ -185,11 +197,29 @@ fdk_process_lsm <- function(
 
       # function to download and or
       # process MODIS data (LAI/FPAR)
-      fdk_match_modis(
+      check <- try(fdk_match_modis(
           df = x,
           path = modis_path,
           nc_file = nc_files$met
+        ))
+
+      if(inherits(check, "try-error")){
+        warning("MODIS data injection failed --- skipping this site")
+
+        # list all flux files
+        files <- list.files(
+          path = file.path(tempdir(), "fluxnetlsm"),
+          pattern = "*.nc",
+          recursive = TRUE,
+          full.names = TRUE
         )
+
+        # remove all files
+        file.remove(files)
+
+        return(invisible())
+      }
+
 
       #----- Corrections ----
 

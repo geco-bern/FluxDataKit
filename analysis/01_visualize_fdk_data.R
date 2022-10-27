@@ -8,7 +8,8 @@ files <- list.files("/data/scratch/PLUMBER_X/fluxes/","*Flux.nc", full.names = T
 lapply(files, function(file){
   try(fdk_plot(
     file = file,
-    out_path = "/data/scratch/PLUMBER_X/plots/"
+    out_path = "/data/scratch/PLUMBER_X/plots/",
+    overwrite = FALSE
     )
   )
   invisible()
