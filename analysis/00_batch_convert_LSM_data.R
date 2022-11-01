@@ -14,7 +14,7 @@ detach("package:FluxnetLSM", unload = TRUE)
 library(FluxnetLSM)
 
 # read in the fluxnetlsm data
-fls_meta_data <-  csv_data <- read.csv(
+fls_meta_data <- read.csv(
   system.file("extdata", "Site_metadata.csv", package = "FluxnetLSM"),
   header = TRUE,
   stringsAsFactors = FALSE

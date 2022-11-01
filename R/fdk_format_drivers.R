@@ -128,7 +128,7 @@ fdk_format_drivers <- function(
   )
 
   message("processing flux data using {ingestr}")
-  ddf_flux <- ingest(
+  ddf_flux <- ingestr::ingest(
     siteinfo = site_info |> slice(1:3),
     source   = "fluxnet",
     getvars  = list(
@@ -164,9 +164,9 @@ fdk_format_drivers <- function(
 
   #----- Calculate daily values from half-hourly measurements ----
 
-  message("Converting HH values to Daily values...")
-
   if (freq == "hh"){
+    message("Converting HH values to Daily values...")
+
     data <- ddf_flux$data[[1]]
     data <- data |>
       mutate(
@@ -265,6 +265,7 @@ fdk_format_drivers <- function(
   # merge all climate drivers into
   # one format
   ddf_flux$data[[1]]$ccov <- 1
+  ddf_flux$data[[1]]$snow <- 0
 
   # ddf_meteo <- ddf_flux |>
   #   tidyr::unnest(data) |>
@@ -309,7 +310,7 @@ fdk_format_drivers <- function(
   # for input below
   df_fapar <- ddf_flux |>
     dplyr::mutate(
-      data = purrr::map(data, ~ dplyr::mutate(., fapar = fapar))
+      data = purrr::map(data, ~ dplyr::mutate(., fapar = fpar))
     )
 
   #---- Format p-model driver data ----

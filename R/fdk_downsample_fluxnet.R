@@ -1,13 +1,17 @@
 #' Down sample half-hourly data to daily values
 #'
-#' Currently CO2 fluxes can not be down sampled using the
-#' FLUXNET routine due to missing methodology.
+#' Down sampling of GPP values is done at hoc using a simple
+#' mean. Normally the data is generated using a dedicated
+#' workflow and are not 100% identical but correspondence
+#' between HH and DD should have an R2 > 0.95, with only
+#' structured errors in the NT product (not used)
 #'
 #' @param df FLUXNET based HH data frame
 #' @param out_path where to store the converted data if converted to
 #'  fluxnet formatting
 #'
-#' @return data frame with daily (DD) down sampled values
+#' @return data frame with daily (DD) down sampled values or file in the
+#'  FLUXNET formats
 #' @export
 
 fdk_downsample_fluxnet <- function(
@@ -24,14 +28,14 @@ fdk_downsample_fluxnet <- function(
 
   df <- df |>
     mutate(
-      date = as.Date(TIMESTAMP_START, "%Y%m%d%H%M")
+      TIMESTAMP = as.Date(TIMESTAMP_START, "%Y%m%d%H%M")
     )
 
-  start_year <- format(min(df$date), "%Y")
-  end_year <- format(max(df$date), "%Y")
+  start_year <- format(min(df$TIMESTAMP), "%Y")
+  end_year <- format(max(df$TIMESTAMP), "%Y")
 
   df <- df |>
-    group_by(date) |>
+    group_by(TIMESTAMP) |>
     summarize(
 
       # METEO
@@ -64,6 +68,18 @@ fdk_downsample_fluxnet <- function(
       CO2_F_MDS = mean(CO2_F_MDS, na.rm = TRUE),
 
       # FLUXES
+
+      GPP_DT_VUT_REF = ifelse(
+        length(which(!is.na(GPP_DT_VUT_REF)) > length(GPP_DT_VUT_REF) * 0.5 ),
+        mean(GPP_DT_VUT_REF, na.rm = TRUE),
+        NA
+      ),
+
+      GPP_DT_VUT_SE = ifelse(
+        length(which(!is.na(GPP_DT_VUT_SE)) > length(GPP_DT_VUT_SE) * 0.5 ),
+        sd(GPP_DT_VUT_REF, na.rm = TRUE),
+        NA
+      ),
 
       # NETRAD/USTAR/SW_out is average from HH data
       # (only days with more than 50% records available)
@@ -133,6 +149,8 @@ fdk_downsample_fluxnet <- function(
 
     message("---> writing data to file:")
     message(sprintf("   %s", filename))
+
+    return(filename)
 
   } else {
     # return the merged file
