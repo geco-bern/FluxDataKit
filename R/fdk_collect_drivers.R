@@ -146,7 +146,11 @@ fdk_collect_drivers <- function(
 
   ## interpolate to fill gaps in forcing time series
   myapprox <- function(vec){
-    stats::approx(vec, xout = 1:length(vec))$y
+    if(all(is.na(vec))){
+      return(vec)
+    } else {
+      stats::approx(vec, xout = 1:length(vec))$y
+    }
   }
 
   fill_na_forcing <- function(df) {

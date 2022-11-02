@@ -168,7 +168,7 @@ fdk_convert_lsm <- function(
     keys$new <- names(old)
 
     # columns to select
-    loc <- names(keys[which(keys %in% colnames(all))])
+    keys <- keys[which(old %in% colnames(all)),]
 
     # rename all columns using the keys in the
     # data frame

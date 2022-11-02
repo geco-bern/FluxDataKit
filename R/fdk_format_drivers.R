@@ -318,7 +318,7 @@ fdk_format_drivers <- function(
     message("Combining all driver data ....")
   }
 
-  output <- rsofun::collect_drivers_sofun(
+  output <- fdk_collect_drivers(
     site_info      = site_info,
     params_siml    = params_siml,
     meteo          = ddf_flux,
