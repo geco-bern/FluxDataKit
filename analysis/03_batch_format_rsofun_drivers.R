@@ -5,10 +5,11 @@ options(dplyr.summarise.inform = FALSE)
 library(tidyverse)
 library(ingestr)
 library(FluxDataKit)
+source("R/fdk_downsample_fluxnet.R")
 
 sites <- readRDS("data/flux_data_kit_site-info.rds")
 
-driver_data <- lapply(sites$sitename[1:2], function(site){
+driver_data <- lapply(sites$sitename[3], function(site){
 
   message(sprintf("Processing %s ----", site))
 
@@ -28,10 +29,11 @@ driver_data <- lapply(sites$sitename[1:2], function(site){
   message("- downsampling FLUXNET format")
   filename <- suppressMessages(
     suppressWarnings(
-      fdk_downsample_fluxnet(
+      try(fdk_downsample_fluxnet(
         df,
         site = site,
         out_path = tempdir()
+      )
       )
     )
   )
@@ -45,16 +47,17 @@ driver_data <- lapply(sites$sitename[1:2], function(site){
   # Use a uniform FLUXNET HH input
   # file to generate p-model (rsofun)
   # compatible driver data
-  output <- suppressMessages(
-    suppressWarnings(
+  output <-
+    #suppressMessages(
+    #suppressWarnings(
       fdk_format_drivers(
         site_info = sites |> filter(sitename == !!site),
         freq = "d",
         path = paste0(tempdir(),"/"), # f-ing trailing /
         verbose = TRUE
       )
-    )
-  )
+  #  )
+  #)
 
   if(inherits(output, "try-error")){
     message("!!! formatting drivers failed  !!!")
@@ -67,4 +70,5 @@ driver_data <- lapply(sites$sitename[1:2], function(site){
 # bind all tibbles
 driver_data <- dplyr::bind_rows(driver_data)
 
-
+# write all drivers to file
+saveRDS(driver_data, "data/rsofun_driver_data.rds", compress = "xz")

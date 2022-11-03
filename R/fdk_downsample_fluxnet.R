@@ -22,7 +22,7 @@ fdk_downsample_fluxnet <- function(
 
   # Using the FLUXNET instructions, however in some cases there will
   # be no equivalence giving missing information. Downsampled data should
-  # therefore note be considered equal to the origianl FLUXNET/ONEFLUX
+  # therefore note be considered equal to the original FLUXNET/ONEFLUX
   # processing chain.
   # https://fluxnet.org/data/fluxnet2015-dataset/fullset-data-product/
 
@@ -33,6 +33,36 @@ fdk_downsample_fluxnet <- function(
 
   start_year <- format(min(df$TIMESTAMP), "%Y")
   end_year <- format(max(df$TIMESTAMP), "%Y")
+
+  # check required columns fill with NA
+  # if any are missing
+  output_columns <- data.frame(
+    "P_F" = NA,
+    "TA_F_MDS" = NA,
+    "SW_IN_F_MDS" = NA,
+    "LW_IN_F_MDS" = NA,
+    "VPD_F_MDS" = NA,
+    "WS_F" = NA,
+    "PA_F" = NA,
+    "CO2_F_MDS" = NA,
+    "GPP_DT_VUT_REF" = NA,
+    "GPP_DT_VUT_SE" = NA,
+    "NETRAD" = NA,
+    "USTAR" = NA,
+    "SW_OUT" = NA,
+    "LE_F_MDS" = NA,
+    "LE_CORR" = NA,
+    "H_F_MDS" = NA,
+    "H_CORR" = NA,
+    "LAI" = NA,
+    "FPAR" = NA
+  )
+
+  missing_columns <- output_columns[,which(!(colnames(output_columns) %in% colnames(df)))]
+
+  if (ncol(missing_columns) > 0 ) {
+    df <- bind_cols(df, missing_columns)
+  }
 
   df <- df |>
     group_by(TIMESTAMP) |>
@@ -47,9 +77,6 @@ fdk_downsample_fluxnet <- function(
       TA_F_MDS = mean(TA_F_MDS, na.rm = TRUE),
 
       # temperature is the mean of the HH values
-      SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = TRUE),
-
-      # short wave radiation is the mean of the HH values
       SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = TRUE),
 
       # long wave radiation is the mean of the HH values
@@ -68,7 +95,6 @@ fdk_downsample_fluxnet <- function(
       CO2_F_MDS = mean(CO2_F_MDS, na.rm = TRUE),
 
       # FLUXES
-
       GPP_DT_VUT_REF = ifelse(
         length(which(!is.na(GPP_DT_VUT_REF)) > length(GPP_DT_VUT_REF) * 0.5 ),
         mean(GPP_DT_VUT_REF, na.rm = TRUE),

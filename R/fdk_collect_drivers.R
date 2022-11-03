@@ -49,14 +49,14 @@ fdk_collect_drivers <- function(
   if (!("snow" %in% names(meteo$data[[1]]))) {
     warning("Variable 'snow' missing in meteo data frame.
                 Assuming zero for all dates. \n")
-    meteo <- meteo %>% mutate(data = purrr::map(data,
+    meteo <- meteo |> mutate(data = purrr::map(data,
                               ~dplyr::mutate(., snow = 0)))
   }
 
   if (!("rain" %in% names(meteo$data[[1]]))) {
     warning("Variable 'rain' missing in meteo data frame.
                 Assuming equal to 'prec' for all dates. \n")
-    meteo <- meteo %>%
+    meteo <- meteo |>
      dplyr::mutate(data = purrr::map(data,
                               ~dplyr::mutate(., rain = prec)))
   }
@@ -65,7 +65,7 @@ fdk_collect_drivers <- function(
     warning("Variable 'tmin' missing in meteo data frame.
                 Assuming equal to 'temp' for all dates.
                 (same goes for tmax as assumed paired)\n")
-    meteo <- meteo %>%
+    meteo <- meteo |>
       dplyr::mutate(data = purrr::map(data,
                                ~dplyr::mutate(., tmin = temp)),
              data = purrr::map(data,
@@ -76,7 +76,7 @@ fdk_collect_drivers <- function(
                 "temp", "patm", "vpd", "ccov", "tmin", "tmax")
 
   vars_missing <- vars_req[
-    !(vars_req %in% names(meteo %>% tidyr::unnest(data)))
+    !(vars_req %in% names(meteo |> tidyr::unnest(data)))
     ]
 
   if (length(vars_missing)) {
@@ -88,59 +88,59 @@ fdk_collect_drivers <- function(
   # vary by site (not model parameters!)
   names_metainfo <- names(site_info)[-which(names(site_info) %in%
                                              c("sitename", "params_siml"))]
-  df_mega <- site_info %>%
-    tidyr::nest(site_info = names_metainfo) %>%
+  df_mega <- site_info |>
+    tidyr::nest(site_info = names_metainfo) |>
     dplyr::left_join(
-      meteo %>%
+      meteo |>
         dplyr::rename(meteo = data),
       by = "sitename"
-    ) %>%
+    ) |>
     dplyr::left_join(
-      fapar %>%
+      fapar |>
         dplyr::rename(fapar = data),
       by = "sitename"
-    ) %>%
+    ) |>
     dplyr::left_join(
-      co2 %>%
+      co2 |>
         dplyr::rename(co2 = data),
       by = "sitename"
-    ) %>%
+    ) |>
     dplyr::mutate(
       params_soil = purrr::map(as.list(seq(nrow(.))),
                                        ~return(params_soil)))
 
   # use only interpolated fapar and combine meteo data and fapar
   # into a single nested column 'forcing'
-  df_mega <- df_mega %>%
-    dplyr::mutate(fapar = purrr::map(fapar, ~dplyr::select(., date, fapar))) %>%
-    dplyr::mutate(co2   = purrr::map(co2  , ~dplyr::select(., date, co2))) %>%
-    dplyr::mutate(forcing = purrr::map2(meteo, fapar, ~dplyr::left_join( .x, .y, by = "date"))) %>%
-    dplyr::mutate(forcing = purrr::map2(forcing, co2, ~dplyr::left_join( .x, .y, by = "date"))) %>%
+  df_mega <- df_mega |>
+    dplyr::mutate(fapar = purrr::map(fapar, ~dplyr::select(., date, fapar))) |>
+    dplyr::mutate(co2   = purrr::map(co2  , ~dplyr::select(., date, co2))) |>
+    dplyr::mutate(forcing = purrr::map2(meteo, fapar, ~dplyr::left_join( .x, .y, by = "date"))) |>
+    dplyr::mutate(forcing = purrr::map2(forcing, co2, ~dplyr::left_join( .x, .y, by = "date"))) |>
     dplyr::select(-meteo, -fapar, -co2)
 
   # drop sites for which forcing data is missing for all dates
   count_notna <- function(df) {
-    df %>%
-      dplyr::ungroup() %>%
+    df |>
+      dplyr::ungroup() |>
       dplyr::summarise(dplyr::across(
       c("ppfd", "rain", "snow", "prec", "temp",
         "patm", "vpd", "ccov", "fapar", "co2",
-        "tmin","tmax"), ~sum(!is.na(.)))) %>%
+        "tmin","tmax"), ~sum(!is.na(.)))) |>
       tidyr::pivot_longer(cols = 1:12, names_to = "var",
                    values_to = "n_not_missing")
   }
 
-  df_missing <- df_mega %>%
-    dplyr::mutate(df_count = purrr::map(forcing, ~count_notna(.))) %>%
-    dplyr::select(sitename, df_count) %>%
-    tidyr::unnest(df_count) %>%
+  df_missing <- df_mega |>
+    dplyr::mutate(df_count = purrr::map(forcing, ~count_notna(.))) |>
+    dplyr::select(sitename, df_count) |>
+    tidyr::unnest(df_count) |>
     dplyr::filter(n_not_missing < 365)
 
   if (nrow(df_missing) > 0) {
     warning("Missing values found in forcing data frame:")
     print(df_missing)
     warning("Respective sites are dropped from all drivers data frame.")
-    df_mega <- df_mega %>%
+    df_mega <- df_mega |>
       dplyr::filter(!(sitename %in% pull(df_missing, sitename)))
   }
 
@@ -155,28 +155,39 @@ fdk_collect_drivers <- function(
 
   fill_na_forcing <- function(df) {
 
+    print(df)
+
     # dummy variable for CRAN compliance
     ppdf_doy <- NULL
 
     vars <- names(df)[-which(names(df) == "date")]
-    df <- df %>%
+    df <- df |>
       dplyr::mutate_at(vars, myapprox)
 
     ## fill remaining gaps with mean seasonal cycle
     add_doy <- function(string){paste0(string, "_doy")}
 
-    df_meandoy <- df %>%
-      dplyr::mutate(doy = lubridate::yday(date)) %>%
-      dplyr::group_by(doy) %>%
+    na_mean <- function(x){
+      ifelse(all(is.na(x)), NA, mean(.x, na.rm = TRUE))
+    }
+
+    df_meandoy <- df |>
+      dplyr::mutate(doy = lubridate::yday(date)) |>
+      dplyr::group_by(doy) |>
       dplyr::summarise(
         dplyr::across(
-          tidyselect::vars_select_helpers$where(is.double),
-          ~mean(.x, na.rm = TRUE)
+          tidyselect::vars_select_helpers$where(is.double) ||
+          tidyselect::vars_select_helpers$where(is.na),
+          ~ na_mean(.x)
           )
-        ) %>%
+        ) |>
       dplyr::rename_with(.fn = add_doy, .cols = dplyr::one_of(
         "ppfd", "rain", "snow", "prec", "temp", "patm","netrad",
-        "vpd", "ccov", "fapar", "co2", "tmin", "tmax")) %>%
+        "vpd", "ccov", "fapar", "co2", "tmin", "tmax"))
+
+    print(df_meanddoy)
+
+    df_meandoy <- df_meandoy |>
       dplyr::select(
         doy,
         dplyr::one_of(
@@ -184,9 +195,9 @@ fdk_collect_drivers <- function(
            "patm_doy", "vpd_doy", "ccov_doy", "fapar_doy", "co2_doy",
            "tmin_doy", "tmax_doy","netrad_doy"))
 
-    df <- df %>%
-      dplyr::mutate(doy = lubridate::yday(date)) %>%
-      dplyr::left_join(df_meandoy, by = "doy") %>%
+    df <- df |>
+      dplyr::mutate(doy = lubridate::yday(date)) |>
+      dplyr::left_join(df_meandoy, by = "doy") |>
       dplyr::mutate(ppfd = ifelse(is.na(ppfd), ppfd_doy, ppfd),
              rain = ifelse(is.na(rain), rain_doy, rain),
              snow = ifelse(is.na(snow), snow_doy, snow),
@@ -202,14 +213,14 @@ fdk_collect_drivers <- function(
              co2 = ifelse(is.na(co2), co2_doy, co2),
              tmin = ifelse(is.na(tmin), tmin_doy, tmin),
              tmax = ifelse(is.na(tmax), tmax_doy, tmax),
-             ) %>%
+             ) |>
       dplyr::select(-ends_with("_doy"))
 
     return(df)
   }
 
-  df_mega <- df_mega %>%
-    mutate(forcing = purrr::map(forcing, ~fill_na_forcing(.))) %>%
+  df_mega <- df_mega |>
+    mutate(forcing = purrr::map(forcing, ~fill_na_forcing(.))) |>
     dplyr::select(sitename, forcing, params_siml, site_info, params_soil)
 
   return(df_mega)
