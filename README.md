@@ -50,6 +50,10 @@ We used the gapfilled and corrected FluxnetLSM data to provide p-model driver da
 
 Most of these fields are taken from the *in-situ* ERA-Interim gapfilled FluxnetLSM processed fluxes of the products mentioned above. Sites are not screened for completeness to ensure reasonable coverage. The latter is deferred to the user as this depends on use cases.
 
+### Data downloads
+
+Data downloads can be found here: https://zenodo.org/record/7258291
+
 ### ancillary remote sensing data
 
 For machine learning or other modelling purposes we provide ancillary MODIS based remote sensing data as described in the FluxnetEO dataset. We refer to the original publication and our [FluxnetEO](https://bg.copernicus.org/articles/19/2805/2022/) package for easy reading and processing of the data.
