@@ -4,12 +4,14 @@ options(dplyr.summarise.inform = FALSE)
 
 library(tidyverse)
 library(ingestr)
-library(FluxDataKit)
-source("R/fdk_downsample_fluxnet.R")
+library(rsofun)
+#library(FluxDataKit)
+
+lapply(list.files("R/","*", full.names = TRUE), source)
 
 sites <- readRDS("data/flux_data_kit_site-info.rds")
 
-driver_data <- lapply(sites$sitename[3], function(site){
+driver_data <- lapply(sites$sitename[1], function(site){
 
   message(sprintf("Processing %s ----", site))
 
@@ -71,4 +73,4 @@ driver_data <- lapply(sites$sitename[3], function(site){
 driver_data <- dplyr::bind_rows(driver_data)
 
 # write all drivers to file
-saveRDS(driver_data, "data/rsofun_driver_data.rds", compress = "xz")
+#saveRDS(driver_data, "data/rsofun_driver_data.rds", compress = "xz")
