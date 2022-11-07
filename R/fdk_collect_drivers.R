@@ -88,6 +88,7 @@ fdk_collect_drivers <- function(
   # vary by site (not model parameters!)
   names_metainfo <- names(site_info)[-which(names(site_info) %in%
                                              c("sitename", "params_siml"))]
+
   df_mega <- site_info |>
     tidyr::nest(site_info = names_metainfo) |>
     dplyr::left_join(
