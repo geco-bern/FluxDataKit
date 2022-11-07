@@ -6,7 +6,6 @@ library(tidyverse)
 library(ingestr)
 library(rsofun)
 #library(FluxDataKit)
-
 lapply(list.files("R/","*", full.names = TRUE), source)
 
 sites <- readRDS("data/flux_data_kit_site-info.rds")
