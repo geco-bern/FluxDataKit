@@ -11,7 +11,6 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
     product == "fluxnet2015"
   )
 
-
 lapply(sites$sitename[50], function(site){
 
   site_files <- list.files(
