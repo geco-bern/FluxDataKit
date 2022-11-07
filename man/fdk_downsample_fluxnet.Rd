@@ -13,9 +13,13 @@ fdk_downsample_fluxnet(df, site, out_path)
 fluxnet formatting}
 }
 \value{
-data frame with daily (DD) down sampled values
+data frame with daily (DD) down sampled values or file in the
+ FLUXNET formats
 }
 \description{
-Currently CO2 fluxes can not be down sampled using the
-FLUXNET routine due to missing methodology.
+Down sampling of GPP values is done at hoc using a simple
+mean. Normally the data is generated using a dedicated
+workflow and are not 100% identical but correspondence
+between HH and DD should have an R2 > 0.95, with only
+structured errors in the NT product (not used)
 }

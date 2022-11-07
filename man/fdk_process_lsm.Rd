@@ -11,7 +11,7 @@ fdk_process_lsm(
   format = "lsm",
   save_tmp_files = TRUE,
   overwrite = TRUE,
-  site_csv_file = system.file("extdata", "Site_metadata.csv", package = "FluxnetLSM")
+  site_csv_file
 )
 }
 \arguments{
