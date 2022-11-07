@@ -1,6 +1,7 @@
 #' Plot FluxDataKit output
 #'
-#' @param file a fdk file
+#' @param df data frame with FLUXNET based data
+#' @param site sitename
 #' @param out_path where to store the images
 #' @param overwrite overwrite existing files (TRUE or FALSE)
 #' stored
@@ -9,14 +10,14 @@
 #' @export
 
 fdk_plot <- function(
-    file,
+    df,
+    site,
     out_path = "data/tmp",
     overwrite = FALSE
 ){
 
   # format filename
-  filename <- tools::file_path_sans_ext(basename(file))
-  filename <- file.path(out_path, sprintf("%s_plot.png", filename))
+  filename <- file.path(out_path, sprintf("%s_plot.png", site))
 
   # check if files are already processed
   if(!overwrite){
@@ -26,14 +27,7 @@ fdk_plot <- function(
     }
   }
 
-  # Convert to FLUXNET format
-  # and easier to read data frame
-  # using FLUXNET columns
-  df <- fdk_read_plumber(
-    file,
-    meta_data = FALSE
-  )
-
+  # exclude non necessary values
   df <- df |>
     select(
       -ends_with("qc"),
@@ -43,16 +37,26 @@ fdk_plot <- function(
       -contains("latitude"),
       -contains("elevation"),
       -starts_with("IGBP"),
-      -ends_with("height")
+      -ends_with("height"),
+      -ends_with("_END")
     )
 
+  # pivot to long format for easy
+  # multi variable plotting
   df <- df |>
     pivot_longer(
       names_to = "name",
       values_to = "value",
-      cols = 1:(ncol(df)-1) # date is last column
+      cols = 2:(ncol(df)) # date is first column
     )
 
+  # convert time to proper format
+  df <- df |>
+    mutate(
+      time = as.POSIXct(strptime(TIMESTAMP_START, "%Y%m%d%H%M"))
+    )
+
+  # plot the data
   p <- ggplot() +
     geom_point(
       data = df,
