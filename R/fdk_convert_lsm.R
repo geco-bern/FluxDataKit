@@ -93,7 +93,6 @@ fdk_convert_lsm <- function(
 
       df$year_start <- format(min(df$time),"%Y")
       df$year_end <- format(max(df$time),"%Y")
-
       df <- df[1,c("latitude", "longitude", "reference_height",
                    "canopy_height", "elevation", "IGBP_veg_short",
                    "year_start","year_end")]
@@ -106,12 +105,12 @@ fdk_convert_lsm <- function(
 
   # only return meta-data if requested
   # don't merge with meteo data
-  if (!meta_data) {
-    # combine meteo and flux data
-    all <- dplyr::full_join(df[[1]], df[[2]], by = "time")
-  } else {
+  if (meta_data) {
     # return only the meta-data
     return(df)
+  } else {
+    # combine meteo and flux data
+    all <- dplyr::left_join(df[[1]], df[[2]], by = "time")
   }
 
   # format data as fluxnet compatible
