@@ -105,10 +105,10 @@ fdk_collect_drivers <- function(
       co2 |>
         dplyr::rename(co2 = data),
       by = "sitename"
-    ) |>
-    dplyr::mutate(
-      params_soil = purrr::map(as.list(seq(nrow(.))),
-                                       ~return(params_soil)))
+    ) #|>
+    #dplyr::mutate(
+    #  params_soil = purrr::map(as.list(seq(nrow(.))),
+    #                                   ~return(params_soil)))
 
   # use only interpolated fapar and combine meteo data and fapar
   # into a single nested column 'forcing'
@@ -118,6 +118,10 @@ fdk_collect_drivers <- function(
     dplyr::mutate(forcing = purrr::map2(meteo, fapar, ~dplyr::left_join( .x, .y, by = "date"))) |>
     dplyr::mutate(forcing = purrr::map2(forcing, co2, ~dplyr::left_join( .x, .y, by = "date"))) |>
     dplyr::select(-meteo, -fapar, -co2)
+
+  # Fucking hack because of god knows what kind of tidyverse
+  # rubbish included here
+  df_mega <- tibble(df_mega, params_soil = list(params_soil))
 
   # drop sites for which forcing data is missing for all dates
   count_notna <- function(df) {
@@ -156,8 +160,6 @@ fdk_collect_drivers <- function(
 
   fill_na_forcing <- function(df) {
 
-    print(df)
-
     # dummy variable for CRAN compliance
     ppdf_doy <- NULL
 
@@ -169,7 +171,7 @@ fdk_collect_drivers <- function(
     add_doy <- function(string){paste0(string, "_doy")}
 
     na_mean <- function(x){
-      ifelse(all(is.na(x)), NA, mean(.x, na.rm = TRUE))
+      ifelse(all(is.na(x)), NA, mean(x, na.rm = TRUE))
     }
 
     df_meandoy <- df |>
@@ -177,16 +179,13 @@ fdk_collect_drivers <- function(
       dplyr::group_by(doy) |>
       dplyr::summarise(
         dplyr::across(
-          tidyselect::vars_select_helpers$where(is.double) ||
-          tidyselect::vars_select_helpers$where(is.na),
+          tidyselect:::where(is.double) | tidyselect:::where(is.logical),
           ~ na_mean(.x)
           )
         ) |>
       dplyr::rename_with(.fn = add_doy, .cols = dplyr::one_of(
         "ppfd", "rain", "snow", "prec", "temp", "patm","netrad",
         "vpd", "ccov", "fapar", "co2", "tmin", "tmax"))
-
-    print(df_meanddoy)
 
     df_meandoy <- df_meandoy |>
       dplyr::select(
