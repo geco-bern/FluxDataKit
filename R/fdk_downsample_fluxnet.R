@@ -61,7 +61,6 @@ fdk_downsample_fluxnet <- function(
   )
 
   missing_columns <- output_columns[,which(!(colnames(output_columns) %in% colnames(df)))]
-  print(missing_columns)
 
   if (ncol(missing_columns) > 0 ) {
     df <- bind_cols(df, missing_columns)
