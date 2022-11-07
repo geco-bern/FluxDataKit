@@ -6,12 +6,18 @@
 options(tidyverse.quiet = TRUE)
 options(dplyr.summarise.inform = FALSE)
 
+# load libraries
 library(tidyverse)
 library(FluxDataKit)
 lapply(list.files("R/","*", full.names = TRUE), source)
 
+# load sites
 sites <- readRDS("data/flux_data_kit_site-info.rds")
 
+# loop over all sites and process the
+# LSM data into FLUXNET compatible daily (DD)
+# data formats combining fluxes and ERA gap
+# filled data
 failed_sites <- lapply(sites$sitename[1], function(site){
   message(sprintf("Processing %s ----", site))
 

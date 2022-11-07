@@ -10,7 +10,7 @@ lapply(list.files("R/","*", full.names = TRUE), source)
 
 sites <- readRDS("data/flux_data_kit_site-info.rds")
 
-driver_data <- lapply(sites$sitename[1], function(site){
+driver_data <- lapply(sites$sitename[10], function(site){
 
   message(sprintf("Processing %s ----", site))
 
