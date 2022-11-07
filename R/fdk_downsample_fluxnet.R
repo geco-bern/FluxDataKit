@@ -47,6 +47,8 @@ fdk_downsample_fluxnet <- function(
     "CO2_F_MDS" = NA,
     "GPP_DT_VUT_REF" = NA,
     "GPP_DT_VUT_SE" = NA,
+    "GPP_NT_VUT_REF" = NA,
+    "GPP_NT_VUT_SE" = NA,
     "NETRAD" = NA,
     "USTAR" = NA,
     "SW_OUT" = NA,
@@ -59,6 +61,7 @@ fdk_downsample_fluxnet <- function(
   )
 
   missing_columns <- output_columns[,which(!(colnames(output_columns) %in% colnames(df)))]
+  print(missing_columns)
 
   if (ncol(missing_columns) > 0 ) {
     df <- bind_cols(df, missing_columns)
@@ -104,6 +107,19 @@ fdk_downsample_fluxnet <- function(
       GPP_DT_VUT_SE = ifelse(
         length(which(!is.na(GPP_DT_VUT_SE)) > length(GPP_DT_VUT_SE) * 0.5 ),
         sd(GPP_DT_VUT_REF, na.rm = TRUE),
+        NA
+      ),
+
+      # FLUXES
+      GPP_NT_VUT_REF = ifelse(
+        length(which(!is.na(GPP_NT_VUT_REF)) > length(GPP_NT_VUT_REF) * 0.5 ),
+        mean(GPP_NT_VUT_REF, na.rm = TRUE),
+        NA
+      ),
+
+      GPP_NT_VUT_SE = ifelse(
+        length(which(!is.na(GPP_NT_VUT_SE)) > length(GPP_NT_VUT_SE) * 0.5 ),
+        sd(GPP_NT_VUT_REF, na.rm = TRUE),
         NA
       ),
 
