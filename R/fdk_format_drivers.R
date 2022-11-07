@@ -162,83 +162,14 @@ fdk_format_drivers <- function(
   c_molmass <- 12.0107  # molar mass of C
   gpp_coversion <- 1e-6 * 60 * 60 * 24 * c_molmass
 
-  #----- Calculate daily values from half-hourly measurements ----
+  #----- convert dates ----
 
-  if (freq == "hh"){
-    message("Converting HH values to Daily values...")
-
-    data <- ddf_flux$data[[1]]
-    data <- data |>
-      mutate(
-        date = as.Date(date)
-      ) |>
-      group_by(date) |>
-      summarize(
-
-        # Daily summary values
-        gpp = ifelse(
-          length(which(!is.na(gpp)) >= length(gpp) ),
-          mean(gpp, na.rm = TRUE),
-          NA
-        ),
-
-        tmin = min(temp, na.rm = TRUE),
-        tmax = max(temp, na.rm = TRUE),
-        temp = mean(temp, na.rm = TRUE),
-        prec = sum(prec, na.rm = TRUE),
-        vpd = mean(vpd, na.rm = TRUE),
-        patm = mean(patm, na.rm = TRUE),
-
-        # missing values
-        snow = 0,
-        co2_air = mean(co2_air, na.rm = TRUE),
-
-        # radiation values are averages for
-        # days with more than 50% of values
-        # available
-        netrad = ifelse(
-          length(which(!is.na(netrad)) > length(netrad) * 0.5 ),
-          mean(netrad, na.rm = TRUE),
-          NA
-        ),
-
-        ppfd = ifelse(
-          length(which(!is.na(ppfd)) > length(ppfd) * 0.5 ),
-          mean(ppfd, na.rm = TRUE),
-          NA
-        ),
-
-        # remote sensing data
-        lai = mean(lai, na.rm = TRUE),
-        fapar = mean(fpar, na.rm = TRUE),
-
-        # tally the number of HH values
-        # included in the dialy data for QA/QC
-        gpp_qc = length(which(!is.na(gpp))),
-        temp_qc = length(which(!is.na(temp))),
-        prec_qc = length(which(!is.na(prec))),
-        vpd_qc = length(which(!is.na(vpd))),
-        patm_qc = length(which(!is.na(patm))),
-        netrad_qc = length(which(!is.na(netrad))),
-        ppdf_qc = length(which(!is.na(ppfd)))
-
-      ) |>
-      mutate(
-        tmin = ifelse(is.infinite(tmin), NA, tmin),
-        tmax = ifelse(is.infinite(tmax), NA, tmax)
-      )
-
-    # put back in tibble
-    ddf_flux$data[[1]] <- data
-
-  } else {
-    data <- ddf_flux$data[[1]]
-    ddf_flux$data[[1]] <- data |>
-      mutate(
-        date_time = date,
-        date = as.Date(date)
-      )
-  }
+  data <- ddf_flux$data[[1]]
+  ddf_flux$data[[1]] <- data |>
+    mutate(
+      date_time = date,
+      date = as.Date(date)
+    )
 
   #---- Processing CRU data (for cloud cover CCOV) ----
   if(verbose){
