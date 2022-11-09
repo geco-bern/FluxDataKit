@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 library(ingestr)
-library(icoscp) # SPARQL has been taken offline!!
+library(icoscp) # get it from https://github.com/bluegreen-labs/icoscp, SPARQL has been taken offline!!
 library(RCurl)
 library(XML)
 library(tidyverse)

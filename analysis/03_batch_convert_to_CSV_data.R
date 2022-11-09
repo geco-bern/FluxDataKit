@@ -18,7 +18,7 @@ sites <- readRDS("data/flux_data_kit_site-info.rds")
 # LSM data into FLUXNET compatible daily (DD)
 # data formats combining fluxes and ERA gap
 # filled data
-failed_sites <- lapply(sites$sitename[1], function(site){
+failed_sites <- lapply(sites$sitename, function(site){
   message(sprintf("Processing %s ----", site))
 
   message("- converting to FLUXNET format")
@@ -41,7 +41,7 @@ failed_sites <- lapply(sites$sitename[1], function(site){
         df,
         site = site,
         out_path = "/data/scratch/fluxnet_plumber_x/"
-      )
+        )
       )
     )
   )

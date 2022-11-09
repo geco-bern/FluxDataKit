@@ -4,10 +4,12 @@
 \alias{fdk_plot}
 \title{Plot FluxDataKit output}
 \usage{
-fdk_plot(file, out_path = "data/tmp", overwrite = FALSE)
+fdk_plot(df, site, out_path = "data/tmp", overwrite = FALSE)
 }
 \arguments{
-\item{file}{a fdk file}
+\item{df}{data frame with FLUXNET based data}
+
+\item{site}{sitename}
 
 \item{out_path}{where to store the images}
 
