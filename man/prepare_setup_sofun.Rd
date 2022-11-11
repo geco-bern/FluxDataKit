@@ -7,15 +7,15 @@
 prepare_setup_sofun(site_info, params_siml)
 }
 \arguments{
-\item{site_info}{A character string specifying the path to the site meta 
+\item{site_info}{A character string specifying the path to the site meta
 info file, or a dataframe containing the site meta info.}
 
 \item{params_siml}{A named list containing the simulation parameters
 for SOFUN.}
 }
 \value{
-A dataframe (tibble) containing the site meta info, 
-complemented by column 'params_siml' which is a nested list 
+A dataframe (tibble) containing the site meta info,
+complemented by column 'params_siml' which is a nested list
 of complemented simulation parameters.
 }
 \description{
