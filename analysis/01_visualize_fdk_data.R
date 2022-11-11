@@ -38,7 +38,7 @@ failed_sites <- lapply(sites$sitename, function(site){
   )
 
   if(inherits(filename, "try-error")){
-    message("!!! downsampling failed !!!")
+    message("!!! plotting failed !!!")
     return(site)
   }
 
