@@ -26,7 +26,9 @@ Suggests:
     rmarkdown,
     dplyr
 Remotes:
+    bluegreen-labs/icoscp
     computationales/FluxnetLSM
+    computationales/FluxnetEO
 VignetteBuilder:
     knitr
 Encoding: UTF-8
