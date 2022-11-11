@@ -10,6 +10,7 @@ Authors@R: c(
     comment = c(ORCID = "0000-0002-5070-8109"))
     )
 Description: A processing workflow for aggregated flux and remote sensing data.
+ Returns both Land Surface Model or CSV based harmonized and gap filled data.
 License: AGPL-3
 Depends:
     R (>= 4.2)
