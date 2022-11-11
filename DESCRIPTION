@@ -14,7 +14,8 @@ License: AGPL-3
 Depends:
     R (>= 4.2)
 Imports:
-    tidyverse,
+    dplyr,
+    tidyr,
     chron,
     ncdf4,
     stats,
