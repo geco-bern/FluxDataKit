@@ -22,11 +22,11 @@ Imports:
     stats,
     tools,
     utils,
+    rvest,
     zoo
 Suggests:
     knitr,
-    rmarkdown,
-    dplyr
+    rmarkdown
 Remotes:
     bluegreen-labs/icoscp
     computationales/FluxnetLSM
