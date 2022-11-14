@@ -1,8 +1,16 @@
+# This routines visualizes the output
+# of the Land Surface Model (netcdf) conversion
+# and allows you to quickly check data conversions
+# do note that some variables might be missing
+# depending on the input available (which varies
+# on a site by site basis)
+#
+# Failed sites are trapped and reported at
+# the end of the routine.
 
 # load libraries
 library(tidyverse)
 library(FluxDataKit)
-lapply(list.files("R/","*", full.names = TRUE), source)
 
 # load sites
 sites <- readRDS("data/flux_data_kit_site-info.rds")
@@ -45,5 +53,6 @@ failed_sites <- lapply(sites$sitename, function(site){
   return(NULL)
 })
 
+# list failed sites
 failed_sites <- do.call("rbind", failed_sites)
 print(failed_sites)
