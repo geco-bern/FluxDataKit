@@ -1,7 +1,12 @@
-#!/usr/bin/env Rscript
+# This script collects all meta-data
+# for all available data products
+# (note set the correct paths if these do
+# not correspond to the defaults as listed
+# below)
+#
 
 library(ingestr)
-library(icoscp) # get it from https://github.com/bluegreen-labs/icoscp, SPARQL has been taken offline!!
+library(icoscp)
 library(RCurl)
 library(XML)
 library(tidyverse)

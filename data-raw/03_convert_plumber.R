@@ -1,20 +1,20 @@
-#!/usr/bin/env Rscript
+# Converts all plumber netcdf files to
+# a CSV format
 
-# load libraries and
-# scripts
-library(tidyverse)
-library(ingestr)
+# load libraries
+library(FluxDataKit)
 
+# List all files to process
 df <- readRDS("data/flux_data_kit_site-info.rds") %>%
   filter(
     product == "plumber"
   )
 
 # convert all sites from NETCDF to CSV
-df %>%
-  rowwise() %>%
+df |>
+  rowwise() |>
   do({
-    fdk_read_plumber(
+    fdk_convert_lsm(
       site = .$sitename,
       path = "data-raw/flux_data/plumber/",
       fluxnet_format = TRUE,
