@@ -2,24 +2,29 @@
 % Please edit documentation in R/fdk_downsample_fluxnet.R
 \name{fdk_downsample_fluxnet}
 \alias{fdk_downsample_fluxnet}
-\title{Down sample half-hourly data to daily values}
+\title{Down samples half-hourly FLUXNET data to daily values}
 \usage{
 fdk_downsample_fluxnet(df, site, out_path)
 }
 \arguments{
-\item{df}{FLUXNET based HH data frame}
+\item{df}{a half-hourly FLUXNET data frame}
 
-\item{out_path}{where to store the converted data if converted to
-fluxnet formatting}
+\item{out_path}{the path where to store the converted data}
 }
 \value{
 data frame with daily (DD) down sampled values or file in the
- FLUXNET formats
+ FLUXNET format
 }
 \description{
-Down sampling of GPP values is done at hoc using a simple
-mean. Normally the data is generated using a dedicated
-workflow and are not 100% identical but correspondence
-between HH and DD should have an R2 > 0.95, with only
-structured errors in the NT product (not used)
+Down sampling of GPP values is done at-hoc using a simple
+mean.
+}
+\details{
+Normally the data is generated using a dedicated flux processing
+workflow. Therefore the data are not 100% identical but correspondence
+should have an R2 > 0.95, with only structured errors in the NT product.
+
+This function and the data generated should be used with caution, knowing
+the limitations that this routine implies with respect to all variables
+included.
 }

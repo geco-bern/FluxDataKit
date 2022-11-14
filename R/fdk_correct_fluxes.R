@@ -2,12 +2,16 @@
 #' Flux corrections routine
 #'
 #' Wrapper for the energy balance correction and subsetting of
-#' reported (valid) years
+#' reported (valid) years.
+#'
+#' This is an almost verbatim copy of the routine as used to generate
+#' the PLUMBER-2 data. For transparency reasons this part was split out into
+#' a function to provide easier debugging and processing options.
 #'
 #' @param infile input netcdf file
 #' @param qle_name latent heat
 #' @param qh_name sensible heat
-#' @param rnet_name respiration?
+#' @param rnet_name respiration flux
 #' @param qg_name quality control
 #' @param qle_cor_name quality control
 #' @param qh_cor_name quality control

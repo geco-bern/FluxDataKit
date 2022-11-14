@@ -1,12 +1,22 @@
 #' Plot FluxDataKit output
 #'
-#' @param df data frame with FLUXNET based data
-#' @param site sitename
-#' @param out_path where to store the images
-#' @param overwrite overwrite existing files (TRUE or FALSE)
-#' stored
+#' Simple routine to generate an overview plot of all
+#' flux and climate data. The function takes a data frame
+#' of FLUXNET formatted columns as input (this can be either
+#' original source material or gap filled data as generated
+#' by FluxDataKit).
 #'
-#' @return a plot with key variables
+#' Plots are not returned (shown) in the current interface
+#' but only written to file to allow for headless batch
+#' processing (with limited overhead).
+#'
+#' @param df data frame with FLUXNET based data
+#' @param site a FLUXNET site name to process
+#' @param out_path the path where to store the plot
+#' @param overwrite overwrite existing files (TRUE or FALSE)
+#'  stored
+#'
+#' @return A plot with FLUXNET variables for rapid visual data inspection
 #' @export
 
 fdk_plot <- function(

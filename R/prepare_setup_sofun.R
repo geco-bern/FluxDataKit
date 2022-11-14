@@ -1,15 +1,18 @@
 #' Complements the setup settings
 #'
-#' Complements the settings based on the site metainfo CSV file or data frame.
+#' Complements the settings based on the site meta-info CSV file or data frame.
+#'
+#' This function has been lifted from the {ingestr} package and is included
+#' here to limit dependencies on beta software.
 #'
 #' @param site_info A character string specifying the path to the site meta
-#' info file, or a dataframe containing the site meta info.
+#'  info file, or a dataframe containing the site meta info.
 #' @param params_siml A named list containing the simulation parameters
 #'  for SOFUN.
 #'
 #' @return A dataframe (tibble) containing the site meta info,
-#' complemented by column 'params_siml' which is a nested list
-#' of complemented simulation parameters.
+#'  complemented by column 'params_siml' which is a nested list
+#'  of complemented simulation parameters.
 #' @export
 #' @examples
 #' \dontrun{

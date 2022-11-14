@@ -2,7 +2,7 @@
 % Please edit documentation in R/fdk_read_plumber.R
 \name{fdk_read_plumber}
 \alias{fdk_read_plumber}
-\title{Reads Plumber netcdf files}
+\title{Reads (Plumber) NETCDF files}
 \usage{
 fdk_read_plumber(file, meta_data = FALSE)
 }
@@ -10,7 +10,7 @@ fdk_read_plumber(file, meta_data = FALSE)
 \item{file}{plumber netcdf file}
 }
 \value{
-dataframe with read in nc values
+dataframe with requested values (meteo, flux or meta-data)
 }
 \description{
 Returns either the raw flux or meteo

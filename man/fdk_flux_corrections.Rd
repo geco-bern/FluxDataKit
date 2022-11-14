@@ -21,7 +21,7 @@ fdk_flux_corrections(
 
 \item{qh_name}{sensible heat}
 
-\item{rnet_name}{respiration?}
+\item{rnet_name}{respiration flux}
 
 \item{qg_name}{quality control}
 
@@ -34,5 +34,10 @@ energy balance corrected netcdf file
 }
 \description{
 Wrapper for the energy balance correction and subsetting of
-reported (valid) years
+reported (valid) years.
+}
+\details{
+This is an almost verbatim copy of the routine as used to generate
+the PLUMBER-2 data. For transparency reasons this part was split out into
+a function to provide easier debugging and processing options.
 }

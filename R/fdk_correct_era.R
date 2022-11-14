@@ -3,6 +3,10 @@
 #' Corrects ERA data of a FluxnetLSM file (changes the file)
 #' locally, if a path is provided a new file is created.
 #'
+#' This is an almost verbatim copy of the routine as used to generate
+#' the PLUMBER-2 data. For transparency reasons this part was split out into
+#' a function to provide easier debugging and processing options.
+#'
 #' @param infile_met input netcdf filename
 #' @param new_qc quality control parameters
 #'

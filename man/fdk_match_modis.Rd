@@ -23,3 +23,8 @@ for merging into the final LSM model data.
 Smoothing interpolates values to an half-hourly
 time step.
 }
+\details{
+This is an almost verbatim copy of the routine as used to generate
+the PLUMBER-2 data. For transparency reasons this part was split out into
+a function to provide easier debugging and processing options.
+}

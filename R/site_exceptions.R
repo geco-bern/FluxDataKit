@@ -1,4 +1,28 @@
-site_exceptions <- function(site_code, var_data, att_data, qc_val) {
+
+#' Address ad-hoc data exceptions in conversions
+#'
+#' Despite standardization efforts it seems that some flux data has
+#' idiosyncratic issues with respect to units etc. For the few sites
+#' where such issues exist dedicated correction routines are provided.
+#'
+#' This is an almost verbatim copy of the routine as used to generate
+#' the PLUMBER-2 data. For transparency reasons this part was split out into
+#' a function to provide easier debugging and processing options.
+#'
+#' @param site_code FLUXNET site code abbreviation
+#' @param var_data FLUXNET data frame
+#' @param att_data FLUXNET meta-data
+#' @param qc_val FLUXNET quality control parameters
+#'
+#' @return corrected FLUXNET data for select sites
+#' @export
+
+site_exceptions <- function(
+    site_code,
+    var_data,
+    att_data,
+    qc_val
+    ) {
 
     #NB. all indices to fix were found manually
 

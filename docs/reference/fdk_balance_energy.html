@@ -80,7 +80,7 @@ calls fdk_correct_fluxes()</p>
 
 
 <dt>qle_qc</dt>
-<dd><p>quality control</p></dd>
+<dd><p>latent heat quality control</p></dd>
 
 
 <dt>qh</dt>
@@ -88,11 +88,11 @@ calls fdk_correct_fluxes()</p>
 
 
 <dt>qh_qc</dt>
-<dd><p>quality control</p></dd>
+<dd><p>sensible heat quality control</p></dd>
 
 
 <dt>rnet</dt>
-<dd><p>respiration?</p></dd>
+<dd><p>respiration rate</p></dd>
 
 
 <dt>qg</dt>
@@ -100,15 +100,15 @@ calls fdk_correct_fluxes()</p>
 
 
 <dt>qg_qc</dt>
-<dd><p>quality control</p></dd>
+<dd><p>quality control parameter</p></dd>
 
 
 <dt>time</dt>
-<dd><p>time field?</p></dd>
+<dd><p>a date/time field (vector)</p></dd>
 
 
 <dt>tstepsize</dt>
-<dd><p>time step</p></dd>
+<dd><p>time step length</p></dd>
 
 </dl></div>
     <div id="value">
@@ -116,6 +116,12 @@ calls fdk_correct_fluxes()</p>
     
 
 <p>sensible and latent heat values with the energy balance closed</p>
+    </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>This is an almost verbatim copy of the routine as used to generate
+the PLUMBER-2 data. For transparency reasons this part was split out into
+a function to provide easier debugging and processing options.</p>
     </div>
 
   </div>

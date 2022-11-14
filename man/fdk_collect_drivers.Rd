@@ -2,7 +2,7 @@
 % Please edit documentation in R/fdk_collect_drivers.R
 \name{fdk_collect_drivers}
 \alias{fdk_collect_drivers}
-\title{Collect all drivers}
+\title{Collect p-model drivers}
 \usage{
 fdk_collect_drivers(site_info, params_siml, meteo, fapar, co2, params_soil)
 }
@@ -29,6 +29,9 @@ forcing data time series nested inside a column named \code{"data"}}
 a rsofun input data frame
 }
 \description{
-Collect all drivers for site-level simulations
-into a nested data frame with one row for each site
+Collect all drivers for site-level p-model simulations
+into a nested data frame with one row for each site, as required by {rsofun}.
+}
+\details{
+This routine has been lifted from the {rsofun}/{ingestr} packages.
 }

@@ -1,3 +1,6 @@
+# List of small assorted functions included in the
+# PLUMBER-2 workflow
+
 # Can be used to add hours to a time vector
 hrs <- function(u) {
   x <- u * 3600

@@ -9,16 +9,25 @@ fdk_plot(df, site, out_path = "data/tmp", overwrite = FALSE)
 \arguments{
 \item{df}{data frame with FLUXNET based data}
 
-\item{site}{sitename}
+\item{site}{a FLUXNET site name to process}
 
-\item{out_path}{where to store the images}
+\item{out_path}{the path where to store the plot}
 
 \item{overwrite}{overwrite existing files (TRUE or FALSE)
 stored}
 }
 \value{
-a plot with key variables
+A plot with FLUXNET variables for rapid visual data inspection
 }
 \description{
-Plot FluxDataKit output
+Simple routine to generate an overview plot of all
+flux and climate data. The function takes a data frame
+of FLUXNET formatted columns as input (this can be either
+original source material or gap filled data as generated
+by FluxDataKit).
+}
+\details{
+Plots are not returned (shown) in the current interface
+but only written to file to allow for headless batch
+processing (with limited overhead).
 }

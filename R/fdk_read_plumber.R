@@ -1,4 +1,4 @@
-#' Reads Plumber netcdf files
+#' Reads (Plumber) NETCDF files
 #'
 #' Returns either the raw flux or meteo
 #' data or the site meta-data based upon
@@ -7,7 +7,7 @@
 #'
 #' @param file plumber netcdf file
 #'
-#' @return dataframe with read in nc values
+#' @return dataframe with requested values (meteo, flux or meta-data)
 #' @export
 
 fdk_read_plumber <- function(

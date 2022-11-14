@@ -5,6 +5,10 @@
 #' Smoothing interpolates values to an half-hourly
 #' time step.
 #'
+#' This is an almost verbatim copy of the routine as used to generate
+#' the PLUMBER-2 data. For transparency reasons this part was split out into
+#' a function to provide easier debugging and processing options.
+#'
 #' @param df data frame with site info
 #' @param path path where to store the MODIS data
 #' @param force force a new download even if the data exists in the

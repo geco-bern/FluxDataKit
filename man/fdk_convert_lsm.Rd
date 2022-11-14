@@ -28,8 +28,13 @@ fluxnet formatting}
 data frame with merged meteo and flux data
 }
 \description{
-Reads data in a given directory
-by (fluxnet) site name, optionally
-only returns the meta-data of the
-site data
+Reads LSM data (as a netcdf) in a given directory
+by (fluxnet) site name, optionally only returns the meta-data of the
+site data.
+}
+\details{
+Default parameters return a CSV file which is compatible with the current
+OneFlux/FLUXNET naming conventions. Returned data will retain its
+half-hourly (HH) time step. For aggregation to a daily time step consider
+the `fdk_downsample_fluxnet()` function.
 }

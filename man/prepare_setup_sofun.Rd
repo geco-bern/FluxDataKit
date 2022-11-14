@@ -15,11 +15,15 @@ for SOFUN.}
 }
 \value{
 A dataframe (tibble) containing the site meta info,
-complemented by column 'params_siml' which is a nested list
-of complemented simulation parameters.
+ complemented by column 'params_siml' which is a nested list
+ of complemented simulation parameters.
 }
 \description{
-Complements the settings based on the site metainfo CSV file or data frame.
+Complements the settings based on the site meta-info CSV file or data frame.
+}
+\details{
+This function has been lifted from the {ingestr} package and is included
+here to limit dependencies on beta software.
 }
 \examples{
 \dontrun{

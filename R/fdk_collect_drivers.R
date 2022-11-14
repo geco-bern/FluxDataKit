@@ -1,7 +1,9 @@
-#' Collect all drivers
+#' Collect p-model drivers
 #'
-#' Collect all drivers for site-level simulations
-#' into a nested data frame with one row for each site
+#' Collect all drivers for site-level p-model simulations
+#' into a nested data frame with one row for each site, as required by {rsofun}.
+#'
+#' This routine has been lifted from the {rsofun}/{ingestr} packages.
 #'
 #' @param site_info A data frame containing site meta info (rows for sites).
 #'  Required columns are: \code{"sitename", "date_start",

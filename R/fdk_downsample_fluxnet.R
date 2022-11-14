@@ -1,17 +1,21 @@
-#' Down sample half-hourly data to daily values
+#' Down samples half-hourly FLUXNET data to daily values
 #'
-#' Down sampling of GPP values is done at hoc using a simple
-#' mean. Normally the data is generated using a dedicated
-#' workflow and are not 100% identical but correspondence
-#' between HH and DD should have an R2 > 0.95, with only
-#' structured errors in the NT product (not used)
+#' Down sampling of GPP values is done at-hoc using a simple
+#' mean.
 #'
-#' @param df FLUXNET based HH data frame
-#' @param out_path where to store the converted data if converted to
-#'  fluxnet formatting
+#' Normally the data is generated using a dedicated flux processing
+#' workflow. Therefore the data are not 100% identical but correspondence
+#' should have an R2 > 0.95, with only structured errors in the NT product.
+#'
+#' This function and the data generated should be used with caution, knowing
+#' the limitations that this routine implies with respect to all variables
+#' included.
+#'
+#' @param df a half-hourly FLUXNET data frame
+#' @param out_path the path where to store the converted data
 #'
 #' @return data frame with daily (DD) down sampled values or file in the
-#'  FLUXNET formats
+#'  FLUXNET format
 #' @export
 
 fdk_downsample_fluxnet <- function(
