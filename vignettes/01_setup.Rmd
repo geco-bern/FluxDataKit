@@ -86,7 +86,7 @@ paths for all flux data products considered.
 |----------|:-------------:|:------:|:------|
 | FLUXNET2015 |  ~35GB | 166 | `data-raw/flux_data/fluxnet2015/`
 | ICOS | ~12GB   |  67  | `data-raw/flux_data/icos/`
-| OneFlux | ~12GB | 74 | `data-raw/flux_data/oneflux/`
+| Ameriflux OneFlux | ~12GB | 74 | `data-raw/flux_data/oneflux/`
 | Plumber2 | ~4GB | 112 | `data-raw/flux_data/plumber_fluxnet/`
 
 ### FLUXNET2015
@@ -105,16 +105,15 @@ As of writing ICOS data was provided as a pre-release to our group and is theref
 yet available for a wider public. However, this data should be released shortly through
 the [ICOS carbon portal](https://www.icos-cp.eu/data-services/about-data-portal).
 
-### OneFlux
+### Ameriflux OneFlux
 
-A limited set of sites has been reprocessed using the OneFlux processing chain. This
-beta release can be found (here)[https://ameriflux.lbl.gov/data/download-data-oneflux-beta/].
-Over time a full dataset will supersede the FLUXNET2015 data. However, now the 
-site count is limited.
+A limited set of sites has been reprocessed using the Ameriflux OneFlux processing chain.
+The data should be downloaded manually from the [website data portal](https://ameriflux.lbl.gov/login/?redirect_to=/data/download-data/). A
+login is required.
 
 ### Plumber2
 
-"PLUMBER2 is a model intercomparison project for land surface models. Multiple 
+"PLUMBER2 is a model inter-comparison project for land surface models. Multiple 
 leading land surface and ecosystem models are evaluated for water and carbon fluxes
 at 170 flux tower sites, spanning multiple biomes and climate zones globally." 
 the full description of the dataset can be found in the publication by 
@@ -158,12 +157,6 @@ a geotiff format. A ORNL login is required!
 
 ## Remote sensing data
 
-```
-- Due to recent changes in the GEE policy this routine is no longer valid
-migration to the MODISTools workflow is covered by new routines see below
-for legacy support
-```
-
 ### MODISTools
 
 MODIS data can be gathered for offline processing (recommended) using the
@@ -198,37 +191,6 @@ and total considerable amounts of data, which requires ample storage space.
 The MODIS dataset has a compressed size of ~32 GB, which results in an uncompressed 
 size of ~68 GB. The LandSat dataset exceeds 150 GB compressed 
 (this data will currently not be considered).
-
-### Google Earth Engine (deprecated / not used - documented for further reference)
-
-We include various MODIS products to complement the flux data. Data are downloaded
-from Google Earth Engine (GEE) using the gee_subset python toolkit using the {ingestr}
-package. Data are stored in a product by product basis. in the `data-raw/modis/`
-directory. Data is downloaded using the `XX_download_modis_data.R` script and
-raw data stored in `data-raw/modis_gee/raw`.
-
-Note that downloading this data requires a functioning GEE API instance on your
-computer. For setup instructions we refer to [the GEE docs](https://developers.google.com/earth-engine/guides/python_install).
-
-> Note that you will need to compile the meta-data list first 
-(see meta-data article).
-
-| product   |      data volume      |  data path |
-|-----------|:---------------------:|:-----------|
-| MODXXX |  ~7GB | `data-raw/modis_gee/raw/`
-
-Below you find a table of all downloaded data products we consider relevant
-within the context of model development. These might be expanded over time.
-
-| product   |      band      |  multiplier |
-|-----------|:---------------------|:-----------|
-| [MOD15A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD15A2H) | Fpar_500m | 0.01 
-| [MOD15A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD15A2H) | Lai_500m | 0.1 
-| [MOD17A2H](https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MOD17A2H) | Gpp | 0.0001 
-
-Data is subsequently compiled into a consistent tidy format organized by site
-name and stored in `data/modis_gee_data.rds` using the `XX_combine_modis_data.R` 
-script. For details on the products we refer to the links in the table above.
 
 # References
 
