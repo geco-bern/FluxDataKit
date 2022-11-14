@@ -4,12 +4,13 @@ library(tidyverse)
 library(FluxDataKit)
 
 # Check for FluxnetLSM library
-# should be the bug fixed one
+# should be installed but just in case
 if(!require(devtools)){install.packages("devtools")}
 if(!require(FluxnetLSM)){
   devtools::install_github("computationales/FluxnetLSM")
   }
 
+# Renew install (for debugging purposes)
 detach("package:FluxnetLSM", unload = TRUE)
 library(FluxnetLSM)
 
@@ -46,7 +47,10 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
 # using bind rows
 final_data <- bind_rows(fls_meta_data, sites)
 
-# write data to file (in ./data/)
+# write data to file, this is the amended
+# meta-data required for successful processing of the
+# flux data (this includes some columns which aren't
+# provided in the original meta-data or have the wrong name)
 write.csv(final_data, file = file.path(tempdir(), "meta_data.csv"))
 
 # read in all site meta-data, only test on
@@ -59,7 +63,8 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
     data_path = "data-raw/flux_data/"
   )
 
-# process all sites
+# process all sites, by calling the processing routine
+# all data is returned to the specified output path (out_path)
 fdk_process_lsm(
   sites,
   out_path = "/data/scratch/PLUMBER_X/fluxes/",
