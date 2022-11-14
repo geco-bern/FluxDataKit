@@ -9,7 +9,8 @@ vignette: >
 ---
 
 ```{r include=FALSE}
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(mapview)
 library(leaflet)
 library(leafpop)
