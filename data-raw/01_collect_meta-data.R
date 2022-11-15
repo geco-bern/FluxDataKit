@@ -9,9 +9,8 @@ library(ingestr)
 library(icoscp)
 library(RCurl)
 library(XML)
-library(tidyverse)
+library(dplyr)
 library(amerifluxr)
-source("R/read_plumber.R")
 
 #---- set data paths ----
 plumber_path <- "data-raw/flux_data/plumber_fluxnet/"

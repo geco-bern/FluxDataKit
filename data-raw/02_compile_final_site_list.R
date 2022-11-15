@@ -1,5 +1,5 @@
 # load libraries
-library(tidyverse)
+library(dplyr)
 library(raster)
 library(MODISTools)
 
@@ -9,13 +9,13 @@ library(MODISTools)
 # order or preference of the data
 
 # 1. ICOS X
-icos <- readRDS("data-raw/meta_data/icos_meta-data.rds") %>%
+icos <- readRDS("data-raw/meta_data/icos_meta-data.rds") |>
   rename(
     'elev' = 'elevation',
     'date_start' = 'year_start',
     'date_end' = 'year_end',
     'elv' = 'elevation'
-  ) %>%
+  ) |>
   dplyr::select(
     sitename,
     lat,
@@ -23,16 +23,16 @@ icos <- readRDS("data-raw/meta_data/icos_meta-data.rds") %>%
     elv,
     date_start,
     date_end
-  ) %>%
+  ) |>
   mutate(
     product = "icos"
   )
 
 # 2. OneFlux
-oneflux <- readRDS("data-raw/meta_data/oneflux_meta-data.rds") %>%
+oneflux <- readRDS("data-raw/meta_data/oneflux_meta-data.rds") |>
   filter(
     DATA_POLICY != "LEGACY"
-  ) %>%
+  ) |>
   rename(
     'sitename' = 'SITE_ID',
     'lat' = 'LOCATION_LAT',
@@ -41,7 +41,7 @@ oneflux <- readRDS("data-raw/meta_data/oneflux_meta-data.rds") %>%
     'date_start' = 'DATA_START',
     'date_end' = 'DATA_END',
     'koeppen_code' = 'CLIMATE_KOEPPEN'
-  ) %>%
+  ) |>
   dplyr::select(
     sitename,
     lat,
@@ -50,21 +50,21 @@ oneflux <- readRDS("data-raw/meta_data/oneflux_meta-data.rds") %>%
     koeppen_code,
     date_start,
     date_end
-  ) %>%
+  ) |>
   mutate(
     product = "oneflux"
   )
 
 # 3. fluxnet / ameriflux
 
-fluxnet <- readRDS("data-raw/meta_data/fluxnet_meta-data.rds") %>%
+fluxnet <- readRDS("data-raw/meta_data/fluxnet_meta-data.rds") |>
   rename(
     'lat' = 'latitude',
     'lon' = 'longitude',
     'elv' = 'altitude',
     'date_start' = 'year_start',
     'date_end' = 'year_end'
-  ) %>%
+  ) |>
   dplyr::select(
     sitename,
     lat,
@@ -72,20 +72,20 @@ fluxnet <- readRDS("data-raw/meta_data/fluxnet_meta-data.rds") %>%
     elv,
     date_start,
     date_end
-  ) %>%
+  ) |>
   mutate(
     product = "fluxnet2015"
   )
 
 # 4. plumber
-plumber <- readRDS("data-raw/meta_data/plumber_meta-data.rds") %>%
+plumber <- readRDS("data-raw/meta_data/plumber_meta-data.rds") |>
   rename(
     'lat' = 'latitude',
     'lon' =  'longitude',
     'elv' = 'elevation',
     'date_start' = 'year_start',
     'date_end' = 'year_end'
-  ) %>%
+  ) |>
   dplyr::select(
     sitename,
     lat,
@@ -93,10 +93,10 @@ plumber <- readRDS("data-raw/meta_data/plumber_meta-data.rds") %>%
     elv,
     date_start,
     date_end
-  )%>%
+  )|>
   mutate(
     product = "plumber"
-  ) %>%
+  ) |>
   mutate(
     date_start = as.numeric(date_start),
     date_end = as.numeric(date_end)
@@ -105,21 +105,21 @@ plumber <- readRDS("data-raw/meta_data/plumber_meta-data.rds") %>%
 # Merging routine
 df <- icos
 
-oneflux <- oneflux %>%
+oneflux <- oneflux |>
   filter(
     !(sitename %in% df$sitename)
   )
 
 df <- full_join(df, oneflux)
 
-fluxnet <- fluxnet %>%
+fluxnet <- fluxnet |>
   filter(
     !(sitename %in% df$sitename)
   )
 
 df <- full_join(df, fluxnet)
 
-plumber <- plumber %>%
+plumber <- plumber |>
   filter(
     !(sitename %in% df$sitename)
   )
@@ -127,16 +127,16 @@ plumber <- plumber %>%
 df <- full_join(df, plumber)
 
 # fill in end years
-df <- df %>%
+df <- df |>
   mutate(
     date_end = ifelse(is.na(date_end), "2021", date_end)
-  ) %>%
+  ) |>
   filter(
     !is.na(date_start)
   )
 
 # convert year_end
-df <- df %>%
+df <- df |>
   mutate(
     date_start = sprintf("%s-01-01", date_start),
     date_end = sprintf("%s-12-31", date_end),
@@ -165,13 +165,13 @@ names(x) <- kg_key$id
 
 # rename land cover classes from numeric to
 # factor (character description)
-df <- df %>%
+df <- df |>
   mutate(
     koeppen_code_beck = recode(koeppen_code_beck, !!!x)
   )
 
 # backfill koeppen code with Beck et al. data
-df <- df %>%
+df <- df |>
   mutate(
     koeppen_code = ifelse(
       is.na(koeppen_code),
@@ -214,7 +214,7 @@ names(x) <- igbp_key$id
 
 # rename land cover classes from numeric to
 # factor (character description)
-df <- df %>%
+df <- df |>
   mutate(
     igbp_land_use = recode(igbp_land_use, !!!x)
   )
