@@ -31,7 +31,7 @@ fdk_downsample_fluxnet <- function(
   # https://fluxnet.org/data/fluxnet2015-dataset/fullset-data-product/
 
   df <- df |>
-    mutate(
+    dplyr::mutate(
       TIMESTAMP = as.Date(TIMESTAMP_START, "%Y%m%d%H%M")
     )
 
@@ -67,12 +67,12 @@ fdk_downsample_fluxnet <- function(
   missing_columns <- output_columns[,which(!(colnames(output_columns) %in% colnames(df)))]
 
   if (ncol(missing_columns) > 0 ) {
-    df <- bind_cols(df, missing_columns)
+    df <- dplyr::bind_cols(df, missing_columns)
   }
 
   df <- df |>
-    group_by(TIMESTAMP) |>
-    summarize(
+    dplyr::group_by(TIMESTAMP) |>
+    dplyr::summarize(
 
       # METEO
 
@@ -109,7 +109,7 @@ fdk_downsample_fluxnet <- function(
 
       GPP_DT_VUT_SE = ifelse(
         length(which(!is.na(GPP_DT_VUT_SE)) > length(GPP_DT_VUT_SE) * 0.5 ),
-        sd(GPP_DT_VUT_REF, na.rm = TRUE),
+        sd(GPP_DT_VUT_REF, na.rm = TRUE)/sqrt(length(which(!is.na(GPP_DT_VUT_REF)))),
         NA
       ),
 
@@ -122,7 +122,7 @@ fdk_downsample_fluxnet <- function(
 
       GPP_NT_VUT_SE = ifelse(
         length(which(!is.na(GPP_NT_VUT_SE)) > length(GPP_NT_VUT_SE) * 0.5 ),
-        sd(GPP_NT_VUT_REF, na.rm = TRUE),
+        sd(GPP_NT_VUT_REF, na.rm = TRUE)/sqrt(length(which(!is.na(GPP_NT_VUT_REF)))),
         NA
       ),
 
