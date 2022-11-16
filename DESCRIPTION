@@ -28,8 +28,8 @@ Suggests:
     knitr,
     rmarkdown
 Remotes:
-    bluegreen-labs/icoscp
-    computationales/FluxnetLSM
+    bluegreen-labs/icoscp,
+    computationales/FluxnetLSM,
     computationales/FluxnetEO
 VignetteBuilder:
     knitr
