@@ -101,28 +101,27 @@ fdk_downsample_fluxnet <- function(
       CO2_F_MDS = mean(CO2_F_MDS, na.rm = TRUE),
 
       # FLUXES
-      GPP_DT_VUT_REF = ifelse(
-        length(which(!is.na(GPP_DT_VUT_REF)) > length(GPP_DT_VUT_REF) * 0.5 ),
-        mean(GPP_DT_VUT_REF, na.rm = TRUE),
+      GPP_NT_VUT_SE = ifelse(
+        length(which(!is.na(GPP_NT_VUT_SE)) >= length(GPP_NT_VUT_SE) * 0.5 ),
+        sd(GPP_NT_VUT_REF, na.rm = TRUE)/sqrt(length(which(!is.na(GPP_NT_VUT_REF)))),
         NA
       ),
 
       GPP_DT_VUT_SE = ifelse(
-        length(which(!is.na(GPP_DT_VUT_SE)) > length(GPP_DT_VUT_SE) * 0.5 ),
+        length(which(!is.na(GPP_DT_VUT_SE)) >= length(GPP_DT_VUT_SE) * 0.5 ),
         sd(GPP_DT_VUT_REF, na.rm = TRUE)/sqrt(length(which(!is.na(GPP_DT_VUT_REF)))),
         NA
       ),
 
-      # FLUXES
-      GPP_NT_VUT_REF = ifelse(
-        length(which(!is.na(GPP_NT_VUT_REF)) > length(GPP_NT_VUT_REF) * 0.5 ),
-        mean(GPP_NT_VUT_REF, na.rm = TRUE),
+      GPP_DT_VUT_REF = ifelse(
+        length(which(!is.na(GPP_DT_VUT_REF)) >= length(GPP_DT_VUT_REF) * 0.5 ),
+        mean(GPP_DT_VUT_REF, na.rm = TRUE),
         NA
       ),
 
-      GPP_NT_VUT_SE = ifelse(
-        length(which(!is.na(GPP_NT_VUT_SE)) > length(GPP_NT_VUT_SE) * 0.5 ),
-        sd(GPP_NT_VUT_REF, na.rm = TRUE)/sqrt(length(which(!is.na(GPP_NT_VUT_REF)))),
+      GPP_NT_VUT_REF = ifelse(
+        length(which(!is.na(GPP_NT_VUT_REF)) >= length(GPP_NT_VUT_REF) * 0.5 ),
+        mean(GPP_NT_VUT_REF, na.rm = TRUE),
         NA
       ),
 
