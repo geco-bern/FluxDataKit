@@ -17,7 +17,6 @@ data <- sites %>%
       full.names = TRUE)
 
     print(files)
-    break
 
     # loop over files, read and reshuffle
     # into consistent long format

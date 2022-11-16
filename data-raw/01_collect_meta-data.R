@@ -34,7 +34,7 @@ files <- list.files(
 # collect meta data
 df <- do.call("rbind",
         lapply(files, function(file){
-          read_plumber(file, meta_data = TRUE)
+          fdk_convert_lsm(file, meta_data = TRUE)
         }
     )
   )
