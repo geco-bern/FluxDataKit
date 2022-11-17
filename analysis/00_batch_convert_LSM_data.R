@@ -14,12 +14,22 @@ if(!require(FluxnetLSM)){
 detach("package:FluxnetLSM", unload = TRUE)
 library(FluxnetLSM)
 
-# read in the fluxnetlsm data
+# read in the fluxnetlsm meta data
+# this is required by some FluxnetLSM functions
+# as we are reprocessing data no holds bar we can
+# set the Exclude parameter to FALSE
+# (remaining plumber data which is not updated
+# will be copied over from the original dataset
+# so this parameter although required can be silently
+# ignored).
 fls_meta_data <- read.csv(
   system.file("extdata", "Site_metadata.csv", package = "FluxnetLSM"),
   header = TRUE,
   stringsAsFactors = FALSE
-)
+) |>
+  mutate(
+    Exclude = FALSE
+  )
 
 # read in the meta data as listed
 # within FluxDataKit and
@@ -60,7 +70,11 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
     data_path = "data-raw/flux_data/"
   ) |>
   filter(
-    product != "plumber"
+    product == "plumber"
+  ) |>
+  mutate(
+    # to amend the plumber data with FPAR remote sensing data
+    product = ifelse(product == "plumber","plumber_fluxnet", product)
   )
 
 #---- FluxnetLSM reprocessing routine ----
@@ -73,33 +87,33 @@ fdk_process_lsm(
   modis_path = "data-raw/modis",
   format = "lsm",
   site_csv_file = file.path(tempdir(), "meta_data.csv"),
-  overwrite = FALSE
+  overwrite = TRUE
 )
 
-#---- Plumber data copying routine ----
-message("Copying over the remaining plumber data - without reprocessing.")
-
-# for all plumber sites copy the data directly
-# into the output directory
-plumber_sites <- readRDS("data/flux_data_kit_site-info.rds") |>
-  mutate(
-    data_path = "data-raw/flux_data/"
-  ) |>
-  filter(
-    product == "plumber"
-  )
-
-plumber_sites |>
-  rowwise() |>
-  do({
-
-    # list files
-    files <- list.files(file.path(.$data_path,.$product), .$sitename, full.names = TRUE)
-
-    # copy files
-    file.copy(
-      files,
-      "/data/scratch/PLUMBER_X/lsm/",
-      overwrite = FALSE
-    )
-  })
+# #---- Plumber data copying routine ----
+# message("Copying over the remaining plumber data - without reprocessing.")
+#
+# # for all plumber sites copy the data directly
+# # into the output directory
+# plumber_sites <- readRDS("data/flux_data_kit_site-info.rds") |>
+#   mutate(
+#     data_path = "data-raw/flux_data/"
+#   ) |>
+#   filter(
+#     product == "plumber"
+#   )
+#
+# plumber_sites |>
+#   rowwise() |>
+#   do({
+#
+#     # list files
+#     files <- list.files(file.path(.$data_path,.$product), .$sitename, full.names = TRUE)
+#
+#     # copy files
+#     file.copy(
+#       files,
+#       "/data/scratch/PLUMBER_X/lsm/",
+#       overwrite = FALSE
+#     )
+#   })

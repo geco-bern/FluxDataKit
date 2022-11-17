@@ -12,7 +12,9 @@
 #' included.
 #'
 #' @param df a half-hourly FLUXNET data frame
+#' @param site sitename of a site to process
 #' @param out_path the path where to store the converted data
+#' @param overwrite overwrite existing output file
 #'
 #' @return data frame with daily (DD) down sampled values or file in the
 #'  FLUXNET format
@@ -21,7 +23,8 @@
 fdk_downsample_fluxnet <- function(
     df,
     site,
-    out_path
+    out_path,
+    overwrite = FALSE
 ){
 
   # Using the FLUXNET instructions, however in some cases there will
@@ -37,6 +40,24 @@ fdk_downsample_fluxnet <- function(
 
   start_year <- format(min(df$TIMESTAMP), "%Y")
   end_year <- format(max(df$TIMESTAMP), "%Y")
+
+  filename <- sprintf("FLX_%s_PLUMBER_FULLSET_DD_%s_%s_2-3.csv",
+                      site,
+                      start_year,
+                      end_year
+  )
+
+  if(!missing(out_path)){
+    filename <- file.path(
+      out_path,
+      filename
+    )
+  }
+
+  if(file.exists(filename) & !overwrite){
+    message("File exists, skipping...")
+    return(invisible())
+  }
 
   # check required columns fill with NA
   # if any are missing
@@ -66,8 +87,12 @@ fdk_downsample_fluxnet <- function(
 
   missing_columns <- output_columns[,which(!(colnames(output_columns) %in% colnames(df)))]
 
-  if (ncol(missing_columns) > 0 ) {
-    df <- dplyr::bind_cols(df, missing_columns)
+  print(colnames(df))
+
+  if(!is.na(missing_columns)){
+    if (ncol(missing_columns) > 0 ) {
+      df <- dplyr::bind_cols(df, missing_columns)
+    }
   }
 
   df <- df |>
@@ -171,16 +196,6 @@ fdk_downsample_fluxnet <- function(
 
   # save data to file, using FLUXNET formatting
   if (!missing(out_path)) {
-
-    filename <- sprintf("FLX_%s_PLUMBER_FULLSET_DD_%s_%s_2-3.csv",
-                        site,
-                        start_year,
-                        end_year
-    )
-    filename <- file.path(
-      out_path,
-      filename
-    )
 
     utils::write.table(
       df,
