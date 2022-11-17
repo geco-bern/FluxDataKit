@@ -1,7 +1,7 @@
 # Batch conversion of FLUXNET data to LSM formatting
 # in line with the PLUMBER2 release
-library(tidyverse)
 library(FluxDataKit)
+library(dplyr)
 
 # Check for FluxnetLSM library
 # should be installed but just in case
@@ -56,20 +56,50 @@ write.csv(final_data, file = file.path(tempdir(), "meta_data.csv"))
 # read in all site meta-data, only test on
 # SE-Nor to debug FluxnetLSM for now
 sites <- readRDS("data/flux_data_kit_site-info.rds") |>
-  filter(
-    product == "oneflux"
-  ) |>
   mutate(
     data_path = "data-raw/flux_data/"
+  ) |>
+  filter(
+    product != "plumber"
   )
+
+#---- FluxnetLSM reprocessing routine ----
 
 # process all sites, by calling the processing routine
 # all data is returned to the specified output path (out_path)
 fdk_process_lsm(
   sites,
-  out_path = "/data/scratch/PLUMBER_X/fluxes/",
+  out_path = "/data/scratch/PLUMBER_X/lsm/",
   modis_path = "data-raw/modis",
   format = "lsm",
   site_csv_file = file.path(tempdir(), "meta_data.csv"),
   overwrite = FALSE
 )
+
+#---- Plumber data copying routine ----
+message("Copying over the remaining plumber data - without reprocessing.")
+
+# for all plumber sites copy the data directly
+# into the output directory
+plumber_sites <- readRDS("data/flux_data_kit_site-info.rds") |>
+  mutate(
+    data_path = "data-raw/flux_data/"
+  ) |>
+  filter(
+    product == "plumber"
+  )
+
+plumber_sites |>
+  rowwise() |>
+  do({
+
+    # list files
+    files <- list.files(file.path(.$data_path,.$product), .$sitename, full.names = TRUE)
+
+    # copy files
+    file.copy(
+      files,
+      "/data/scratch/PLUMBER_X/lsm/",
+      overwrite = FALSE
+    )
+  })

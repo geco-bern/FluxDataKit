@@ -21,11 +21,15 @@ sites <- readRDS("data/flux_data_kit_site-info.rds")
 failed_sites <- lapply(sites$sitename, function(site){
   message(sprintf("Processing %s ----", site))
 
+
+  # check if site is a plumber site, if so
+  # switch input directories
+
   message("- converting to FLUXNET format")
   df <- suppressWarnings(try(fdk_convert_lsm(
     site = site,
     fluxnet_format = TRUE,
-    path = "/data/scratch/PLUMBER_X/"
+    path = "/data/scratch/PLUMBER_X/lsm/"
   )
   ))
 
@@ -40,7 +44,7 @@ failed_sites <- lapply(sites$sitename, function(site){
       try(fdk_downsample_fluxnet(
         df,
         site = site,
-        out_path = "/data/scratch/fluxnet_plumber_x/"
+        out_path = "/data/scratch/PLUMBER_X/fluxnet/"
         )
       )
     )
