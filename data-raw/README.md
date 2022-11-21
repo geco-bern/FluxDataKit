@@ -16,3 +16,7 @@ for them to function.
 - 02_compile_final_site_list.R - using the data set age determine the most recent version
 - 03_convert_plumber.R - converts PLUMBER-2 data to a FLUXNET format to ensure parity with other final data outputs
 - 04_download_modis_data.R - collect required MODIS products (FPAR/LAI)
+
+## Data requirements
+
+For the data requirements I refer to the formal vignette of the repository.
