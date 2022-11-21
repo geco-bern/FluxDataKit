@@ -85,16 +85,16 @@ fdk_downsample_fluxnet <- function(
     "FPAR" = NA
   )
 
+  # detect missing columns to fill in required data
   missing_columns <- output_columns[,which(!(colnames(output_columns) %in% colnames(df)))]
 
-  print(colnames(df))
-
-  if(!is.na(missing_columns)){
-    if (ncol(missing_columns) > 0 ) {
+  # if the columns are missing bind them to the current data frame
+  if(ncol(missing_columns) > 0){
       df <- dplyr::bind_cols(df, missing_columns)
     }
-  }
 
+  # downsample the data to a daily time step
+  # using FLUXNET naming conventions
   df <- df |>
     dplyr::group_by(TIMESTAMP) |>
     dplyr::summarize(

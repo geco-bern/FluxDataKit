@@ -114,7 +114,9 @@ fdk_convert_lsm <- function(
     return(df)
   } else {
     # combine meteo and flux data
-    all <- dplyr::left_join(df[[1]], df[[2]])
+    all <- suppressMessages(
+      dplyr::left_join(df[[1]], df[[2]])
+    )
   }
 
   # format data as fluxnet compatible
