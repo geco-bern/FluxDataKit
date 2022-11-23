@@ -76,6 +76,9 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
   ) |>
   filter(
     sitename %in% c("AU-Cow","AR-SLu","SE-Nor","US-Wjs")
+  ) |>
+  filter(
+    product == "plumber"
   )
 
 #---- FluxnetLSM reprocessing routine ----

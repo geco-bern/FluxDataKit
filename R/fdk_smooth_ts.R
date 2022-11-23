@@ -42,6 +42,10 @@ fdk_smooth_ts <- function(
   smooth_values = smooth.spline(x, spline_values)$y
   smooth_values[smooth_values < 0] <- 0
 
+  l <- !is.na(values)
+  plot(dates[l], values[l], type = "l")
+  points(dates, smooth_values, col = "red")
+
   # Some MODIS time series are missing time steps, not sure why.
   # Add these missing time steps as NAs and then gapfill with climatology
   # Also add missing time steps to first year (since MODIS starts in July)
@@ -59,7 +63,7 @@ fdk_smooth_ts <- function(
       all_tsteps,
       seq.Date(as.Date(paste0(y, "-01-01")),
       by = dates[2] - dates[1],
-      length.out=46
+      length.out = 46
       )
     )
   }
@@ -67,7 +71,7 @@ fdk_smooth_ts <- function(
   # Remove extra tstesp for final year
   all_tsteps <- all_tsteps[-which(all_tsteps > dates[length(dates)])]
 
-  #Find missing tsteps
+  # Find missing tsteps
   missing <- which(!(all_tsteps %in% dates))
 
   if (length(missing) > 0) {
@@ -83,7 +87,6 @@ fdk_smooth_ts <- function(
     # Replace time vector
     dates <- all_tsteps
     smooth_values <- new_ts
-
   }
 
   # Each year has 46 time steps, but first and last year are incomplete
@@ -101,27 +104,21 @@ fdk_smooth_ts <- function(
   no_tsteps <- length(which(grepl(modis_startyr , dates)))
 
   # Initialise
-  modis_clim <- vector(length = no_tsteps)
+  steps <- as.numeric(format(dates, "%j"))
+  modis_clim <- aggregate(
+    smooth_values,
+    by = list(steps),
+    FUN = mean,
+    na.rm = TRUE,
+    simplify = TRUE
+    )$x
 
-  for (c in 1:no_tsteps) {
-
-    # Indices for whole years
-    inds <- seq(c, by=no_tsteps, length.out=floor(length(dates)/no_tsteps))
-
-    # Add last year if applicable
-    if( c <= length(last_year)) { inds <- append(inds, last_year[c]) }
-
-    # Calculate average for time step
-    modis_clim[c] <- mean(smooth_values[inds], na.rm=TRUE)
-
-  }
-
-  #Check that no NA values
+  # Check that no NA values
   if (any(is.na(modis_clim))) {
 
     missing <- which(is.na(modis_clim))
 
-    #Use the mean of next and previous non-NA value to gapfill climatology
+    # Use the mean of next and previous non-NA value to gapfill climatology
     for(m in missing) {
       previous_val    <- modis_clim[tail(which(!is.na(modis_clim[1:max(c(1, m-1))])), 1)]
       next_val        <- modis_clim[m + which(!is.na(modis_clim[(m+1):length(modis_clim)]))[1]]
@@ -167,7 +164,6 @@ fdk_smooth_ts <- function(
     endyr      <- startyr + nyr - 1
 
     # Add climatological values to smoothed time series
-
     if ((startyr < modis_startyr)) {
 
       # Overwrite original time series with new extended data
