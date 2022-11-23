@@ -269,48 +269,11 @@ fdk_correct_era <- function(
 
   #----- default LAI check ----
 
-  # Open file handle
-  nc_out <- ncdf4::nc_open(infile_met, write=TRUE)
+  fdk_correct_rs(infile_met)
 
-  # Should have two available, check that they are there
-  # Koen: not applicable anymore, only including LAI and FPAR
-  if (length(modis_vars) != 2) {
-    warning(paste0("LAI variables not available, check site: ", site_code))
-  } else {
+  #------ rename files ----
 
-    # MODIS
-    default_lai    <- "LAI_MODIS"
-    default_fpar <- "FPAR_MODIS"
-    default_source <- "MODIS"
-
-    alt_lai    <- "LAI_Copernicus"
-    alt_source <- "Copernicus"
-
-    # Rename LAI
-    nc_out <- ncdf4::ncvar_rename(nc_out, default_lai, "LAI")
-    nc_out <- ncdf4::ncvar_rename(nc_out, default_fpar, "FPAR")
-    #nc_out <- ncdf4::ncvar_rename(nc_out, alt_lai, "LAI_alternative")
-
-    # Add source in attribute data
-    ncdf4::ncatt_put(
-      nc = nc_out,
-      varid = "LAI",
-      attname = "source",
-      attval = default_source
-    )
-
-    ncdf4::ncatt_put(
-      nc = nc_out,
-      varid = "FPAR",
-      attname = "source",
-      attval = default_source
-    )
-
-    # Close file handle
-    ncdf4::nc_close(nc_out)
-  }
-
-  # rename the orignal file if time
+  # rename the original file if time
   # varying components are changed
   # see above
 
