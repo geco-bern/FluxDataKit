@@ -23,7 +23,7 @@ failed_sites <- lapply(sites$sitename, function(site){
   df <- suppressWarnings(try(fdk_convert_lsm(
     site = site,
     fluxnet_format = TRUE,
-    path = "/data/scratch/PLUMBER_X/"
+    path = "/data/scratch/PLUMBER_X/lsm/"
   )
   ))
 
@@ -38,7 +38,7 @@ failed_sites <- lapply(sites$sitename, function(site){
       try(fdk_plot(
         df,
         site = site,
-        out_path = "/data/scratch/fluxnet_plots/",
+        out_path = "/data/scratch/PLUMBER_X/plots/",
         overwrite = TRUE
       )
       )
