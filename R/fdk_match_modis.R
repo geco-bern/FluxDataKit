@@ -102,9 +102,9 @@ fdk_match_modis <- function(
     ) |>
     dplyr::summarize(
       lai = stats::weighted.mean(lai, w = weights_lai, na.rm = TRUE),
-      fpar = stats::weighted.mean(fpar, w = weights_fpar, na.rm = TRUE)
+      fpar = stats::weighted.mean(fpar, w = weights_fpar, na.rm = TRUE),
+      .groups = "drop"
     )
-
 
   #---- expand dates ----
 
@@ -147,8 +147,7 @@ fdk_match_modis <- function(
 
   # if the product is not plumber based
   # also add LAI
-  if(df['product'] != "plumber"){
-    fdk_smooth_ts(
+  fdk_smooth_ts(
       dates = df_modis_mean$calendar_date,
       values = df_modis_mean$lai,
       variable = "LAI",
@@ -156,5 +155,4 @@ fdk_match_modis <- function(
       end_year = max_year,
       nc_file = nc_file
     )
-  }
 }

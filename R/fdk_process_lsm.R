@@ -45,30 +45,52 @@ fdk_process_lsm <- function(
   # process sites row by row
   apply(df, 1, function(x){
 
-      message(sprintf("-- processing site: %s", x['sitename']))
+    message(sprintf("-- processing site: %s", x['sitename']))
 
-      # check if files are already processed
-      if(!overwrite){
-        if(any(grepl(x['sitename'], list.files(out_path, "*.nc")))) {
-          message(paste0(x['sitename'], " files exist, skipping"))
-          return(invisible(NULL))
-        }
+    # check if files are already processed
+    if(!overwrite){
+      if(any(grepl(x['sitename'], list.files(out_path, "*.nc")))) {
+        message(paste0(x['sitename'], " files exist, skipping"))
+        return(invisible(NULL))
       }
+    }
 
-      # Outputs will be saved to this directory
-      tmp_path <- file.path(tempdir(), "fluxnetlsm", x['sitename'])
+    # Outputs will be saved to this directory
+    tmp_path <- file.path(tempdir(), "fluxnetlsm", x['sitename'])
 
-      if ( x['product'] != "fluxnet2015"){
+    # create output path if it doesn't exist
+    if(!dir.exists(tmp_path)){
+      dir.create(tmp_path, recursive = TRUE)
+    }
+
+    if ( x['product'] == "plumber"){
+
+      # copy files to tmp path
+      message("copy source files to be latered")
+
+      # list all plumber files
+      files_to_copy <- list.files(
+        df$data_path,
+        glob2rx(sprintf("*%s*.nc",x['sitename'])),
+        full.names = TRUE
+        )
+
+      # copy to temporary directory
+      file.copy(
+        files_to_copy,
+        tmp_path,
+        overwrite = TRUE,
+        recursive = TRUE
+      )
+
+    } else {
+
+      if ( x['product'] == "icos" || x['product'] == "oneflux" ){
         infile <- FluxnetLSM::get_fluxnet_files(
           x['data_path'],
           x['sitename'],
           resolution = "HH",
           datasetversion = "[A-Z]{4}-[0-9]{1}"
-        )
-
-        # Retrieve dataset version
-        datasetversion <- FluxnetLSM::get_fluxnet_version_no(
-          infile
         )
 
         # Retrieve ERAinterim file
@@ -78,40 +100,14 @@ fdk_process_lsm <- function(
           resolution = "HH",
           datasetversion = "[A-Z]{4}-[0-9]{1}"
         )
+      }
 
-
-        if (x['product'] == "oneflux" ) {
-
-          message("processing oneflux data ")
-
-          # Retrieve ERAinterim file
-          era_file <- FluxnetLSM::get_fluxnet_erai_files(
-            x['data_path'],
-            x['sitename'],
-            resolution = "HH",
-            datasetname = "FLUXNET"
-          )
-
-          infile <- FluxnetLSM::get_fluxnet_files(
-            x['data_path'],
-            x['sitename'],
-            resolution = "HH",
-            datasetname = "FLUXNET",
-            datasetversion = "[0-9]{1}-[0-9]{1}"
-          )
-        }
-
-      } else {
+      if (x['product'] == "fluxnet2015" ) {
 
         infile <- FluxnetLSM::get_fluxnet_files(
-            x['data_path'],
-            x['sitename'],
-            resolution = "HH"
-        )
-
-        # Retrieve dataset version
-        datasetversion <- FluxnetLSM::get_fluxnet_version_no(
-          infile
+          x['data_path'],
+          x['sitename'],
+          resolution = "HH"
         )
 
         # Retrieve ERAinterim file
@@ -148,26 +144,26 @@ fdk_process_lsm <- function(
 
       nc_files <- try(
         #suppressWarnings(
-          suppressMessages(
-            FluxnetLSM::convert_fluxnet_to_netcdf(
-              infile = infile,
-              site_code = x['sitename'],
-              out_path = tmp_path,
-              # manual setting of the site meta-data
-              site_csv_file = site_csv_file,
-              conv_opts = conv_opts,
-              met_gapfill = "ERAinterim",
-              flux_gapfill = "statistical",
-              era_file = era_file,
-              missing_met = missing_met,
-              missing_flux = missing_flux,
-              gapfill_met_tier1 = gapfill_met_tier1,
-              gapfill_met_tier2 = gapfill_met_tier2,
-              gapfill_flux=gapfill_flux, min_yrs=min_yrs,
-              check_range_action = "warn",
-              include_all_eval=TRUE
-            )
+        suppressMessages(
+          FluxnetLSM::convert_fluxnet_to_netcdf(
+            infile = infile,
+            site_code = x['sitename'],
+            out_path = tmp_path,
+            # manual setting of the site meta-data
+            site_csv_file = site_csv_file,
+            conv_opts = conv_opts,
+            met_gapfill = "ERAinterim",
+            flux_gapfill = "statistical",
+            era_file = era_file,
+            missing_met = missing_met,
+            missing_flux = missing_flux,
+            gapfill_met_tier1 = gapfill_met_tier1,
+            gapfill_met_tier2 = gapfill_met_tier2,
+            gapfill_flux=gapfill_flux, min_yrs=min_yrs,
+            check_range_action = "warn",
+            include_all_eval=TRUE
           )
+        )
         #)
       )
 
@@ -187,9 +183,11 @@ fdk_process_lsm <- function(
 
         return(invisible())
       }
+    }
 
-      #----- Downloading and adding MODIS data ----
+    #----- Downloading and adding MODIS data ----
 
+    if ( x['product'] != "plumber"){
       # This is based upon
       # https://github.com/aukkola/PLUMBER2/
       # Step2_Process_MODIS_LAI_for_all_sites.R
@@ -198,10 +196,10 @@ fdk_process_lsm <- function(
       # function to download and or
       # process MODIS data (LAI/FPAR)
       check <- try(fdk_match_modis(
-          df = x,
-          path = modis_path,
-          nc_file = nc_files$met
-        ))
+        df = x,
+        path = modis_path,
+        nc_file = nc_files$met
+      ))
 
       if(inherits(check, "try-error")){
         warning("MODIS data injection failed --- skipping this site")
@@ -220,29 +218,39 @@ fdk_process_lsm <- function(
         return(invisible())
       }
 
+    } else {
 
-      #----- Corrections ----
+      # This is based upon
+      # https://github.com/aukkola/PLUMBER2/
+      # Step2_Process_MODIS_LAI_for_all_sites.R
+      message("Merging in MODIS LAI/FPAR PLUMBER data")
 
-      message("applying ERA corrections")
-
-      # meteorological corrections
-      # written to ncdf file
-      fdk_correct_era(
-        infile_met = nc_files$met,
-        new_qc = 101
-        )
-
-      message("applying FLUX corrections")
-
-      # correct energy balance
-      fdk_flux_corrections(
-        infile = nc_files$flux
+      # list all plumber files
+      plumber_met_file <- list.files(
+        tempdir(),
+        glob2rx(sprintf("*%s*Met.nc",x['sitename'])),
+        recursive = TRUE,
+        full.names = TRUE
       )
 
-      #----- Export and/or convert to FLUXNET formatting ----
+      # function to download and or
+      # process MODIS data (LAI/FPAR)
+      check_modis <- try(fdk_match_modis(
+        df = x,
+        path = modis_path,
+        nc_file = plumber_met_file
+      ))
 
-      # copy "raw" netcdf files to output path
-      if(format == "lsm") {
+      message("LAI merge done")
+
+      # correct LAI naming
+      check_renaming <- try(
+        fdk_correct_rs(plumber_met_file)
+      )
+
+      if(inherits(check_modis, "try-error") ||
+         inherits(check_renaming, "try-error")){
+        warning("MODIS data injection failed --- skipping this site")
 
         # list all flux files
         files <- list.files(
@@ -252,20 +260,59 @@ fdk_process_lsm <- function(
           full.names = TRUE
         )
 
-        # copy files
-        file.copy(
-          from = files,
-          to = out_path,
-          overwrite = TRUE
-        )
-
+        # remove all files
         file.remove(files)
 
-      } else {
-          message("converting to fluxnet")
-          message("saving data in your output directory")
+        return(invisible())
       }
-    })
+
+    }
+
+    #----- Corrections ----
+    if ( x['product'] != "plumber"){
+      message("applying ERA corrections")
+
+      # meteorological corrections
+      # written to ncdf file
+      fdk_correct_era(
+        infile_met = nc_files$met,
+        new_qc = 101
+      )
+
+      message("applying FLUX corrections")
+
+      # correct energy balance
+      fdk_flux_corrections(
+        infile = nc_files$flux
+      )
+    }
+    #----- Export and/or convert to FLUXNET formatting ----
+
+    # copy "raw" netcdf files to output path
+    if(format == "lsm") {
+
+      # list all flux files
+      files <- list.files(
+        path = file.path(tempdir(), "fluxnetlsm"),
+        pattern = "*.nc",
+        recursive = TRUE,
+        full.names = TRUE
+      )
+
+      # copy files
+      file.copy(
+        from = files,
+        to = out_path,
+        overwrite = TRUE
+      )
+
+      file.remove(files)
+
+    } else {
+      message("converting to fluxnet")
+      message("saving data in your output directory")
+    }
+  })
 
   # delete tmp files if requested
   if (!save_tmp_files) {
