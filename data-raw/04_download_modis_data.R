@@ -14,7 +14,7 @@ library(FluxDataKit)
 # load site meta-data
 sites <- readRDS("data/flux_data_kit_site-info.rds") |>
   dplyr::filter(
-    product == "oneflux"
+    product == "plumber"
   )
 
 # download the modis data
