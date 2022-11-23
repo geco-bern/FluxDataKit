@@ -1,6 +1,11 @@
 # Batch conversion of FLUXNET data to LSM formatting
 # in line with the PLUMBER2 release
-library(FluxDataKit)
+#library(FluxDataKit)
+
+lapply(list.files("R/","*.R", full.names = TRUE), function(file){
+  source(file)
+})
+
 library(dplyr)
 
 # Check for FluxnetLSM library
@@ -70,11 +75,7 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
     data_path = "data-raw/flux_data/"
   ) |>
   filter(
-    product == "plumber"
-  ) |>
-  mutate(
-    # to amend the plumber data with FPAR remote sensing data
-    product = ifelse(product == "plumber","plumber_fluxnet", product)
+    sitename %in% c("AU-Cow","AR-SLu","SE-Nor","US-Wjs")
   )
 
 #---- FluxnetLSM reprocessing routine ----
@@ -87,7 +88,8 @@ fdk_process_lsm(
   modis_path = "data-raw/modis",
   format = "lsm",
   site_csv_file = file.path(tempdir(), "meta_data.csv"),
-  overwrite = TRUE
+  overwrite = TRUE,
+  save_tmp_files = FALSE
 )
 
 # #---- Plumber data copying routine ----
