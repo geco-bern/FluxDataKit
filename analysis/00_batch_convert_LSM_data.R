@@ -73,12 +73,6 @@ write.csv(final_data, file = file.path(tempdir(), "meta_data.csv"))
 sites <- readRDS("data/flux_data_kit_site-info.rds") |>
   mutate(
     data_path = "data-raw/flux_data/"
-  ) |>
-  filter(
-    sitename %in% c("AU-Cow","AR-SLu","SE-Nor","US-Wjs")
-  ) |>
-  filter(
-    product == "plumber"
   )
 
 #---- FluxnetLSM reprocessing routine ----
@@ -94,31 +88,3 @@ fdk_process_lsm(
   overwrite = TRUE,
   save_tmp_files = FALSE
 )
-
-# #---- Plumber data copying routine ----
-# message("Copying over the remaining plumber data - without reprocessing.")
-#
-# # for all plumber sites copy the data directly
-# # into the output directory
-# plumber_sites <- readRDS("data/flux_data_kit_site-info.rds") |>
-#   mutate(
-#     data_path = "data-raw/flux_data/"
-#   ) |>
-#   filter(
-#     product == "plumber"
-#   )
-#
-# plumber_sites |>
-#   rowwise() |>
-#   do({
-#
-#     # list files
-#     files <- list.files(file.path(.$data_path,.$product), .$sitename, full.names = TRUE)
-#
-#     # copy files
-#     file.copy(
-#       files,
-#       "/data/scratch/PLUMBER_X/lsm/",
-#       overwrite = FALSE
-#     )
-#   })

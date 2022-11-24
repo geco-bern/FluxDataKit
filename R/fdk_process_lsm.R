@@ -85,7 +85,7 @@ fdk_process_lsm <- function(
 
     } else {
 
-      if ( x['product'] == "icos" || x['product'] == "oneflux" ){
+      if ( x['product'] == "icos" ){
         infile <- FluxnetLSM::get_fluxnet_files(
           x['data_path'],
           x['sitename'],
@@ -99,6 +99,25 @@ fdk_process_lsm <- function(
           x['sitename'],
           resolution = "HH",
           datasetversion = "[A-Z]{4}-[0-9]{1}"
+        )
+      }
+
+      if ( x['product'] == "oneflux" ){
+        infile <- FluxnetLSM::get_fluxnet_files(
+          x['data_path'],
+          x['sitename'],
+          resolution = "HH",
+          datasetname = "FLUXNET",
+          datasetversion = "[0-9]{1}-[0-9]{1}"
+        )
+
+        # Retrieve ERAinterim file
+        era_file <- FluxnetLSM::get_fluxnet_erai_files(
+          x['data_path'],
+          x['sitename'],
+          resolution = "HH",
+          datasetname = "FLUXNET",
+          datasetversion = "[0-9]{1}-[0-9]{1}"
         )
       }
 

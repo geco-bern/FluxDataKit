@@ -12,10 +12,7 @@
 library(FluxDataKit)
 
 # load site meta-data
-sites <- readRDS("data/flux_data_kit_site-info.rds") |>
-  dplyr::filter(
-    product == "plumber"
-  )
+sites <- readRDS("data/flux_data_kit_site-info.rds")
 
 # download the modis data
 fdk_download_modis(
