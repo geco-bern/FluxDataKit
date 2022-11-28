@@ -107,5 +107,6 @@ df <- fdk_convert_lsm(
 )
 
 plot(orig$time,orig$LAI)
-points(df$time,df$LAI_plumber, col = "blue")
-points(df$time,df$LAI, col = "red")
+points(df$time,df$LAI, col = "blue")
+plot(df$time,df$FPAR, col = "red")
+
