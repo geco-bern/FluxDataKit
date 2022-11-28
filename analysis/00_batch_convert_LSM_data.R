@@ -75,10 +75,10 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
     data_path = "data-raw/flux_data/"
   ) |>
   filter(
-    sitename %in% c("AU-Cow","AR-SLu","SE-Nor","US-Wjs")
+    sitename == "FR-Fon"
   ) |>
-  filter(
-    product == "plumber"
+  mutate(
+    product = "plumber"
   )
 
 #---- FluxnetLSM reprocessing routine ----
@@ -95,30 +95,19 @@ fdk_process_lsm(
   save_tmp_files = FALSE
 )
 
-# #---- Plumber data copying routine ----
-# message("Copying over the remaining plumber data - without reprocessing.")
-#
-# # for all plumber sites copy the data directly
-# # into the output directory
-# plumber_sites <- readRDS("data/flux_data_kit_site-info.rds") |>
-#   mutate(
-#     data_path = "data-raw/flux_data/"
-#   ) |>
-#   filter(
-#     product == "plumber"
-#   )
-#
-# plumber_sites |>
-#   rowwise() |>
-#   do({
-#
-#     # list files
-#     files <- list.files(file.path(.$data_path,.$product), .$sitename, full.names = TRUE)
-#
-#     # copy files
-#     file.copy(
-#       files,
-#       "/data/scratch/PLUMBER_X/lsm/",
-#       overwrite = FALSE
-#     )
-#   })
+# quick check
+orig <- fdk_convert_lsm(
+  site = "FR-Fon",
+  path = "data-raw/flux_data/plumber/"
+  )
+
+df <- fdk_convert_lsm(
+  site = "FR-Fon",
+  path = "/data/scratch/PLUMBER_X/lsm/"
+)
+
+plot(orig$time,orig$LAI)
+# points(df$time,df$LAI_plumber, col = "blue")
+# points(df$time,df$LAI, col = "red")
+
+
