@@ -57,7 +57,7 @@ driver_data <- lapply(sites$sitename, function(site){
       fdk_format_drivers(
         site_info = sites |> filter(sitename == !!site),
         freq = "d",
-        path = paste0(tempdir(),"/"), # f-ing trailing /
+        path = paste0(tempdir(),"/"),
         verbose = TRUE
       )
     )
