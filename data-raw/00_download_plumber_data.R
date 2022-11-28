@@ -6,7 +6,7 @@
 library(rvest)
 
 # set destination path
-dest_path <- "data-raw/flux_data/plumber/"
+dest_path <- "/scratch/FDK_inputs/flux_data/plumber/"
 
 # set catalogues
 catalogues <- data.frame(
@@ -21,7 +21,7 @@ catalogues <- data.frame(
 )
 
 # loop over catalogues and files
-apply(catalogues, 1, function(cat){
+apply(catalogues[2,], 1, function(cat){
 
   # set url
   url <- cat['url']
@@ -43,8 +43,10 @@ apply(catalogues, 1, function(cat){
 
     # download data
     try(
-      download.file(file.path(url, file),
-                    file.path(dest_path,file))
+      download.file(
+        file.path(url, file),
+        file.path(dest_path,file)
+        )
       )
 
     # don't return anything

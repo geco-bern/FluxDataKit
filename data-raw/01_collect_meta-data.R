@@ -13,10 +13,10 @@ library(dplyr)
 library(amerifluxr)
 
 #---- set data paths ----
-plumber_path <- "data-raw/flux_data/plumber_fluxnet/"
-oneflux_path <- "data-raw/flux_data/oneflux/"
-icos_path <- "data-raw/flux_data/icos/"
-fluxnet_path <- "data-raw/flux_data/fluxnet2015/"
+plumber_path <- "/scratch/FDK_inputs/flux_data/plumber_fluxnet/"
+oneflux_path <- "/scratch/FDK_inputs/flux_data/oneflux/"
+icos_path <- "/scratch/FDK_inputs/flux_data/icos/"
+fluxnet_path <- "/scratch/FDK_inputs/flux_data/fluxnet2015/"
 
 #--- plumber meta_data ----
 
@@ -64,7 +64,7 @@ files <- list.files(
   recursive = TRUE
 )
 
-oneflux_sites <- amf_site_info() %>%
+oneflux_sites <- amf_site_info() |>
  filter(
   SITE_ID %in% of_sites
  )
@@ -75,14 +75,14 @@ saveRDS(oneflux_sites, file = "data-raw/meta_data/oneflux_meta-data.rds", compre
 #---- ICOS meta_data ----
 if(!file.exists("data-raw/meta_data/icos_meta_data.rds")){
 
-icos_list <- icoscp::icos_stations() %>%
+icos_list <- icoscp::icos_stations() |>
   filter(
     theme == "ES"
   )
 
 icos_sites <- unique(substring(list.files(icos_path,"*"),5,10))
 
-icos_list <- icos_list %>%
+icos_list <- icos_list |>
  filter(id %in% icos_sites)
 
 icos_files <- list.files(
@@ -111,10 +111,10 @@ years <- lapply(icos_sites, function(site){
 })
 
 years <- bind_rows(years)
-icos_list <- icos_list %>%
+icos_list <- icos_list |>
 	rename(
 	'sitename' = 'id'
-	) %>%
+	) |>
 	left_join(years)
 
 saveRDS(icos_list, file = "data-raw/meta_data/icos_meta-data.rds", compress = "xz")
@@ -124,15 +124,15 @@ saveRDS(icos_list, file = "data-raw/meta_data/icos_meta-data.rds", compress = "x
 
 if(!file.exists("data-raw/meta_data/fluxnet_meta_data.rds")){
 
-fluxnet_list <- read_csv("data-raw/meta_data/fluxnet2015_site_list.csv") %>%
+fluxnet_list <- read_csv("data-raw/meta_data/fluxnet2015_site_list.csv") |>
   filter(
     license == "CC-BY-4.0"
-  ) %>%
+  ) |>
   select(-product)
 
 fluxnet_sites <- unique(substring(list.files(fluxnet_path,"*"),5,10))
 
-fluxnet_list <- fluxnet_list %>%
+fluxnet_list <- fluxnet_list |>
   filter(id %in% fluxnet_sites)
 
 fluxnet_files <- list.files(
@@ -162,10 +162,10 @@ years <- lapply(fluxnet_sites, function(site){
 
 years <- bind_rows(years)
 
-fluxnet_list <- fluxnet_list %>%
+fluxnet_list <- fluxnet_list |>
   rename(
     'sitename' = 'id'
-  ) %>%
+  ) |>
   left_join(years)
 
 saveRDS(fluxnet_list, file = "data-raw/meta_data/fluxnet-meta_data.rds", compress = "xz")

@@ -5,7 +5,7 @@
 library(FluxDataKit)
 
 # List all files to process
-df <- readRDS("data/flux_data_kit_site-info.rds") %>%
+df <- readRDS("data/flux_data_kit_site-info.rds") |>
   filter(
     product == "plumber"
   )
@@ -16,9 +16,9 @@ df |>
   do({
     fdk_convert_lsm(
       site = .$sitename,
-      path = "data-raw/flux_data/plumber/",
+      path = "/scratch/FDK_inputs/flux_data/plumber/",
       fluxnet_format = TRUE,
       meta_data = FALSE,
-      out_path = "data-raw/flux_data/plumber_fluxnet/"
+      out_path = "/scratch/FDK_inputs/flux_data/plumber_fluxnet/"
     )
   })
