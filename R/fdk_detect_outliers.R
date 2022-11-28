@@ -85,9 +85,7 @@ fdk_detect_outliers <- function(
     while (j < iterations){
 
       if (j == 1){
-
         gcc[selection] = NA
-
       }
 
       # calculate optimal span / smoothing factor
@@ -99,9 +97,7 @@ fdk_detect_outliers <- function(
       }
 
       if (is.null(span)) {
-
         gcc_smooth = gcc
-
       } else {
 
         # calculate fit using the optimal span / smoothing factor

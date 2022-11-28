@@ -12,21 +12,15 @@
 #' @return Returns an optimal span to smooth a provided vector using
 #' the `loess()` smoother.
 #' @export
-#' @examples
-#'
-#' \dontrun{
-#' # Internal function only, should not be used stand-alone.
-#' l <- sin(seq(1,10,0.01))
-#' l <- l + runif(length(l))
-#' optimal_span(l, plot = TRUE)
-#' }
 
-fdk_optimal_span = function(y,
-                        x = NULL,
-                        weights = NULL,
-                        step = 0.01,
-                        label = NULL,
-                        plot = FALSE){
+fdk_optimal_span = function(
+    y,
+    x = NULL,
+    weights = NULL,
+    step = 0.01,
+    label = NULL,
+    plot = FALSE
+    ){
 
   # custom AIC function which accepts loess regressions
   myAIC = function(x){

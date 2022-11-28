@@ -31,7 +31,7 @@ fls_meta_data <- read.csv(
   system.file("extdata", "Site_metadata.csv", package = "FluxnetLSM"),
   header = TRUE,
   stringsAsFactors = FALSE
-) |>
+  ) |>
   mutate(
     Exclude = FALSE
   )
