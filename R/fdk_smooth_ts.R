@@ -87,7 +87,7 @@ fdk_smooth_ts <- function(
     df <- left_join(df, mean_df) |>
       mutate(
         combined_values = ifelse(is.na(values), mean_values, values),
-        weights = ifelse(is.na(values), 0.0001, 1)
+        weights = ifelse(is.na(values), 0.001, 1)
       )
 
     span <- fdk_optimal_span(
