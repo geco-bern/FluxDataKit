@@ -72,7 +72,7 @@ write.csv(final_data, file = file.path(tempdir(), "meta_data.csv"))
 # SE-Nor to debug FluxnetLSM for now
 sites <- readRDS("data/flux_data_kit_site-info.rds") |>
   mutate(
-    data_path = "/scratch/FDK_inputs/flux_data/"
+    data_path = "/data/scratch/FDK_inputs/flux_data/"
   ) |>
   filter(
     sitename == "FR-Fon"
@@ -88,18 +88,17 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
 fdk_process_lsm(
   sites,
   out_path = "/data/scratch/PLUMBER_X/lsm/",
-  modis_path = "/scratch/FDK_inputs/modis/",
+  modis_path = "/data/scratch/FDK_inputs/modis/",
   format = "lsm",
   site_csv_file = file.path(tempdir(), "meta_data.csv"),
   overwrite = TRUE,
   save_tmp_files = FALSE
 )
 
-
 # quick check
 orig <- fdk_convert_lsm(
   site = "FR-Fon",
-  path = "data-raw/flux_data/plumber/"
+  path = "/data/scratch/FDK_inputs/flux_data/plumber/"
   )
 
 df <- fdk_convert_lsm(
@@ -108,5 +107,5 @@ df <- fdk_convert_lsm(
 )
 
 plot(orig$time,orig$LAI)
-# points(df$time,df$LAI_plumber, col = "blue")
-# points(df$time,df$LAI, col = "red")
+points(df$time,df$LAI_plumber, col = "blue")
+points(df$time,df$LAI, col = "red")
