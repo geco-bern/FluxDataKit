@@ -112,7 +112,8 @@ fdk_match_modis <- function(
   #---- expand dates ----
 
   dates <- seq.Date(
-    as.Date(sprintf("%s-01-01", df['year_start'])),
+    #as.Date(sprintf("%s-01-01", df['year_start'])),
+    as.Date(sprintf("%s-01-01", 1995)),
     as.Date(sprintf("%s-12-31", df['year_end'])),
     by = "day"
   )

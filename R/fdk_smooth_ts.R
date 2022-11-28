@@ -17,43 +17,8 @@ fdk_smooth_ts <- function(
   nc_file
   ) {
 
-  aicc.loess <- function(fit) {
-    # compute AIC_C for a LOESS fit, from:
-    #
-    # Hurvich, C.M., Simonoff, J.S., and Tsai, C. L. 1998. Smoothing
-    # parameter selection in nonparametric regression using an improved
-    # Akaike Information Criterion. Journal of the Royal Statistical
-    # Society B 60: 271–293.
-    #
-    # @param fit        loess fit
-    # @return           'aicc' value
-    stopifnot(inherits(fit, 'loess'))
-    # parameters
-    n <- fit$n
-    trace <- fit$trace.hat
-    sigma2 <- sum(resid(fit) ^ 2) / (n - 1)
-    return(log(sigma2) + 1 + (2 * (trace + 1)) / (n - trace - 2))
-  }
-
-  autoloess <- function(fit, span=c(.1, .9)) {
-    # compute loess fit which has span minimizes AIC_C
-    #
-    # @param fit        loess fit; span parameter value doesn't matter
-    # @param span       a two-value vector representing the minimum and
-    #                   maximum span values
-    # @return           loess fit with span minimizing the AIC_C function
-    stopifnot(inherits(fit, 'loess'), length(span) == 2)
-    # loss function in form to be used by optimize
-    f <- function(span) aicc.loess(update(fit, span=span))
-    # find best loess according to loss function
-    return(update(fit, span = optimize(f, span)$minimum))
-  }
-
   if(missing(nc_file)){
-
     message("returning climate anomalies")
-    return(df)
-
   } else {
 
     # create a new data frame based on the variable selected
@@ -69,6 +34,8 @@ fdk_smooth_ts <- function(
       plot = FALSE
     ))
 
+    print(head(df))
+
     # gap fill and smooth
     mean_df <- df |>
       mutate(
@@ -76,7 +43,7 @@ fdk_smooth_ts <- function(
         ) |>
       group_by(doy) |>
       summarize(
-        mean_values = mean(values, na.rm = TRUE)
+        mean_values = median(values, na.rm = TRUE)
       ) |>
       mutate(
         mean_values = zoo::na.approx(mean_values, na.rm = FALSE),
@@ -86,8 +53,8 @@ fdk_smooth_ts <- function(
 
     df <- left_join(df, mean_df) |>
       mutate(
-        combined_values = ifelse(is.na(values), mean_values, values),
-        weights = ifelse(is.na(values), 0.001, 1)
+        combined_values = ifelse(is.na(values) | outlierflag == 1, mean_values, values),
+        weights = ifelse(is.na(values), 0.1, 1)
       )
 
     span <- fdk_optimal_span(
@@ -109,6 +76,10 @@ fdk_smooth_ts <- function(
         as.numeric(df$date),
         se = FALSE)
       )
+
+    plot(df$values, type = "l", col = "red")
+    points(df$smooth, type = "l")
+
 
     # open netcdf file for writing
     site_nc <- ncdf4::nc_open(nc_file, write = TRUE)

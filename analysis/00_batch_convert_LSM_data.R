@@ -105,8 +105,8 @@ df <- fdk_convert_lsm(
   site = "FR-Fon",
   path = "/data/scratch/PLUMBER_X/lsm/"
 )
-
-plot(orig$time,orig$LAI)
-points(df$time,df$LAI, col = "blue")
-plot(df$time,df$FPAR, col = "red")
+#
+# plot(orig$time,orig$LAI)
+# points(df$time,df$LAI, col = "blue")
+# plot(df$time,df$FPAR, col = "red")
 
