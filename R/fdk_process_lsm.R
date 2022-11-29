@@ -9,11 +9,6 @@
 #' @param modis_path where to store downloaded MODIS data
 #' @param format the format of the output (fluxnet = FLUXNET formatting)
 #' @param save_tmp_files retain temporary files (TRUE or FALSE)
-#' @param site_csv_file CSV file with site meta-data which is parsed to populate
-#'        ancillary data provided with the flux data. By default the hard coded
-#'        packaged data are used, but alternatively an external file can be
-#'        provided. This limits the need to recompile the package when processing
-#'        files which were not originally selected.
 #'
 #' @return LSM compatible netcdf files in the output directory, with
 #'  intermediary files saved upon request
@@ -25,8 +20,7 @@ fdk_process_lsm <- function(
     modis_path,
     format = "lsm",
     save_tmp_files = TRUE,
-    overwrite = TRUE,
-    site_csv_file
+    overwrite = TRUE
     ) {
 
   #---- set meta-data required by FluxnetLSM ----
@@ -223,7 +217,8 @@ fdk_process_lsm <- function(
             site_code = x['sitename'],
             out_path = tmp_path,
             # manual setting of the site meta-data
-            site_csv_file = site_csv_file,
+            # generated on the fly top of function
+            site_csv_file = file.path(tempdir(), "meta_data.csv"),
             conv_opts = conv_opts,
             met_gapfill = "ERAinterim",
             flux_gapfill = "statistical",
