@@ -4,12 +4,16 @@
 \alias{fdk_downsample_fluxnet}
 \title{Down samples half-hourly FLUXNET data to daily values}
 \usage{
-fdk_downsample_fluxnet(df, site, out_path)
+fdk_downsample_fluxnet(df, site, out_path, overwrite = FALSE)
 }
 \arguments{
 \item{df}{a half-hourly FLUXNET data frame}
 
+\item{site}{sitename of a site to process}
+
 \item{out_path}{the path where to store the converted data}
+
+\item{overwrite}{overwrite existing output file}
 }
 \value{
 data frame with daily (DD) down sampled values or file in the

@@ -4,18 +4,12 @@
 \alias{fdk_smooth_ts}
 \title{Smooth MODIS time series}
 \usage{
-fdk_smooth_ts(dates, values, variable, start_year, end_year, nc_file)
+fdk_smooth_ts(df, variable, nc_file)
 }
 \arguments{
-\item{dates}{vector of dates}
-
-\item{values}{vector of values}
+\item{df}{vector of dates}
 
 \item{variable}{what MODIS variable is processed (LAI or FPAR)}
-
-\item{start_year}{a start year of the desired series}
-
-\item{end_year}{an end year of the desired series}
 
 \item{nc_file}{FluxnetLSM netcdf ERA Met file to amend, scaling
 the data to the respective time step required}
