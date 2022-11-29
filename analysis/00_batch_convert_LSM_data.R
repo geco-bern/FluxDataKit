@@ -41,7 +41,6 @@ fdk_process_lsm(
   out_path = "/data/scratch/PLUMBER_X/lsm/",
   modis_path = "/data/scratch/FDK_inputs/modis/",
   format = "fluxnet",
-  site_csv_file = file.path(tempdir(), "meta_data.csv"),
   overwrite = TRUE,
   save_tmp_files = FALSE
 )
