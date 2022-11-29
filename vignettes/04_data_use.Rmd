@@ -21,6 +21,7 @@ are then reported as NA. NA values should be handled per ususal in R and are saf
 ignored during model optimization in `rsofun`. For more details on model optimization
 we refer to the [vignette in the rsofun package](https://computationales.github.io/rsofun/articles/pmodel_use.html#calibrating-model-parameters).
 
+
 ```{r include=FALSE}
 #library(Matrix) # hack because tidyverse bug ffs
 library(dplyr)
@@ -88,6 +89,7 @@ Then do a simple left join on the available p-model data.
 df <- left_join(df, modis, by = "sitename")
 print(df)
 ```
+
 All MODIS data is provided in a long format, so a conversion to a wide format
 sorted by date is required before merging it with the forcing data as provided
 for p-model model exercises.

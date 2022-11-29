@@ -53,19 +53,26 @@ data for their own use. The above fields are however required.
 ```{r eval = FALSE}
 # load the sites to process
 # as generated from scripts in `data-raw` (see github repo)
-sites <- readRDS("data/flux_data_kit_site-info.rds") %>%
+sites <- readRDS("data/flux_data_kit_site-info.rds") |>
   filter(
-    sitename == "AT-Neu"
+    sitename == "US-Wi7"
+  ) |>
+  mutate(
+    data_path = system.file("extdata", package = "FluxDataKit"),
+    product = ""
   )
 
 # output LSM formatted data
 fdk_process_lsm(
   sites,
-  out_path = "data/tmp/",
-  modis_path = "data-raw/modis/",
+  out_path = tempdir(),
+  modis_path = "data-raw/modis/", # make the local package path
   format = "lsm",
   overwrite = TRUE
 )
+
+# list generated files
+list.files(tempdir(),"*.nc")
 ```
 
 ## FLUXNET formatting
@@ -136,7 +143,6 @@ fdk_process_lsm(
   out_path = "/your/input/directory",
   modis_path = "/your/input/modis",
   format = "lsm",
-  site_csv_file = file.path(tempdir(), "meta_data.csv"), # or custom site file
   overwrite = FALSE
 )
 ```
