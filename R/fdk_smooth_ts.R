@@ -71,7 +71,7 @@ fdk_smooth_ts <- function(
       weights = df$weights
     )
 
-    # fit the model wiht the optimal
+    # fit the model with the optimal
     # span and export the smooth
     # time series (see modis_tseries below)
     fit <- stats::loess(
@@ -102,6 +102,9 @@ fdk_smooth_ts <- function(
         as.numeric(site_time),
         se = FALSE)
     )
+
+    plot(site_time, modis_tseries)
+    print(site_time[which(is.na(modis_tseries))])
 
     # Check that the number of time steps match
     if (length(modis_tseries) != length(site_time)) {

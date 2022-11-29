@@ -29,7 +29,7 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
     sitename == "FR-Fon"
   ) |>
   mutate(
-    product = "plumber"
+    #product = "plumber"
   )
 
 #---- FluxnetLSM reprocessing routine ----
@@ -40,7 +40,7 @@ fdk_process_lsm(
   sites,
   out_path = "/data/scratch/PLUMBER_X/lsm/",
   modis_path = "/data/scratch/FDK_inputs/modis/",
-  format = "fluxnet",
+  format = "lsm",
   overwrite = TRUE,
   save_tmp_files = FALSE
 )

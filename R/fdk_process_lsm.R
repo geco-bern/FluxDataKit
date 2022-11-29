@@ -210,7 +210,7 @@ fdk_process_lsm <- function(
       message("Converting fluxnet data to netcdf")
 
       nc_files <- try(
-        #suppressWarnings(
+        suppressWarnings(
         suppressMessages(
           FluxnetLSM::convert_fluxnet_to_netcdf(
             infile = infile,
@@ -232,7 +232,7 @@ fdk_process_lsm <- function(
             include_all_eval=TRUE
           )
         )
-        #)
+        )
       )
 
       if(inherits(nc_files, "try-error")){
