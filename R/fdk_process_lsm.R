@@ -29,6 +29,60 @@ fdk_process_lsm <- function(
     site_csv_file
     ) {
 
+  #---- set meta-data required by FluxnetLSM ----
+
+  # read in the fluxnetlsm meta data
+  # this is required by some FluxnetLSM functions
+  # as we are reprocessing data no holds bar we can
+  # set the Exclude parameter to FALSE
+
+  # The desired site meta-data is then either spoofed
+  # if missing from the original or extracted from
+  # original file
+
+  fls_meta_data <- read.csv(
+    system.file("extdata", "Site_metadata.csv", package = "FluxnetLSM"),
+    header = TRUE,
+    stringsAsFactors = FALSE
+    ) |>
+    mutate(
+      Exclude = FALSE # allow all sites to be processed
+    )
+
+  # read in the meta data as listed
+  # within FluxDataKit and
+  # rename the columns
+  sites_meta_data <- sites |>
+    dplyr::select(
+      sitename,
+      lat,
+      lon,
+      elv,
+      igbp_land_use
+    ) |>
+    rename(
+      'SiteCode' = 'sitename',
+      'SiteLatitude' = 'lat',
+      'SiteLongitude' = 'lon',
+      'SiteElevation' = 'elv',
+      'IGBP_vegetation_short' = 'igbp_land_use'
+    ) |>
+    filter(
+      !(SiteCode %in% !!fls_meta_data$SiteCode)
+    )
+
+  # merge the two datasets
+  # using bind rows
+  fls_meta_data <- bind_rows(fls_meta_data, sites_meta_data)
+
+  # write data to file, this is the amended
+  # meta-data required for successful processing of the
+  # flux data (this includes some columns which aren't
+  # provided in the original meta-data or have the wrong name)
+  write.csv(fls_meta_data, file = file.path(tempdir(), "meta_data.csv"))
+
+  #---- formal processing workflow ----
+
   # Set path to NA if missing
   # can't forward missing elements
   # to other functions within
@@ -309,6 +363,8 @@ fdk_process_lsm <- function(
 
     # copy "raw" netcdf files to output path
     if(format == "lsm") {
+      message("converting as LSM netcdf")
+      message("saving data in your output directory")
 
       # list all flux files
       files <- list.files(
@@ -328,8 +384,16 @@ fdk_process_lsm <- function(
       file.remove(files)
 
     } else {
-      message("converting to fluxnet")
+      message("converting to FLUXNET csv files")
       message("saving data in your output directory")
+
+      # quick check
+      fdk_convert_lsm(
+        site = x['sitename'],
+        path = file.path(tempdir(), "fluxnetlsm"),
+        fluxnet_format = TRUE,
+        out_path = out_path
+      )
     }
   })
 
@@ -339,4 +403,3 @@ fdk_process_lsm <- function(
     unlink(file.path(tempdir(), "fluxnetlsm"), recursive = T)
   }
 }
-
