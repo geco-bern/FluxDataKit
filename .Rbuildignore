@@ -4,8 +4,8 @@
 ^pkgdown$
 ^docs$
 ^data-raw$
-#^data/*.rds$
-#^data/*.csv$
+^data/.*\\.rds$
+^data/.*\\.csv$
 ^analysis$
 ^vignettes$
 ^src$
@@ -26,4 +26,3 @@
 ^\.httr-oauth$
 ^.*-logo\..*$
 ^codemeta\.json$
-
