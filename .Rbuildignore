@@ -4,7 +4,8 @@
 ^pkgdown$
 ^docs$
 ^data-raw$
-^data$
+#^data/*.rds$
+#^data/*.csv$
 ^analysis$
 ^vignettes$
 ^src$
