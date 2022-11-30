@@ -333,7 +333,6 @@ fdk_process_lsm <- function(
 
         return(invisible())
       }
-
     }
 
     #----- Corrections ----

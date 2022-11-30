@@ -111,9 +111,16 @@ fdk_match_modis <- function(
 
   #---- expand dates ----
 
+  # These dates need to be padded with some extra values
+  # in addition to the expected or desired range as the
+  # smoothing routine does not necessarily end cleanly
+  # meaning some values might be dropped at the start
+  # or end of a series. To avoid these edge cases padding
+  # with a month or two should fix the issue.
+
   dates <- seq.Date(
-    as.Date(sprintf("%s-01-01", df['year_start'])),
-    as.Date(sprintf("%s-12-31", df['year_end'])),
+    as.Date(sprintf("%s-01-01", df['year_start'])) - 60,
+    as.Date(sprintf("%s-12-31", df['year_end'])) + 60,
     by = "day"
   )
 
