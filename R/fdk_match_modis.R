@@ -104,28 +104,41 @@ fdk_match_modis <- function(
       lai = stats::weighted.mean(lai, w = weights_lai, na.rm = TRUE),
       fpar = stats::weighted.mean(fpar, w = weights_fpar, na.rm = TRUE),
       .groups = "drop"
+    ) |>
+    rename(
+      "date" = "calendar_date"
     )
 
   #---- expand dates ----
 
-  min_year <- min(as.numeric(format(df_modis_mean$calendar_date, "%Y")))
-  max_year <- max(as.numeric(format(df_modis_mean$calendar_date, "%Y")))
+  # These dates need to be padded with some extra values
+  # in addition to the expected or desired range as the
+  # smoothing routine does not necessarily end cleanly
+  # meaning some values might be dropped at the start
+  # or end of a series. To avoid these edge cases padding
+  # with a month or two should fix the issue.
 
   dates <- seq.Date(
-    as.Date(sprintf("%s-01-01", min_year)),
-    as.Date(sprintf("%s-12-31", max_year)),
+    as.Date(sprintf("%s-01-01", df['year_start'])) - 60,
+    as.Date(sprintf("%s-12-31", df['year_end'])) + 60,
     by = "day"
   )
 
   dates <- data.frame(
-    calendar_date = dates,
-    idx = 1:length(dates)
+    date = dates,
+    doy = as.numeric(format(dates, "%j"))
   )
+
+  # only retain valid dates
+  dates <- dates |>
+    filter(
+      doy %in% seq(1, 365, 8)
+    )
 
   df_modis_mean <- dplyr::left_join(
     dates,
     df_modis_mean,
-    by = "calendar_date"
+    by = "date"
   )
 
   #---- smoothing / gapfilling ----
@@ -137,22 +150,16 @@ fdk_match_modis <- function(
   # as not available in the standard
   # dataset
   fdk_smooth_ts(
-    dates = df_modis_mean$calendar_date,
-    values = df_modis_mean$fpar,
+    df = df_modis_mean,
     variable = "FPAR",
-    start_year = min_year,
-    end_year = max_year,
     nc_file = nc_file
   )
 
   # if the product is not plumber based
   # also add LAI
   fdk_smooth_ts(
-      dates = df_modis_mean$calendar_date,
-      values = df_modis_mean$lai,
+      df = df_modis_mean,
       variable = "LAI",
-      start_year = min_year,
-      end_year = max_year,
       nc_file = nc_file
     )
 }

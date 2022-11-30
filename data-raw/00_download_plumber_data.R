@@ -6,7 +6,7 @@
 library(rvest)
 
 # set destination path
-dest_path <- "/scratch/FDK_inputs/flux_data/plumber/"
+dest_path <- "/data/scratch/FDK_inputs/flux_data/plumber/"
 
 # set catalogues
 catalogues <- data.frame(
@@ -21,7 +21,7 @@ catalogues <- data.frame(
 )
 
 # loop over catalogues and files
-apply(catalogues[2,], 1, function(cat){
+apply(catalogues, 1, function(cat){
 
   # set url
   url <- cat['url']

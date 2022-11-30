@@ -219,5 +219,8 @@ df <- df |>
     igbp_land_use = recode(igbp_land_use, !!!x)
   )
 
+df <- readRDS("data/flux_data_kit_site-info.rds")
+
 # save the data
-saveRDS(df, file = "data/flux_data_kit_site-info.rds", compress = "xz")
+#saveRDS(df, file = "data/flux_data_kit_site-info.rds", compress = "xz")
+save(df, file="data/flux_data_kit_site-info.rda", compress = "xz")
