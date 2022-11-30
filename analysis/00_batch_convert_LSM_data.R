@@ -27,9 +27,6 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
   ) |>
   filter(
     sitename == "FR-Fon"
-  ) |>
-  mutate(
-    #product = "plumber"
   )
 
 #---- FluxnetLSM reprocessing routine ----
@@ -44,3 +41,17 @@ fdk_process_lsm(
   overwrite = TRUE,
   save_tmp_files = FALSE
 )
+
+# quick check
+orig <- fdk_convert_lsm(
+  site = "FR-Fon",
+  path = "/data/scratch/FDK_inputs/flux_data/plumber/"
+)
+
+df <- fdk_convert_lsm(
+  site = "FR-Fon",
+  path = "/data/scratch/PLUMBER_X/lsm/"
+)
+
+plot(orig$time,orig$LAI)
+points(df$time,df$LAI, col = "red")
