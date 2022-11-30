@@ -4,7 +4,7 @@
 #' and either overwrites the original file or outputs a data structure.
 #'
 #' @param df dataframe with dates (date) and values (value) to smooth
-#' @param iterations number of itterations in order to detect outliers ()
+#' @param iterations number of iterations in order to detect outliers
 #' @param sigma number of deviations to exclude outliers at
 #' @param plot visualize the process, mostly for debugging
 #' (\code{TRUE} / \code{FALSE} = default)
@@ -21,7 +21,7 @@ fdk_detect_outliers <- function(
   # standard deviation function, used to screen outliers
   laplace_sd <- function(x,...){
     n <- length(!is.na(x))
-    xbar <- mean(x,na.rm=T)
+    xbar <- mean(x, na.rm = TRUE)
     sqrt(2) * sum(abs(x - xbar),na.rm=T) / n
   }
 
