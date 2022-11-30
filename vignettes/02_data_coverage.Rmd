@@ -16,8 +16,8 @@ library(leaflet)
 library(leafpop)
 library(sf)
 
-sites <- readRDS("../data/flux_data_kit_site-info.rds") %>%
-  select(-date_start,-date_end,-koeppen_code_beck) %>%
+sites <- FluxDataKit::fdk_site_info |>
+  select(-date_start,-date_end,-koeppen_code_beck) |>
   rename(
     'koeppen' = 'koeppen_code',
     'start' = 'year_start',
@@ -25,19 +25,12 @@ sites <- readRDS("../data/flux_data_kit_site-info.rds") %>%
     'IGBP' = 'igbp_land_use'
   )
 
-data <- readRDS("../data/p_model_drivers/site_based_drivers.rds")
-
-sites <- sites %>%
-  filter(
-    !c(sitename %in% data$sitename)
-  )
-
 ```
 
 <center>
 ```{r echo = FALSE}
-leaflet(sites) %>%
-  addProviderTiles(providers$Esri.WorldImagery) %>%
+leaflet(sites) |>
+  addProviderTiles(providers$Esri.WorldImagery) |>
   addMarkers(~lon, ~lat, label = ~sitename, popup = popupTable(sites))
 ```
 </center>

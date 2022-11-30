@@ -4,7 +4,7 @@
 \alias{fdk_plot}
 \title{Plot FluxDataKit output}
 \usage{
-fdk_plot(df, site, out_path = "data/tmp", overwrite = FALSE)
+fdk_plot(df, site = "sitename", out_path = "data/tmp", overwrite = FALSE)
 }
 \arguments{
 \item{df}{data frame with FLUXNET based data}

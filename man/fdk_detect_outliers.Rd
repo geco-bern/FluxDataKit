@@ -9,7 +9,7 @@ fdk_detect_outliers(df, iterations = 20, sigma = 2, plot = FALSE)
 \arguments{
 \item{df}{dataframe with dates (date) and values (value) to smooth}
 
-\item{iterations}{number of itterations in order to detect outliers ()}
+\item{iterations}{number of iterations in order to detect outliers}
 
 \item{sigma}{number of deviations to exclude outliers at}
 

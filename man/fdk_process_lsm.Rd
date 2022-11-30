@@ -10,8 +10,7 @@ fdk_process_lsm(
   modis_path,
   format = "lsm",
   save_tmp_files = TRUE,
-  overwrite = TRUE,
-  site_csv_file
+  overwrite = TRUE
 )
 }
 \arguments{
@@ -24,12 +23,6 @@ fdk_process_lsm(
 \item{format}{the format of the output (fluxnet = FLUXNET formatting)}
 
 \item{save_tmp_files}{retain temporary files (TRUE or FALSE)}
-
-\item{site_csv_file}{CSV file with site meta-data which is parsed to populate
-ancillary data provided with the flux data. By default the hard coded
-packaged data are used, but alternatively an external file can be
-provided. This limits the need to recompile the package when processing
-files which were not originally selected.}
 }
 \value{
 LSM compatible netcdf files in the output directory, with

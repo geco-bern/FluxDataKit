@@ -15,9 +15,12 @@
 #' @param df_soiltexture soil data specifics (preset)
 #' @param product which flux product to use
 #' @param verbose provide verbose output (default = FALSE)
+#' @param path path with daily FLUXNET data
+#' @param freq time frequency of the input data
 #'
 #' @return returns an rsofun compatible driver file for the provided
 #'  sites
+#' @export
 
 fdk_format_drivers <- function(
   site_info,
@@ -128,33 +131,35 @@ fdk_format_drivers <- function(
   )
 
   message("processing flux data using {ingestr}")
-  ddf_flux <- ingestr::ingest(
-    siteinfo = site_info |> slice(1:3),
-    source   = "fluxnet",
-    getvars  = list(
-      gpp = "GPP_DT_VUT_REF",
-      gpp_unc = "GPP_DT_VUT_SE",
-      temp = "TA_F_MDS",
-      prec = "P_F",
-      vpd = "VPD_F_MDS",
-      patm = "PA_F",
-      ppfd = "SW_IN_F_MDS",
-      netrad = "NETRAD",
-      wind = "WS",
-      co2_air = "CO2_F_MDS",
-      lai = "LAI",
-      fpar = "FPAR"
-      #lw_down = "LW_IN_F_MDS",
-      #le = "LE_F_MDS",
-      #le_cor = "LE_CORR",
-      #h = "H_F_MDS",
-      #h_cor = "H_CORR",
-      #g  = "G_F_MDS",
-      #ustar = "USTAR"
-    ),
-    dir = path,
-    settings = settings_fluxnet,
-    timescale = freq
+  ddf_flux <- suppressWarnings(
+    ingestr::ingest(
+      siteinfo = site_info |> slice(1:3),
+      source   = "fluxnet",
+      getvars  = list(
+        gpp = "GPP_DT_VUT_REF",
+        gpp_unc = "GPP_DT_VUT_SE",
+        temp = "TA_F_MDS",
+        prec = "P_F",
+        vpd = "VPD_F_MDS",
+        patm = "PA_F",
+        ppfd = "SW_IN_F_MDS",
+        netrad = "NETRAD",
+        wind = "WS",
+        co2_air = "CO2_F_MDS",
+        lai = "LAI",
+        fpar = "FPAR"
+        #lw_down = "LW_IN_F_MDS",
+        #le = "LE_F_MDS",
+        #le_cor = "LE_CORR",
+        #h = "H_F_MDS",
+        #h_cor = "H_CORR",
+        #g  = "G_F_MDS",
+        #ustar = "USTAR"
+      ),
+      dir = path,
+      settings = settings_fluxnet,
+      timescale = freq
+    )
   )
 
   # GPP conversion factor

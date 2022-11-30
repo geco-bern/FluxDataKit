@@ -21,7 +21,7 @@
 
 fdk_plot <- function(
     df,
-    site,
+    site = "sitename",
     out_path = "data/tmp",
     overwrite = FALSE
 ){
@@ -54,7 +54,7 @@ fdk_plot <- function(
   # pivot to long format for easy
   # multi variable plotting
   df <- df |>
-    pivot_longer(
+    tidyr::pivot_longer(
       names_to = "name",
       values_to = "value",
       cols = 2:(ncol(df)) # date is first column

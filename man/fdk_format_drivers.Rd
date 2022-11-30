@@ -30,6 +30,10 @@ being five columns: sitename, lon, lat, year_start, year_end}
 
 \item{df_soiltexture}{soil data specifics (preset)}
 
+\item{freq}{time frequency of the input data}
+
+\item{path}{path with daily FLUXNET data}
+
 \item{verbose}{provide verbose output (default = FALSE)}
 
 \item{product}{which flux product to use}

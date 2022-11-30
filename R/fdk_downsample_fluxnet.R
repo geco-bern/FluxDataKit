@@ -209,7 +209,7 @@ fdk_downsample_fluxnet <- function(
     message("---> writing data to file:")
     message(sprintf("   %s", filename))
 
-    return(filename)
+    return(invisible(filename))
 
   } else {
     # return the merged file

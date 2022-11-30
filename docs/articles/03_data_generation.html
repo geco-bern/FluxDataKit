@@ -67,12 +67,6 @@
     <li>
       <a href="../articles/03_data_generation.html">Data generation</a>
     </li>
-    <li>
-      <a href="../articles/04_data_use.html">Data use</a>
-    </li>
-    <li>
-      <a href="../articles/05_qaqc_downsampled_data.html">Downsampling uncertainty</a>
-    </li>
   </ul>
 </li>
         
@@ -101,6 +95,11 @@ Hufkens</h4>
 
     
     
+<blockquote>
+<p>Note this routine will only run with the appropriate files in the
+correct place. Given the file sizes involved no demo data can be
+integrated into the package.</p>
+</blockquote>
 <div class="section level2">
 <h2 id="compiling-data">Compiling data<a class="anchor" aria-label="anchor" href="#compiling-data"></a>
 </h2>
@@ -146,19 +145,36 @@ however required.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># load the sites to process</span></span>
 <span><span class="co"># as generated from scripts in `data-raw` (see github repo)</span></span>
-<span><span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/flux_data_kit_site-info.rds"</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span><span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu">FluxDataKit</span><span class="fu">::</span><span class="va"><a href="../reference/fdk_site_info.html">fdk_site_info</a></span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
-<span>    <span class="va">sitename</span> <span class="op">==</span> <span class="st">"AT-Neu"</span></span>
+<span>    <span class="va">sitename</span> <span class="op">==</span> <span class="st">"FR-Fon"</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span></span>
+<span>    data_path <span class="op">=</span> <span class="st">"/data/scratch/FDK_inputs/flux_data"</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="co"># output LSM formatted data</span></span>
 <span><span class="fu"><a href="../reference/fdk_process_lsm.html">fdk_process_lsm</a></span><span class="op">(</span></span>
 <span>  <span class="va">sites</span>,</span>
-<span>  out_path <span class="op">=</span> <span class="st">"data/tmp/"</span>,</span>
-<span>  modis_path <span class="op">=</span> <span class="st">"data-raw/modis/"</span>,</span>
+<span>  out_path <span class="op">=</span> <span class="st">"/data/scratch/PLUMBER_X/lsm/"</span>,</span>
+<span>  modis_path <span class="op">=</span> <span class="st">"/data/scratch/FDK_inputs/modis"</span>,</span>
 <span>  format <span class="op">=</span> <span class="st">"lsm"</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## -- processing site: FR-Fon</span></span></code></pre>
+<pre><code><span><span class="co">## Converting fluxnet data to netcdf</span></span></code></pre>
+<pre><code><span><span class="co">## Merging in MODIS LAI/FPAR data</span></span></code></pre>
+<pre><code><span><span class="co">## writing MODIS data to netcdf file</span></span>
+<span><span class="co">## writing MODIS data to netcdf file</span></span></code></pre>
+<pre><code><span><span class="co">## applying ERA corrections</span></span></code></pre>
+<pre><code><span><span class="co">## applying FLUX corrections</span></span></code></pre>
+<pre><code><span><span class="co">## converting as LSM netcdf</span></span></code></pre>
+<pre><code><span><span class="co">## saving data in your output directory</span></span></code></pre>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># list generated files</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"/data/scratch/PLUMBER_X/lsm/"</span>,<span class="fu"><a href="https://rdrr.io/r/utils/glob2rx.html" class="external-link">glob2rx</a></span><span class="op">(</span><span class="st">"*FR-Fon*.nc"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "FR-Fon_2005-2020_FLUXNET2015_Flux.nc"</span></span>
+<span><span class="co">## [2] "FR-Fon_2005-2020_FLUXNET2015_Met.nc"</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="fluxnet-formatting">FLUXNET formatting<a class="anchor" aria-label="anchor" href="#fluxnet-formatting"></a>
@@ -166,25 +182,18 @@ however required.</p>
 <p>By default the format parameter is set to “lsm”, providing land
 surface model netcdf files as output. You can specify “fluxnet” to
 convert the data to <code>rsofun</code> compatible FLXUNET output.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># read in demo data</span></span>
-<span><span class="co"># for AT-Neu site (as LSM data)</span></span>
+<span><span class="co"># for FR-Fon site (as LSM data)</span></span>
 <span><span class="co"># convert to the HH fluxnet format</span></span>
 <span><span class="va">fluxnet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fdk_convert_lsm.html">fdk_convert_lsm</a></span><span class="op">(</span></span>
-<span>  site <span class="op">=</span> <span class="st">"AT-Neu"</span>,</span>
-<span>  path <span class="op">=</span> <span class="st">"/your/input/directory/"</span>,</span>
+<span>  site <span class="op">=</span> <span class="st">"FR-Fon"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"/data/scratch/PLUMBER_X/lsm/"</span>,</span>
 <span>  fluxnet_format <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  meta_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  out_path <span class="op">=</span> <span class="st">"/your/output/directory/"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># in line processing doing the same</span></span>
-<span><span class="fu"><a href="../reference/fdk_process_lsm.html">fdk_process_lsm</a></span><span class="op">(</span></span>
-<span>  <span class="va">sites</span>,</span>
-<span>  out_path <span class="op">=</span> <span class="st">"/your/output/directory/"</span>,</span>
-<span>  format <span class="op">=</span> <span class="st">"fluxnet"</span>,</span>
-<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<span>  out_path <span class="op">=</span> <span class="st">"/data/scratch/PLUMBER_X/fluxnet/"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## ---&gt; writing data to file:</span></span></code></pre>
+<pre><code><span><span class="co">##    /data/scratch/PLUMBER_X/fluxnet//FLX_FR-Fon_PLUMBER_FULLSET_HH_2005_2020_2-3.csv</span></span></code></pre>
 <div class="section level4">
 <h4 id="plotting-conversion-results">Plotting conversion results<a class="anchor" aria-label="anchor" href="#plotting-conversion-results"></a>
 </h4>
@@ -193,44 +202,24 @@ we retain the data in its original FLUXNET formatting and output the
 gapfilled and amended data as a data frame. This data frame is input to
 the plotting routine <code>fdk_plot</code>, which returns an overview
 plot to the specified <code>out_path</code> directory.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read in and convert the data</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fdk_convert_lsm.html">fdk_convert_lsm</a></span><span class="op">(</span></span>
-<span>  site <span class="op">=</span> <span class="st">"AT-Neu"</span>,</span>
-<span>  path <span class="op">=</span> <span class="st">"/your/input/directory/"</span>,</span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">fluxnet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fdk_convert_lsm.html">fdk_convert_lsm</a></span><span class="op">(</span></span>
+<span>  site <span class="op">=</span> <span class="st">"FR-Fon"</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"/data/scratch/PLUMBER_X/lsm/"</span>,</span>
 <span>  fluxnet_format <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># plot the returned data frame</span></span>
+<span><span class="co"># as a file</span></span>
 <span><span class="fu"><a href="../reference/fdk_plot.html">fdk_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>,</span>
-<span>  site <span class="op">=</span> <span class="va">site</span>,</span>
-<span>  out_path <span class="op">=</span> <span class="st">"/data/scratch/fluxnet_plots/"</span>,</span>
+<span>  site <span class="op">=</span> <span class="st">"FR-Fon"</span>, <span class="co"># for writing things to file</span></span>
+<span>  out_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning: Removed 1730271 rows containing missing values (geom_point).</span></span></code></pre>
 </div>
-</div>
-<div class="section level3">
-<h3 id="conversion-to-lsm-data">Conversion to LSM data<a class="anchor" aria-label="anchor" href="#conversion-to-lsm-data"></a>
-</h3>
-<p>The conversion to Land Surface Model data in a netcdf format follows
-the same procedure as above using different arguments. In particular you
-use the <code>format</code> argument set to <code>lsm</code> to convert
-from FLUXNET (FLUX + ERA) files to the netcdf based datasets compatible
-with the PLUMBER-2 dataset.</p>
-<p>The procedure follows the same gap filling procedures as the
-PLUMBER-2 dataset, as well as amending the data with LAI and FPAR data
-for modelling purposes.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># process all sites</span></span>
-<span><span class="fu"><a href="../reference/fdk_process_lsm.html">fdk_process_lsm</a></span><span class="op">(</span></span>
-<span>  <span class="va">sites</span>,</span>
-<span>  out_path <span class="op">=</span> <span class="st">"/your/input/directory"</span>,</span>
-<span>  modis_path <span class="op">=</span> <span class="st">"/your/input/modis"</span>,</span>
-<span>  format <span class="op">=</span> <span class="st">"lsm"</span>,</span>
-<span>  site_csv_file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"meta_data.csv"</span><span class="op">)</span>, <span class="co"># or custom site file</span></span>
-<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="conversions-to-daily-fluxnet-data-downsampling">Conversions to daily FLUXNET data (downsampling)<a class="anchor" aria-label="anchor" href="#conversions-to-daily-fluxnet-data-downsampling"></a>
@@ -244,12 +233,16 @@ based product.</p>
 the FLUXNET naming conventions (both in filename and column names), are
 not equivalent to the data generated by the OneFlux processing
 pipeline.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/fdk_downsample_fluxnet.html">fdk_downsample_fluxnet</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Downsample data</span></span>
+<span><span class="fu"><a href="../reference/fdk_downsample_fluxnet.html">fdk_downsample_fluxnet</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>,</span>
-<span>  site <span class="op">=</span> <span class="va">site</span>, <span class="co"># a site name</span></span>
-<span>  out_path <span class="op">=</span> <span class="st">"/tmp/"</span></span>
+<span>  site <span class="op">=</span> <span class="st">"FR-Fon"</span>, <span class="co"># a site name</span></span>
+<span>  out_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## ---&gt; writing data to file:</span></span></code></pre>
+<pre><code><span><span class="co">##    /tmp/RtmpdlGcnV/FLX_FR-Fon_PLUMBER_FULLSET_DD_2005_2020_2-3.csv</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="p-model-rsofun-and-machine-learning-formatting">p-model (rsofun) and Machine Learning formatting<a class="anchor" aria-label="anchor" href="#p-model-rsofun-and-machine-learning-formatting"></a>
@@ -259,25 +252,95 @@ using the R package <a href="https://github.com/computationales/FluxnetEO" class
 name</a>. The latter ensures that rsofun driver (and target) data are
 ammended with MODIS data for, among others, machine learning
 projects.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># read in demo data</span></span>
-<span><span class="co"># for AT-Neu site (as LSM data)</span></span>
-<span><span class="co"># convert to the HH fluxnet format</span></span>
-<span><span class="va">fluxnet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fdk_convert_lsm.html">fdk_convert_lsm</a></span><span class="op">(</span></span>
-<span>  site <span class="op">=</span> <span class="st">"AT-Neu"</span>,</span>
-<span>  path <span class="op">=</span> <span class="st">"/your/input/directory/"</span>,</span>
-<span>  fluxnet_format <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  meta_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  out_path <span class="op">=</span> <span class="st">"/your/output/directory/"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># processing of the half hourly data to</span></span>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># processing of the half hourly data to</span></span>
 <span><span class="co"># p-model input drivers for rsofun</span></span>
 <span><span class="va">rsofun_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fdk_format_drivers.html">fdk_format_drivers</a></span><span class="op">(</span></span>
-<span>  site_info <span class="op">=</span> <span class="va">sites</span>,</span>
-<span>  path <span class="op">=</span> <span class="st">"/your/output/directory/"</span>,</span>
+<span>  site_info <span class="op">=</span> <span class="fu">FluxDataKit</span><span class="fu">::</span><span class="va"><a href="../reference/fdk_site_info.html">fdk_site_info</a></span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sitename</span> <span class="op">==</span> <span class="st">"FR-Fon"</span><span class="op">)</span>,</span>
+<span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"/"</span><span class="op">)</span>,</span>
+<span>  freq <span class="op">=</span> <span class="st">"d"</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Processing WHC data ....</span></span></code></pre>
+<pre><code><span><span class="co">## Processing FLUX data ....</span></span></code></pre>
+<pre><code><span><span class="co">## processing flux data using {ingestr}</span></span></code></pre>
+<pre><code><span><span class="co">## Not all getvars were found in file. Missing variable:  WS, NEE_VUT_REF_NIGHT_QC, NEE_VUT_REF_DAY_QC, NEE_VUT_REF_QC for site:  FR-Fon</span></span></code></pre>
+<pre><code><span><span class="co">## Processing CRU data ....</span></span></code></pre>
+<pre><code><span><span class="co">## Merging climate data ....</span></span></code></pre>
+<pre><code><span><span class="co">## Append CO2 data ....</span></span></code></pre>
+<pre><code><span><span class="co">## Append FAPAR data ....</span></span></code></pre>
+<pre><code><span><span class="co">## Combining all driver data ....</span></span></code></pre>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># optimized parameters from previous work</span></span>
+<span><span class="va">params_modl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  kphio           <span class="op">=</span> <span class="fl">0.09423773</span>,</span>
+<span>  soilm_par_a     <span class="op">=</span> <span class="fl">0.33349283</span>,</span>
+<span>  soilm_par_b     <span class="op">=</span> <span class="fl">1.45602286</span>,</span>
+<span>  tau_acclim_tempstress <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  par_shape_tempstress  <span class="op">=</span> <span class="fl">0.0</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># run the model for these parameters</span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">rsofun</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rsofun/man/runread_pmodel_f.html" class="external-link">runread_pmodel_f</a></span><span class="op">(</span></span>
+<span>  <span class="va">rsofun_data</span>,</span>
+<span>  par <span class="op">=</span> <span class="va">params_modl</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># we only have one site so we'll unnest</span></span>
+<span><span class="co"># the main model output</span></span>
+<span><span class="va">model_data</span> <span class="op">&lt;-</span> <span class="va">output</span><span class="op">$</span><span class="va">data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">model_data</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##         date year_dec     fapar       gpp    transp latenth       pet</span></span>
+<span><span class="co">## 1 2005-01-01 2005.000 0.2936641 0.4190108 0.7635846 3468006 0.7635844</span></span>
+<span><span class="co">## 2 2005-01-02 2005.003 0.2932138 1.5659870 0.7120675 3438895 0.7120678</span></span>
+<span><span class="co">## 3 2005-01-03 2005.005 0.2935610 1.4196699 0.6456459 3395898 0.6456460</span></span>
+<span><span class="co">## 4 2005-01-04 2005.008 0.2946054 1.7752271 0.6362906 3417012 0.6362907</span></span>
+<span><span class="co">## 5 2005-01-05 2005.011 0.2962466 0.2553981 0.7447497 3566442 0.7447498</span></span>
+<span><span class="co">## 6 2005-01-06 2005.014 0.2983840 0.8328077 0.7982504 3658101 0.7982503</span></span>
+<span><span class="co">##          vcmax         jmax      vcmax25       jmax25     gs_accl     wscal</span></span>
+<span><span class="co">## 1 9.653893e-06 3.488994e-05 3.918076e-05 9.588948e-05 0.004303927 0.4688719</span></span>
+<span><span class="co">## 2 8.107640e-06 3.031156e-05 3.924208e-05 9.593666e-05 0.004303283 0.4721616</span></span>
+<span><span class="co">## 3 6.590229e-06 2.546328e-05 3.934967e-05 9.627092e-05 0.004322746 0.4735647</span></span>
+<span><span class="co">## 4 6.375983e-06 2.478456e-05 3.985013e-05 9.757713e-05 0.004336617 0.4749424</span></span>
+<span><span class="co">## 5 8.148953e-06 3.037763e-05 3.854798e-05 9.436194e-05 0.004372484 0.4871338</span></span>
+<span><span class="co">## 6 9.050937e-06 3.287423e-05 3.774421e-05 9.230203e-05 0.004403455 0.4892372</span></span>
+<span><span class="co">##         chi         iwue         rd</span></span>
+<span><span class="co">## 1 0.6973364 7.187860e-05 0.04474467</span></span>
+<span><span class="co">## 2 0.6976710 7.179914e-05 0.03662378</span></span>
+<span><span class="co">## 3 0.6990151 7.147994e-05 0.02829848</span></span>
+<span><span class="co">## 4 0.6998749 7.127575e-05 0.02704896</span></span>
+<span><span class="co">## 5 0.7025284 7.064558e-05 0.03734032</span></span>
+<span><span class="co">## 6 0.7050596 7.004444e-05 0.04250450</span></span></code></pre>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">validation_data</span> <span class="op">&lt;-</span> <span class="va">rsofun_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sitename</span> <span class="op">==</span> <span class="st">"FR-Fon"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/nest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">forcing</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_line</span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="va">model_data</span>,</span>
+<span>    <span class="fu">aes</span><span class="op">(</span></span>
+<span>      <span class="va">date</span>,</span>
+<span>      <span class="va">gpp</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    colour <span class="op">=</span> <span class="st">"red"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_line</span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="va">validation_data</span>,</span>
+<span>    <span class="fu">aes</span><span class="op">(</span></span>
+<span>      <span class="va">date</span>,</span>
+<span>      <span class="va">gpp</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span></span>
+<span>    x <span class="op">=</span> <span class="st">"Date"</span>,</span>
+<span>    y <span class="op">=</span> <span class="st">"GPP"</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span></code></pre></div>
+<p><img src="03_data_generation_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 </div>
 </div>
   </div>
