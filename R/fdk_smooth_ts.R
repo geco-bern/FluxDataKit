@@ -105,9 +105,6 @@ fdk_smooth_ts <- function(
         se = FALSE)
     )
 
-    plot(site_time, modis_tseries)
-    print(site_time[which(is.na(modis_tseries))])
-
     # Check that the number of time steps match
     if (length(modis_tseries) != length(site_time)) {
       stop("MODIS and site time steps don't match")
