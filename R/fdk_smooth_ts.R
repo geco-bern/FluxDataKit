@@ -65,10 +65,12 @@ fdk_smooth_ts <- function(
 
     # calculate the optimal span based on
     # a BIC metric (phenocam approach)
-    span <- fdk_optimal_span(
+    span <- suppressWarnings(
+        fdk_optimal_span(
       y = df$combined_values,
       x = as.numeric(df$date),
       weights = df$weights
+      )
     )
 
     # fit the model with the optimal
