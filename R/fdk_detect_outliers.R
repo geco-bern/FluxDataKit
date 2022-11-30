@@ -58,7 +58,7 @@ fdk_detect_outliers <- function(
     upper = stats::quantile(gcc,0.9,na.rm=T)
     lower = stats::quantile(gcc,0.1,na.rm=T)
     amp = upper - lower
-    t = amp / 4
+    t = amp / 5
 
     # drop NA's, messes with diff()
     gcc_change = c(NA,diff(gcc[!is.na(gcc)]))
@@ -115,7 +115,7 @@ fdk_detect_outliers <- function(
 
       # calculate outliers (up or down), change direction of the
       # assymetrical criteria for the GRVI (outliers are upward)
-      loc_up = which(gcc_dif > 2 * sigma_current * daily_var )
+      loc_up = which(gcc_dif > 3 * sigma_current * daily_var )
       loc_down = which(gcc_dif <=  sigma_current * -daily_var )
       loc = c(loc_up,loc_down)
 
