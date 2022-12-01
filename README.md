@@ -29,7 +29,7 @@ Contrary to the original PLUMBER data we report both data for a closed energy ba
 
 ### Half-hourly and daily FLUXNET data output (CSV)
 
-To provide easily readable data as requested by some data users we convert the netCDF data to a human-readable CSV file adhering to FLUXNET column- and file-naming conventions. These half-hourly files are further downsampled to a daily time step for modelling efforts which require daily data. The daily data should be easily merged on a day by day basis with remote sensing data as provided by the FluxnetEO data product (Walther etal. 2022).
+To provide easily readable data as requested by some data users we convert the netCDF data to a human-readable CSV file adhering to FLUXNET column- and file-naming conventions. These half-hourly files are further downsampled to a daily time step for modelling efforts which require daily data. The daily data should be easily merged on a day by day basis with remote sensing data as provided by the FluxnetEO data product (Walther et al. 2022).
 
 > Downsampled daily data is an aggregation of the half-hourly data and not, as would be the case when downloading daily data from an ecosystem flux processing chain, a completely separate product. Some discrepancies therefore exist between the downsampled data and the equivalent daily ecosystem flux product.
 
