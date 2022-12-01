@@ -7,7 +7,6 @@
 #' @param df dataframe with sites to process
 #' @param out_path output directory for processed data
 #' @param modis_path where to store downloaded MODIS data
-#' @param format the format of the output (fluxnet = FLUXNET formatting)
 #' @param save_tmp_files retain temporary files (TRUE or FALSE)
 #'
 #' @return LSM compatible netcdf files in the output directory, with
@@ -18,10 +17,9 @@ fdk_process_lsm <- function(
     df,
     out_path,
     modis_path,
-    format = "lsm",
-    save_tmp_files = TRUE,
+    save_tmp_files = FALSE,
     overwrite = TRUE
-    ) {
+) {
 
   #---- set meta-data required by FluxnetLSM ----
 
@@ -38,7 +36,7 @@ fdk_process_lsm <- function(
     system.file("extdata", "Site_metadata.csv", package = "FluxnetLSM"),
     header = TRUE,
     stringsAsFactors = FALSE
-    ) |>
+  ) |>
     mutate(
       Exclude = FALSE # allow all sites to be processed
     )
@@ -113,15 +111,12 @@ fdk_process_lsm <- function(
 
     if ( x['product'] == "plumber"){
 
-      # copy files to tmp path
-      message("copy source files to be latered")
-
       # list all plumber files
       files_to_copy <- list.files(
         df$data_path,
         glob2rx(sprintf("*%s*.nc",x['sitename'])),
         full.names = TRUE
-        )
+      )
 
       # copy to temporary directory
       file.copy(
@@ -211,27 +206,27 @@ fdk_process_lsm <- function(
 
       nc_files <- try(
         suppressWarnings(
-        suppressMessages(
-          FluxnetLSM::convert_fluxnet_to_netcdf(
-            infile = infile,
-            site_code = x['sitename'],
-            out_path = tmp_path,
-            # manual setting of the site meta-data
-            # generated on the fly top of function
-            site_csv_file = file.path(tempdir(), "meta_data.csv"),
-            conv_opts = conv_opts,
-            met_gapfill = "ERAinterim",
-            flux_gapfill = "statistical",
-            era_file = era_file,
-            missing_met = missing_met,
-            missing_flux = missing_flux,
-            gapfill_met_tier1 = gapfill_met_tier1,
-            gapfill_met_tier2 = gapfill_met_tier2,
-            gapfill_flux=gapfill_flux, min_yrs=min_yrs,
-            check_range_action = "warn",
-            include_all_eval=TRUE
+          suppressMessages(
+            FluxnetLSM::convert_fluxnet_to_netcdf(
+              infile = infile,
+              site_code = x['sitename'],
+              out_path = tmp_path,
+              # manual setting of the site meta-data
+              # generated on the fly top of function
+              site_csv_file = file.path(tempdir(), "meta_data.csv"),
+              conv_opts = conv_opts,
+              met_gapfill = "ERAinterim",
+              flux_gapfill = "statistical",
+              era_file = era_file,
+              missing_met = missing_met,
+              missing_flux = missing_flux,
+              gapfill_met_tier1 = gapfill_met_tier1,
+              gapfill_met_tier2 = gapfill_met_tier2,
+              gapfill_flux=gapfill_flux, min_yrs=min_yrs,
+              check_range_action = "warn",
+              include_all_eval=TRUE
+            )
           )
-        )
         )
       )
 
@@ -255,11 +250,11 @@ fdk_process_lsm <- function(
 
     #----- Downloading and adding MODIS data ----
 
+    # This is based upon
+    # https://github.com/aukkola/PLUMBER2/
+    # Step2_Process_MODIS_LAI_for_all_sites.R
+
     if ( x['product'] != "plumber"){
-      # This is based upon
-      # https://github.com/aukkola/PLUMBER2/
-      # Step2_Process_MODIS_LAI_for_all_sites.R
-      message("Merging in MODIS LAI/FPAR data")
 
       # function to download and or
       # process MODIS data (LAI/FPAR)
@@ -288,11 +283,6 @@ fdk_process_lsm <- function(
 
     } else {
 
-      # This is based upon
-      # https://github.com/aukkola/PLUMBER2/
-      # Step2_Process_MODIS_LAI_for_all_sites.R
-      message("Merging in MODIS LAI/FPAR PLUMBER data")
-
       # list all plumber files
       plumber_met_file <- list.files(
         tempdir(),
@@ -308,8 +298,6 @@ fdk_process_lsm <- function(
         path = modis_path,
         nc_file = plumber_met_file
       ))
-
-      message("LAI merge done")
 
       # correct LAI naming
       check_renaming <- try(
@@ -336,8 +324,9 @@ fdk_process_lsm <- function(
     }
 
     #----- Corrections ----
+    message("applying ERA/FLUX corrections")
+
     if ( x['product'] != "plumber"){
-      message("applying ERA corrections")
 
       # meteorological corrections
       # written to ncdf file
@@ -346,8 +335,6 @@ fdk_process_lsm <- function(
         new_qc = 101
       )
 
-      message("applying FLUX corrections")
-
       # correct energy balance
       fdk_flux_corrections(
         infile = nc_files$flux
@@ -355,10 +342,7 @@ fdk_process_lsm <- function(
     }
     #----- Export and/or convert to FLUXNET formatting ----
 
-    # copy "raw" netcdf files to output path
-    if(format == "lsm") {
-      message("converting as LSM netcdf")
-      message("saving data in your output directory")
+    message("converting as LSM netcdf")
 
       # list all flux files
       files <- list.files(
@@ -376,19 +360,6 @@ fdk_process_lsm <- function(
       )
 
       file.remove(files)
-
-    } else {
-      message("converting to FLUXNET csv files")
-      message("saving data in your output directory")
-
-      # quick check
-      fdk_convert_lsm(
-        site = x['sitename'],
-        path = file.path(tempdir(), "fluxnetlsm"),
-        fluxnet_format = TRUE,
-        out_path = out_path
-      )
-    }
   })
 
   # delete tmp files if requested

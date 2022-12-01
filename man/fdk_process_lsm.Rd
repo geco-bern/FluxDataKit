@@ -8,8 +8,7 @@ fdk_process_lsm(
   df,
   out_path,
   modis_path,
-  format = "lsm",
-  save_tmp_files = TRUE,
+  save_tmp_files = FALSE,
   overwrite = TRUE
 )
 }
@@ -19,8 +18,6 @@ fdk_process_lsm(
 \item{out_path}{output directory for processed data}
 
 \item{modis_path}{where to store downloaded MODIS data}
-
-\item{format}{the format of the output (fluxnet = FLUXNET formatting)}
 
 \item{save_tmp_files}{retain temporary files (TRUE or FALSE)}
 }

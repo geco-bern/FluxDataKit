@@ -15,7 +15,7 @@ fdk_format_drivers(
   df_soiltexture = bind_rows(top = tibble(layer = "top", fsand = 0.4, fclay = 0.3, forg =
     0.1, fgravel = 0.1), bottom = tibble(layer = "bottom", fsand = 0.4, fclay = 0.3, forg
     = 0.1, fgravel = 0.1)),
-  freq = "hh",
+  freq = "d",
   path,
   verbose = TRUE
 )
