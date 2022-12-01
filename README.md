@@ -1,62 +1,49 @@
 # Fluxnet aggregation project
 
-This project is the framework used to create the LEMONTREE flux data kit, a dataset with consistent model drivers for use and re-use. The formatting of the data ultimately follows the requirements of the [rsofun]() package. However, additional fields will be included to expand research into the domains of machine learning. More so, the package generates intermediates which adhere to the PLUMBER2 processing workflow. Hence, while generating `rsofun` drivers the package generates intermediate files which are compatible with land surface modelling (netcdf) formats. This effort therefore serves two communities or uses cases.
+This project is the framework used to create the LEMONTREE "flux data kit"", a dataset with consistent model data for use and re-use. In the interest of consistency across the community we re-use the PLUMBER-2 framework, with a few exceptions. The PLUMBER-2 framework generated consistent gap filled data for land surface modelling. We use the same methods (from the underlying FluxnetLSM package), to provide an expanded dataset covering more sites and site years.
 
-The data sources from various ecosystem flux data providers or datasets, most prominently these are the FLUXNET2015 dataset, the OneFlux data (an amended version of FLUXNET2015), ICOS processed data, and Plumber2 data. The latter includes many of the AsiaFlux and OzFlux sites, in addition to the FLUXNET2015 dataset.
+The data is generated using [set workflow]() and new releases generated using this workflow when considerable data additions are made to the source (flux) data. Final data will be incrementally deposited in a static [Zenodo repository](https://zenodo.org/record/7258291). Contrary to PLUMBER-2 we do not execute post-hoc data screening. Unless not enough data is available for consistent processing all sites are processed and data is generated. We provide summary statistics on data coverage so users can make an informed decision on how to use the data for their particular use cases.
 
-## Flux data selection
+## Ecosystem flux data sources
+
+We sourced data from openly available ecosystem flux networks or products, mainly ICOS, OneFlux processed data, the FLUXNET2015 dataset and PLUMBER-2 (which includes various data sources in its own right, see Ukkola et al. xxxx ).
+
+## Ecosystem flux data selection
 
 Given the various datasets, and at times overlap between the datasets a priority in processing is given to more recent (hopefully) and more complete datasets. In order of processing this means that OneFlux has priority over FLUXNET2015, and Plumber2. ICOS data has priority over FLUXNET2015 for European sites. Overall, Plumber2 mostly fills in the remaining sites in Asia and Australia. The final picking order is thus:
 
--   ICOS
--   OneFlux
--   Plumber2 (FLUXNET2015)
+- ICOS
+- OneFlux
+- FLUXNET2015
+- PLUMBER-2
 
-All data are (currently) aggregated to a daily level to limit the file size and ease of handling the data. In order to address issues of corrections to meteorological and flux data we use the [FluxnetLSM]() framework and the workflow as described for constructing the [Plumber2 dataset]().
+## Data products
 
-## Workflow & PLUMBER-X
+### Land Surface Modelling (LSM) data (netCDF)
 
-The back-end of the package leverages the FluxnetLSM and FluxnetEO packages to create a workflow which is largely consistent with the code to generate the PLUMBER2 dataset (see exceptions below), while integrating the FluxnetEO dataset to provide ancillary remote sensing data (for machine learning processes). In short, as a side effect of the generation of the p-model driver data one can create land surface model compatible data (in line with the current PLUMBER2 dataset).
+We deliver gap filled ecosystem flux data in line with the PLUMBER dataset. We refer to the original publication ([Ukkola et al. 2022](https://essd.copernicus.org/articles/14/449/2022/essd-14-449-2022.pdf)) for data details. Data is provided as two netCDF files per site, one file `*Flux.nc` contains all ecosystem fluxes while a `*Met.nc` file contains the matching meteorological values.
 
-## Data structure
+#### Exceptions and processing differences
 
-### PLUMBER-X
+Contrary to the original PLUMBER data we report both data for a closed energy balance, and the raw data inputs (on request of some data users). Furthermore, we report both MODIS based leaf area index (LAI) and fraction of absorbed photosynthetic active radiation (FAPAR). Processing of the MODIS data was also altered and now follows a workflow similar to the one integrated in the {phenocamr} package. Data is smoothed using a LOESS based curve fitting with a BIC optimized smoothing kernel, instead of multiple cubic splines.
 
-As an intermediate step to the generation of the p-model driver data the package creates a dataset in line with the PLUMBER2 land surface modelling dataset. These data aren't necessarily retained (as temporary intermediates), but one can specify to retain these temporary files if they serve a purpose within your workflow. The workflow also allows for rolling releases of PLUMBER-X datasets as soon as new FLUXNET compatible data releases come available. For the goals of the PLUMBER dataset I refer to the original publication ([Ukkola et al. 2022](https://essd.copernicus.org/articles/14/449/2022/essd-14-449-2022.pdf)). The workflow as outlined below (and in the paper) is followed aside from selecting MODIS as the default LAI product (and providing additional FPAR data using the same workflow), and for consistency only global annual CO2 data is used and no site level measurements.
+### Half-hourly and daily FLUXNET data output (CSV)
 
-![](https://essd.copernicus.org/articles/14/449/2022/essd-14-449-2022-f01.png)
+To provide easily readable data as requested by some data users we convert the netCDF data to a human-readable CSV file adhering to FLUXNET column- and file-naming conventions. These half-hourly files are further downsampled to a daily time step for modelling efforts which require daily data. The daily data should be easily merged on a day by day basis with remote sensing data as provided by the FluxnetEO data product (Walther etal. 2022).
 
-### p-model drivers
+> Downsampled daily data is an aggregation of the half-hourly data and not, as would be the case when downloading daily data from an ecosystem flux processing chain, a completely separate product. Some discrepancies therefore exist between the downsampled data and the equivalent daily ecosystem flux product.
 
-We used the gapfilled and corrected FluxnetLSM data to provide p-model driver data. The required fields include:
+### p-model drivers (structured R data)
 
-| variable | unit             | description                                                          |
-|:-----------------------|:-----------------------|:-------------------------------------------------|
-| date     | day (YYYY-MM-DD) | date                                                                 |
-| temp     | C                | daily mean temperature                                               |
-| prec     | mm               | precipitation                                                        |
-| vpd      |                  | vapour pressure deficit                                              |
-| ppfd     |                  | photosynthetic photon flux density                                   |
-| patm     | Pa               | atmospheric pressure                                                 |
-| ccov     | %                | cloud cover                                                          |
-| ccov_int | %                | cloud cover                                                          |
-| snow     | mm               | precipitaton as snow                                                 |
-| rain     | mm               | precipitation                                                        |
-| fapar    |                  | fraction of photosynthetic active radiation                          |
-| co2      | ppm              | atmospheric co2 concentration                                        |
-| doy      | integer          | Day of Year                                                          |
-| tmin     | C                | daily minimum temperature                                            |
-| tmax     | C                | daily maximum temperature                                            |
+A final data product derived from the initial gap-filled LSM data are p-model driver data for the [`rsofun`](https://github.com/computationales/rsofun) package. In the current setup *in-situ* environmental forcing will be combined with GPP values as target data for model calibration.
 
-Most of these fields are taken from the *in-situ* ERA-Interim gapfilled FluxnetLSM processed fluxes of the products mentioned above. Sites are not screened for completeness to ensure reasonable coverage. The latter is deferred to the user as this depends on use cases.
-
-### Data downloads
-
-Data downloads can be found here: https://zenodo.org/record/7258291
-
-### ancillary remote sensing data
+### Ancillary remote sensing data
 
 For machine learning or other modelling purposes we provide ancillary MODIS based remote sensing data as described in the FluxnetEO dataset. We refer to the original publication and our [FluxnetEO](https://bg.copernicus.org/articles/19/2805/2022/) package for easy reading and processing of the data.
+
+### Data and code availabilty
+
+Data releases are made public via a Zenodo archive at [https://zenodo.org/record/7258291](https://zenodo.org/record/7258291). The processing workflow relies on the `FluxDataKit` R package and a [workflow described in the repository](https://github.com/computationales/FluxDataKit/tree/main/analysis). 
 
 ## Acknowledgements
 
