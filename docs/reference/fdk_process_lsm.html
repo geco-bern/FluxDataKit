@@ -28,7 +28,10 @@ the FluxnetLSM package and PLUMBER2 based workflows."><meta name="twitter:card" 
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav navbar-right"><li class="dropdown">
+      <ul class="nav navbar-nav navbar-right"><li>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
@@ -42,12 +45,6 @@ the FluxnetLSM package and PLUMBER2 based workflows."><meta name="twitter:card" 
     </li>
     <li>
       <a href="../articles/03_data_generation.html">Data generation</a>
-    </li>
-    <li>
-      <a href="../articles/04_data_use.html">Data use</a>
-    </li>
-    <li>
-      <a href="../articles/05_qaqc_downsampled_data.html">Downsampling uncertainty</a>
     </li>
   </ul></li>
         
@@ -77,8 +74,7 @@ the FluxnetLSM package and PLUMBER2 based workflows.</p>
 <span>  <span class="va">modis_path</span>,</span>
 <span>  format <span class="op">=</span> <span class="st">"lsm"</span>,</span>
 <span>  save_tmp_files <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  <span class="va">site_csv_file</span></span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -102,14 +98,6 @@ the FluxnetLSM package and PLUMBER2 based workflows.</p>
 
 <dt>save_tmp_files</dt>
 <dd><p>retain temporary files (TRUE or FALSE)</p></dd>
-
-
-<dt>site_csv_file</dt>
-<dd><p>CSV file with site meta-data which is parsed to populate
-ancillary data provided with the flux data. By default the hard coded
-packaged data are used, but alternatively an external file can be
-provided. This limits the need to recompile the package when processing
-files which were not originally selected.</p></dd>
 
 </dl></div>
     <div id="value">

@@ -5,7 +5,5 @@ articles:
   01_setup: 01_setup.html
   02_data_coverage: 02_data_coverage.html
   03_data_generation: 03_data_generation.html
-  04_data_use: 04_data_use.html
-  05_qaqc_downsampled_data: 05_qaqc_downsampled_data.html
-last_built: 2022-11-15T16:10Z
+last_built: 2022-12-01T09:16Z
 

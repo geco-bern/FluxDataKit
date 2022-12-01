@@ -28,7 +28,10 @@ mean."><meta name="twitter:card" content="summary"></head><body data-spy="scroll
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav navbar-right"><li class="dropdown">
+      <ul class="nav navbar-nav navbar-right"><li>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
@@ -42,12 +45,6 @@ mean."><meta name="twitter:card" content="summary"></head><body data-spy="scroll
     </li>
     <li>
       <a href="../articles/03_data_generation.html">Data generation</a>
-    </li>
-    <li>
-      <a href="../articles/04_data_use.html">Data use</a>
-    </li>
-    <li>
-      <a href="../articles/05_qaqc_downsampled_data.html">Downsampling uncertainty</a>
     </li>
   </ul></li>
         
@@ -71,7 +68,7 @@ mean.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_downsample_fluxnet</span><span class="op">(</span><span class="va">df</span>, <span class="va">site</span>, <span class="va">out_path</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_downsample_fluxnet</span><span class="op">(</span><span class="va">df</span>, <span class="va">site</span>, <span class="va">out_path</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -80,8 +77,16 @@ mean.</p>
 <dd><p>a half-hourly FLUXNET data frame</p></dd>
 
 
+<dt>site</dt>
+<dd><p>sitename of a site to process</p></dd>
+
+
 <dt>out_path</dt>
 <dd><p>the path where to store the converted data</p></dd>
+
+
+<dt>overwrite</dt>
+<dd><p>overwrite existing output file</p></dd>
 
 </dl></div>
     <div id="value">

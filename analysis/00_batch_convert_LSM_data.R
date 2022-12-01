@@ -50,7 +50,9 @@ orig <- fdk_convert_lsm(
 
 df <- fdk_convert_lsm(
   site = "FR-Fon",
-  path = "/data/scratch/PLUMBER_X/lsm/"
+  path = "/data/scratch/PLUMBER_X/lsm/",
+  out_path = "/data/scratch/PLUMBER_X/",
+  fluxnet_format = TRUE
 )
 
 plot(orig$time,orig$LAI)

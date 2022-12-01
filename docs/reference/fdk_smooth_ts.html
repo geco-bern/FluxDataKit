@@ -28,7 +28,10 @@ results into FluxnetLSM netcdf files for data fusion."><meta name="twitter:card"
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav navbar-right"><li class="dropdown">
+      <ul class="nav navbar-nav navbar-right"><li>
+  <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
@@ -42,12 +45,6 @@ results into FluxnetLSM netcdf files for data fusion."><meta name="twitter:card"
     </li>
     <li>
       <a href="../articles/03_data_generation.html">Data generation</a>
-    </li>
-    <li>
-      <a href="../articles/04_data_use.html">Data use</a>
-    </li>
-    <li>
-      <a href="../articles/05_qaqc_downsampled_data.html">Downsampling uncertainty</a>
     </li>
   </ul></li>
         
@@ -71,29 +68,17 @@ results into FluxnetLSM netcdf files for data fusion.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_smooth_ts</span><span class="op">(</span><span class="va">dates</span>, <span class="va">values</span>, <span class="va">variable</span>, <span class="va">start_year</span>, <span class="va">end_year</span>, <span class="va">nc_file</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_smooth_ts</span><span class="op">(</span><span class="va">df</span>, <span class="va">variable</span>, <span class="va">nc_file</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>dates</dt>
+    <dl><dt>df</dt>
 <dd><p>vector of dates</p></dd>
-
-
-<dt>values</dt>
-<dd><p>vector of values</p></dd>
 
 
 <dt>variable</dt>
 <dd><p>what MODIS variable is processed (LAI or FPAR)</p></dd>
-
-
-<dt>start_year</dt>
-<dd><p>a start year of the desired series</p></dd>
-
-
-<dt>end_year</dt>
-<dd><p>an end year of the desired series</p></dd>
 
 
 <dt>nc_file</dt>

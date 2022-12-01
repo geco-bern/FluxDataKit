@@ -61,12 +61,18 @@ fdk_format_drivers <- function(
       forg = 0.1,
       fgravel = 0.1)
   ),
-  freq = "hh",
+  freq = "d",
   path,
   verbose = TRUE
   ){
 
   #---- start-up checks ----
+
+  geco_system <- ifelse(
+    Sys.info()['nodename'] == "balder" | Sys.info()['nodename'] == "dash",
+    TRUE,
+    FALSE
+    )
 
   # check format of the site_info
   names(site_info) %in% c("sitename","lon","lat","start_year","end_year","elv")
@@ -176,20 +182,26 @@ fdk_format_drivers <- function(
       date = as.Date(date)
     )
 
+  # set snow to 0 (data not available,
+  # but tested for in rsofun)
+  ddf_flux$data[[1]]$snow <- 0
+
   #---- Processing CRU data (for cloud cover CCOV) ----
   if(verbose){
     message("Processing CRU data ....")
   }
 
-  # adjust this with your local path
-  # ddf_cru <- ingest(
-  #   site_info = site_info,
-  #   source    = "cru",
-  #   getvars   = "ccov",
-  #   dir       = "data-raw/ancillary_data/cru/",
-  #   settings = list(correct_bias = NULL)
-  # )
-
+  if (geco_system){
+    ddf_cru <- ingest(
+      site_info = site_info,
+      source    = "cru",
+      getvars   = "ccov",
+      dir       = "/data/archive/fix_this_path",
+      settings = list(correct_bias = NULL)
+    )
+  } else {
+    ddf_flux$data[[1]]$ccov <- 0
+  }
   # memory intensive, purge memory
   gc()
 
@@ -198,21 +210,17 @@ fdk_format_drivers <- function(
     message("Merging climate data ....")
   }
 
-  # merge all climate drivers into
-  # one format
-  ddf_flux$data[[1]]$ccov <- 1
-  ddf_flux$data[[1]]$snow <- 0
-
-  # ddf_meteo <- ddf_flux |>
-  #   tidyr::unnest(data) |>
-  #   left_join(
-  #     ddf_cru |>
-  #       tidyr::unnest(data),
-  #     by = c("sitename", "date")
-  #   ) |>
-  #   group_by(sitename) |>
-  #   tidyr::nest()
-
+  if (geco_system) {
+    ddf_meteo <- ddf_flux |>
+      tidyr::unnest(data) |>
+      left_join(
+        ddf_cru |>
+          tidyr::unnest(data),
+        by = c("sitename", "date")
+      ) |>
+      group_by(sitename) |>
+      tidyr::nest()
+  }
 
   #---- Append CO2 data ----
   #
@@ -229,8 +237,8 @@ fdk_format_drivers <- function(
   #   dir = "data-raw/ancillary_data/co2/"
   # )
 
-  # rename loess column to fapar as required
-  # for input below
+  # use in situ co2_air measurements rather than
+  # global values
   df_co2 <- ddf_flux |>
     dplyr::mutate(
       data = purrr::map(data, ~ dplyr::mutate(., co2 = co2_air))

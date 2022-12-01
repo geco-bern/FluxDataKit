@@ -14,11 +14,8 @@ library(FluxDataKit)
 
 # load sites
 sites <- readRDS("data/flux_data_kit_site-info.rds") |>
-  mutate(
-    data_path = "data-raw/flux_data/"
-  ) |>
     filter(
-      sitename %in% c("AU-Cow","AR-SLu","SE-Nor","US-Wjs")
+      sitename %in% c("FR-Fon")
     )
 
 # loop over all sites and plot all time series
