@@ -89,12 +89,22 @@
 <div class="section level1">
 <div class="page-header"><h1 id="fluxnet-aggregation-project">Fluxnet aggregation project<a class="anchor" aria-label="anchor" href="#fluxnet-aggregation-project"></a>
 </h1></div>
-<p>This project is the framework used to create the LEMONTREE “flux data kit”“, a dataset with consistent model data for use and re-use. In the interest of consistency across the community we re-use the PLUMBER-2 framework, with a few exceptions. The PLUMBER-2 framework generated consistent gap filled data for land surface modelling. We use the same methods (from the underlying FluxnetLSM package), to provide an expanded dataset covering more sites and site years.</p>
+<p>This project is the framework used to create the LEMONTREE “flux data kit”, a dataset with consistent model data for use and re-use. In the interest of consistency across the community we re-use the PLUMBER-2 framework, with a few exceptions. The PLUMBER-2 framework generated consistent gap filled data for land surface modelling. We use the same methods (from the underlying FluxnetLSM package), to provide an expanded dataset covering more sites and site years.</p>
 <p>The data is generated using <a href="">set workflow</a> and new releases generated using this workflow when considerable data additions are made to the source (flux) data. Final data will be incrementally deposited in a static <a href="https://zenodo.org/record/7258291" class="external-link">Zenodo repository</a>. Contrary to PLUMBER-2 we do not execute post-hoc data screening. Unless not enough data is available for consistent processing all sites are processed and data is generated. We provide summary statistics on data coverage so users can make an informed decision on how to use the data for their particular use cases.</p>
 <div class="section level2">
 <h2 id="ecosystem-flux-data-sources">Ecosystem flux data sources<a class="anchor" aria-label="anchor" href="#ecosystem-flux-data-sources"></a>
 </h2>
-<p>We sourced data from openly available ecosystem flux networks or products, mainly ICOS, OneFlux processed data, the FLUXNET2015 dataset and PLUMBER-2 (which includes various data sources in its own right, see Ukkola et al. xxxx ).</p>
+<p>We sourced data from openly available ecosystem flux networks or products, mainly ICOS, OneFlux processed data, the FLUXNET2015 dataset and PLUMBER-2 (which includes various data sources in its own right, see Ukkola et al. 2022). Data was sourced from these locations:</p>
+<ul>
+<li>ICOS data was provided through the ICOS carbon portal, this is a pre-release currently <em>not publicly available</em>
+</li>
+<li>FLUXNET2015 data can be retrieved from the <a href="https://fluxnet.org/data/fluxnet2015-dataset/" class="external-link">FLUXNET data portal</a>
+</li>
+<li>OneFlux data can be retrieved from the <a href="https://ameriflux.lbl.gov/data/download-data/" class="external-link">Ameriflux data portal</a>
+</li>
+<li>PLUMBER data can be downloaded using <a href="https://github.com/computationales/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R" class="external-link">an included script</a>
+</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="ecosystem-flux-data-selection">Ecosystem flux data selection<a class="anchor" aria-label="anchor" href="#ecosystem-flux-data-selection"></a>
@@ -123,7 +133,7 @@
 <div class="section level3">
 <h3 id="half-hourly-and-daily-fluxnet-data-output-csv">Half-hourly and daily FLUXNET data output (CSV)<a class="anchor" aria-label="anchor" href="#half-hourly-and-daily-fluxnet-data-output-csv"></a>
 </h3>
-<p>To provide easily readable data as requested by some data users we convert the netCDF data to a human-readable CSV file adhering to FLUXNET column- and file-naming conventions. These half-hourly files are further downsampled to a daily time step for modelling efforts which require daily data. The daily data should be easily merged on a day by day basis with remote sensing data as provided by the FluxnetEO data product (Walther etal. 2022).</p>
+<p>To provide easily readable data as requested by some data users we convert the netCDF data to a human-readable CSV file adhering to FLUXNET column- and file-naming conventions. These half-hourly files are further downsampled to a daily time step for modelling efforts which require daily data. The daily data should be easily merged on a day by day basis with remote sensing data as provided by the FluxnetEO data product (Walther et al. 2022).</p>
 <blockquote>
 <p>Downsampled daily data is an aggregation of the half-hourly data and not, as would be the case when downloading daily data from an ecosystem flux processing chain, a completely separate product. Some discrepancies therefore exist between the downsampled data and the equivalent daily ecosystem flux product.</p>
 </blockquote>

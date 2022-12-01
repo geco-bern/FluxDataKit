@@ -6,7 +6,12 @@ The data is generated using [set workflow]() and new releases generated using th
 
 ## Ecosystem flux data sources
 
-We sourced data from openly available ecosystem flux networks or products, mainly ICOS, OneFlux processed data, the FLUXNET2015 dataset and PLUMBER-2 (which includes various data sources in its own right, see Ukkola et al. xxxx ).
+We sourced data from openly available ecosystem flux networks or products, mainly ICOS, OneFlux processed data, the FLUXNET2015 dataset and PLUMBER-2 (which includes various data sources in its own right, see Ukkola et al. 2022). Data was sourced from these locations:
+
+- ICOS data was provided through the ICOS carbon portal, this is a pre-release currently *not publicly available*
+- FLUXNET2015 data can be retrieved from the [FLUXNET data portal](https://fluxnet.org/data/fluxnet2015-dataset/)
+- OneFlux data can be retrieved from the [Ameriflux data portal](https://ameriflux.lbl.gov/data/download-data/)
+- PLUMBER data can be downloaded using [an included script](https://github.com/computationales/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R)
 
 ## Ecosystem flux data selection
 
