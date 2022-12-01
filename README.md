@@ -60,7 +60,7 @@ A final data product derived from the initial gap-filled LSM data are p-model dr
 
 For machine learning or other modelling purposes we provide ancillary MODIS based remote sensing data as described in the FluxnetEO dataset. We refer to the original publication and our [FluxnetEO](https://bg.copernicus.org/articles/19/2805/2022/) package for easy reading and processing of the data.
 
-### Data and code availabilty
+## Data and code availabilty
 
 Data releases are made public via a Zenodo archive at [https://zenodo.org/record/7258291](https://zenodo.org/record/7258291). The processing workflow relies on the `FluxDataKit` R package and a [workflow described in the repository](https://github.com/computationales/FluxDataKit/tree/main/analysis). 
 
