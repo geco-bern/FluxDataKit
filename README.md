@@ -1,6 +1,6 @@
 # Fluxnet aggregation project
 
-This project is the framework used to create the LEMONTREE "flux data kit"", a dataset with consistent model data for use and re-use. In the interest of consistency across the community we re-use the PLUMBER-2 framework, with a few exceptions. The PLUMBER-2 framework generated consistent gap filled data for land surface modelling. We use the same methods (from the underlying FluxnetLSM package), to provide an expanded dataset covering more sites and site years.
+This project is the framework used to create the LEMONTREE "flux data kit", a dataset with consistent model data for use and re-use. In the interest of consistency across the community we re-use the PLUMBER-2 framework, with a few exceptions. The PLUMBER-2 framework generated consistent gap filled data for land surface modelling. We use the same methods (from the underlying FluxnetLSM package), to provide an expanded dataset covering more sites and site years.
 
 The data is generated using [set workflow]() and new releases generated using this workflow when considerable data additions are made to the source (flux) data. Final data will be incrementally deposited in a static [Zenodo repository](https://zenodo.org/record/7258291). Contrary to PLUMBER-2 we do not execute post-hoc data screening. Unless not enough data is available for consistent processing all sites are processed and data is generated. We provide summary statistics on data coverage so users can make an informed decision on how to use the data for their particular use cases.
 
