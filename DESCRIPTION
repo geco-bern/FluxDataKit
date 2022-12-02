@@ -31,8 +31,7 @@ Suggests:
     mapview,
     leaflet,
     leafpop,
-    sf,
-    rsofun
+    sf
 Remotes:
     bluegreen-labs/icoscp,
     computationales/FluxnetLSM,

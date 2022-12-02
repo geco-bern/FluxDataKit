@@ -15,7 +15,6 @@ library(ggplot2)
 library(FluxDataKit)
 library(FluxnetLSM)
 library(FluxnetEO)
-library(rsofun)
 
 evaluate <- ifelse(Sys.info()['nodename'] == "balder", TRUE, FALSE)
 ```
@@ -155,6 +154,8 @@ The latter ensures that rsofun driver (and target) data are ammended with MODIS
 data for, among others, machine learning projects.
 
 ```{r eval = evaluate, warning=FALSE}
+library(rsofun)
+
 # processing of the half hourly data to
 # p-model input drivers for rsofun
 rsofun_data <- fdk_format_drivers(
