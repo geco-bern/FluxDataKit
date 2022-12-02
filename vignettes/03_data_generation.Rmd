@@ -222,3 +222,4 @@ p <- ggplot() +
 print(p)
 
 ```
+![](https://github.com/computationales/FluxDataKit/raw/main/demo.png)
