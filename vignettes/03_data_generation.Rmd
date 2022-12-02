@@ -16,7 +16,13 @@ library(FluxDataKit)
 library(FluxnetLSM)
 library(FluxnetEO)
 
-evaluate <- ifelse(Sys.info()['nodename'] == "balder", TRUE, FALSE)
+evaluate <- ifelse(
+  Sys.info()['nodename'] == "balder" | 
+  Sys.info()['nodename'] == "dash" |
+  Sys.info()['nodename'] == "pop-os",
+  TRUE,
+  FALSE
+  )
 ```
 
 > Note this routine will only run with the appropriate files in the correct
@@ -72,14 +78,13 @@ sites <- FluxDataKit::fdk_site_info |>
 # output LSM formatted data
 fdk_process_lsm(
   sites,
-  out_path = "/data/scratch/PLUMBER_X/lsm/",
+  out_path = tempdir(),
   modis_path = "/data/scratch/FDK_inputs/modis",
-  format = "lsm",
   overwrite = TRUE
 )
 
 # list generated files
-list.files("/data/scratch/PLUMBER_X/lsm/",glob2rx("*FR-Fon*.nc"), recursive = TRUE)
+list.files(tempdir(),glob2rx("*FR-Fon*.nc"), recursive = TRUE)
 ```
 
 ## FLUXNET formatting
@@ -94,9 +99,9 @@ netcdf files as output. You can specify "fluxnet" to convert the data to
 # convert to the HH fluxnet format
 fluxnet <- fdk_convert_lsm(
   site = "FR-Fon",
-  path = "/data/scratch/PLUMBER_X/lsm/",
+  path = tempdir(),
   fluxnet_format = TRUE,
-  out_path = "/data/scratch/PLUMBER_X/fluxnet/"
+  out_path = tempdir()
 )
 ```
 
@@ -109,9 +114,9 @@ data as a data frame. This data frame is input to the plotting routine
 
 ```{r eval = evaluate}
 # Read in and convert the data
-df <- fluxnet <- fdk_convert_lsm(
+df <- fdk_convert_lsm(
   site = "FR-Fon",
-  path = "/data/scratch/PLUMBER_X/lsm/",
+  path = tempdir(),
   fluxnet_format = TRUE
 )
 
@@ -162,7 +167,6 @@ rsofun_data <- fdk_format_drivers(
   site_info = FluxDataKit::fdk_site_info |>
     filter(sitename == "FR-Fon"),
   path = paste0(tempdir(),"/"),
-  freq = "d",
   verbose = TRUE
 )
 
