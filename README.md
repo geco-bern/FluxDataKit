@@ -4,6 +4,8 @@ This project is the framework used to create the LEMONTREE "flux data kit", a da
 
 The data is generated using [set workflow]() and new releases generated using this workflow when considerable data additions are made to the source (flux) data. Final data will be incrementally deposited in a static [Zenodo repository](https://zenodo.org/record/7258291). Contrary to PLUMBER-2 we do not execute post-hoc data screening. Unless not enough data is available for consistent processing all sites are processed and data is generated. We provide summary statistics on data coverage so users can make an informed decision on how to use the data for their particular use cases.
 
+> DISCLAIMER: Although the this workflow is presented as a functional R package we warn users not to create data themselves. If your required data use the proper released version as deposited on Zenodo. If you do opt to generate data yourselves the authors do not accept any responsibility with respect to the generated results (mistakes and misuse of the package are your own).
+
 ## Ecosystem flux data sources
 
 We sourced data from openly available ecosystem flux networks or products, mainly ICOS, OneFlux processed data, the FLUXNET2015 dataset and PLUMBER-2 (which includes various data sources in its own right, see Ukkola et al. 2022). Data was sourced from these locations:
