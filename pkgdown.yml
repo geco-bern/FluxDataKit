@@ -1,0 +1,9 @@
+pandoc: 2.19.2
+pkgdown: 2.0.6
+pkgdown_sha: ~
+articles:
+  01_setup: 01_setup.html
+  02_data_coverage: 02_data_coverage.html
+  03_data_generation: 03_data_generation.html
+last_built: 2022-12-02T13:39Z
+
