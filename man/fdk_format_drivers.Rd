@@ -15,7 +15,6 @@ fdk_format_drivers(
   df_soiltexture = bind_rows(top = tibble(layer = "top", fsand = 0.4, fclay = 0.3, forg =
     0.1, fgravel = 0.1), bottom = tibble(layer = "bottom", fsand = 0.4, fclay = 0.3, forg
     = 0.1, fgravel = 0.1)),
-  freq = "d",
   path,
   verbose = TRUE
 )
@@ -29,8 +28,6 @@ being five columns: sitename, lon, lat, year_start, year_end}
 \item{params_modl}{model parameters (preset)}
 
 \item{df_soiltexture}{soil data specifics (preset)}
-
-\item{freq}{time frequency of the input data}
 
 \item{path}{path with daily FLUXNET data}
 

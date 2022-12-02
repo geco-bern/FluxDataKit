@@ -14,7 +14,7 @@
 #' @param fluxnet_format convert to fluxnet formatting (TRUE/FALSE)
 #' @param meta_data return meta-data TRUE/FALSE
 #' @param out_path where to store the converted data if converted to
-#'  fluxnet formatting
+#'  fluxnet formatting and returns both half-hourly and daily data.
 #'
 #' @return data frame with merged meteo and flux data
 #' @export
@@ -246,6 +246,17 @@ fdk_convert_lsm <- function(
 
     message("---> writing data to file:")
     message(sprintf("   %s", filename))
+
+    # write downsampled data as well
+    suppressWarnings(
+      try(
+        fdk_downsample_fluxnet(
+          all,
+          site = site,
+          out_path = out_path,
+        )
+      )
+    )
 
   } else {
     # return the merged file

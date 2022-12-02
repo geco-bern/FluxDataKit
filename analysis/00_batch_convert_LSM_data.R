@@ -29,31 +29,10 @@ sites <- readRDS("data/flux_data_kit_site-info.rds") |>
     sitename == "FR-Fon"
   )
 
-#---- FluxnetLSM reprocessing routine ----
+#---- create a new release ----
 
-# process all sites, by calling the processing routine
-# all data is returned to the specified output path (out_path)
-fdk_process_lsm(
-  sites,
-  out_path = "/data/scratch/PLUMBER_X/lsm/",
-  modis_path = "/data/scratch/FDK_inputs/modis/",
-  format = "lsm",
-  overwrite = TRUE,
-  save_tmp_files = FALSE
+fdk_release(
+  df = sites,
+  input_path = "/data/scratch/FDK_inputs/",
+  output_path = "/data/scratch/test"
 )
-
-# quick check
-orig <- fdk_convert_lsm(
-  site = "FR-Fon",
-  path = "/data/scratch/FDK_inputs/flux_data/plumber/"
-)
-
-df <- fdk_convert_lsm(
-  site = "FR-Fon",
-  path = "/data/scratch/PLUMBER_X/lsm/",
-  out_path = "/data/scratch/PLUMBER_X/",
-  fluxnet_format = TRUE
-)
-
-plot(orig$time,orig$LAI)
-points(df$time,df$LAI, col = "red")

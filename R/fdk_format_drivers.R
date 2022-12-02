@@ -16,7 +16,6 @@
 #' @param product which flux product to use
 #' @param verbose provide verbose output (default = FALSE)
 #' @param path path with daily FLUXNET data
-#' @param freq time frequency of the input data
 #'
 #' @return returns an rsofun compatible driver file for the provided
 #'  sites
@@ -61,7 +60,6 @@ fdk_format_drivers <- function(
       forg = 0.1,
       fgravel = 0.1)
   ),
-  freq = "d",
   path,
   verbose = TRUE
   ){
@@ -164,7 +162,7 @@ fdk_format_drivers <- function(
       ),
       dir = path,
       settings = settings_fluxnet,
-      timescale = freq
+      timescale = "d"
     )
   )
 
@@ -223,8 +221,7 @@ fdk_format_drivers <- function(
   }
 
   #---- Append CO2 data ----
-  #
-  # CHECK SOURCE DATA
+
   if(verbose){
     message("Append CO2 data ....")
   }

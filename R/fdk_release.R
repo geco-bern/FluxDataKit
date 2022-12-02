@@ -1,4 +1,3 @@
-
 #' Create a new product release
 #'
 #' Creates a new product release when data is organized
@@ -6,12 +5,13 @@
 #' calls individual functions which are more flexible but
 #' for consistency this wrapper restricts things further.
 #'
-#' @param input_path path with input data
 #' @param df data frame with site meta-data information
+#' @param input_path path with input data
 #' @param output_path path where to store the output data
 #' @param overwrite overwrite the results if the output path exists
 #'
-#' @return the FluxDataKit data release as a set of netCDF and CSV data
+#' @return the FluxDataKit data release as a set of netCDF, CSV data,
+#'  compressed RDS rsofun drivers and meta-data
 #' @export
 
 fdk_release <- function(
@@ -29,10 +29,29 @@ fdk_release <- function(
   }
 
   # create remaining output directories
-  dir.create(file.path(output_path,"lsm"), recursive = TRUE)
-  dir.create(file.path(output_path,"fluxnet"), recursive = TRUE)
-  dir.create(file.path(output_path,"pmodel"), recursive = TRUE)
-  dir.create(file.path(output_path,"plots"), recursive = TRUE)
+  dir.create(
+    file.path(output_path,"lsm"),
+    recursive = TRUE,
+    showWarnings = FALSE
+    )
+
+  dir.create(
+    file.path(output_path,"fluxnet"),
+    recursive = TRUE,
+    showWarnings = FALSE
+    )
+
+  dir.create(
+    file.path(output_path,"pmodel"),
+    recursive = TRUE,
+    showWarnings = FALSE
+    )
+
+  dir.create(
+    file.path(output_path,"plots"),
+    recursive = TRUE,
+    showWarnings = FALSE
+    )
 
   # amend path to the set input path
   sites <- sites |>
@@ -49,8 +68,7 @@ fdk_release <- function(
       sites,
       out_path = file.path(output_path, "lsm"),
       modis_path = file.path(input_path,"modis"),
-      format = "lsm",
-      overwrite = TRUE,
+      overwrite = overwrite,
       save_tmp_files = FALSE
     )
   )
@@ -64,47 +82,62 @@ fdk_release <- function(
   )
 
   # extract site names from all files
+  processed_sites <- substr(basename(nc_files), 1,6)
+
+  #---- Convert files to CSV files ----
 
   # loop over all sites and process the
   # LSM data into FLUXNET compatible daily (DD)
   # data formats combining fluxes and ERA gap
   # filled data
-  failed_sites <- lapply(sites, function(site){
+  failed_sites <- lapply(processed_sites, function(site){
 
     # check if site is a plumber site, if so
     # switch input directories
 
     message("- converting to FLUXNET format")
-    df <- suppressWarnings(try(fdk_convert_lsm(
-      site = site,
-      fluxnet_format = TRUE,
-      path = file.path(output_path,"lsm")
-    )
-    ))
 
-    if(inherits(df, "try-error")){
-      message("!!! conversion to FLUXNET failed  !!!")
-      return(site)
-    }
-
-    message("- downsampling FLUXNET format")
-    filename <- suppressWarnings(
-        try(fdk_downsample_fluxnet(
-          df,
-          site = site,
-          out_path = file.path(output_path,"fluxnet"),
-        )
-        )
+    status <- suppressWarnings(
+      try(fdk_convert_lsm(
+        site = site,
+        fluxnet_format = TRUE,
+        path = file.path(output_path, "lsm"),
+        out_path = file.path(output_path, "fluxnet")
       )
+    )
+    )
 
-    if(inherits(filename, "try-error")){
-      message("!!! downsampling failed !!!")
+    if(inherits(status, "try-error")){
+      message("!!! FLUXNET conversion failed !!!")
       return(site)
     }
 
-    return(NULL)
+    return(invisible(NULL))
   })
 
-  failed_sites <- do.call("rbind", failed_sites)
+  #failed_sites <- do.call("rbind", failed_sites)
 
+  #----- convert sites to rsofun p-model input ----
+
+  sites <- sites |>
+    dplyr::filter(
+      sitename %in% processed_sites
+    )
+
+  rsofun_drivers <- fdk_format_drivers(
+    sites,
+    path = file.path(output_path, "fluxnet")
+  )
+
+  # save data as a compressed RDS file to save space
+  saveRDS(
+    rsofun_drivers,
+    file.path(output_path,"pmodel/rsofun_drivers.rds"),
+    compress = "xz"
+    )
+
+  # return meta-data for all processed sites
+  # to be processed into a final meta-data file
+  # and distributed together with the data
+  return(sites)
 }
