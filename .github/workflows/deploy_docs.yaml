@@ -30,7 +30,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           cache: false
-          extra-packages: any::pkgdown, github::computationales/GECO_template, github::computationales/FluxnetEO, github::computationales/FluxnetLSM, local::.
+          extra-packages: any::pkgdown, github::computationales/GECO_template, github::computationales/FluxnetEO, github::computationales/FluxnetLSM, github::computationales/rsofun, local::.
           needs: website
 
       #- name: install theme
