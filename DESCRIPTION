@@ -26,7 +26,12 @@ Imports:
     zoo
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    ggplot2,
+    mapview,
+    leaflet,
+    leafpop,
+    sf
 Remotes:
     bluegreen-labs/icoscp,
     computationales/FluxnetLSM,
