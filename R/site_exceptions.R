@@ -9,6 +9,11 @@
 #' the PLUMBER-2 data. For transparency reasons this part was split out into
 #' a function to provide easier debugging and processing options.
 #'
+#' Currently site based changes are ignored, assuming that more up to date
+#' FLUXNET2015/OneFlux processing has addressed site to site inconsistency.
+#' Few remaining sites to which it applies will use the processed PLUMBER-2
+#' data as source input and hence it will not apply.
+#'
 #' @param site_code FLUXNET site code abbreviation
 #' @param var_data FLUXNET data frame
 #' @param att_data FLUXNET meta-data
