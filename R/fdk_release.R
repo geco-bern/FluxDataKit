@@ -132,7 +132,7 @@ fdk_release <- function(
   # save data as a compressed RDS file to save space
   saveRDS(
     rsofun_drivers,
-    file.path(output_path,"pmodel/rsofun_drivers.rds"),
+    file.path(output_path, "pmodel/rsofun_drivers.rds"),
     compress = "xz"
     )
 
