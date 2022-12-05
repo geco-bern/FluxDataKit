@@ -31,6 +31,7 @@ Returns an optimal span to smooth a provided vector using
 the `loess()` smoother.
 }
 \description{
-The optimal span is calculated based upon the bayesian information
-criterion (BIC).
+The optimal span is calculated based upon the Bayesian information
+criterion (BIC). This is a copy of the routine used in the
+{phenocamr} package.
 }

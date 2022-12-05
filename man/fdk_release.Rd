@@ -2,7 +2,7 @@
 % Please edit documentation in R/fdk_release.R
 \name{fdk_release}
 \alias{fdk_release}
-\title{Create a new product release}
+\title{Creates a new FluxDataKit product release}
 \usage{
 fdk_release(df, input_path, output_path, overwrite = TRUE)
 }
@@ -16,7 +16,8 @@ fdk_release(df, input_path, output_path, overwrite = TRUE)
 \item{overwrite}{overwrite the results if the output path exists}
 }
 \value{
-the FluxDataKit data release as a set of netCDF and CSV data
+the FluxDataKit data release as a set of netCDF, CSV data,
+ compressed RDS rsofun drivers and meta-data
 }
 \description{
 Creates a new product release when data is organized

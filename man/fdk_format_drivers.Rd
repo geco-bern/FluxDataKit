@@ -2,7 +2,7 @@
 % Please edit documentation in R/fdk_format_drivers.R
 \name{fdk_format_drivers}
 \alias{fdk_format_drivers}
-\title{Format and run p-model drivers on Euler}
+\title{Format p-model drivers}
 \usage{
 fdk_format_drivers(
   site_info,
@@ -48,4 +48,7 @@ required for a p-model run in rsofun.
 Parameter settings are provided as
 arguments, but could be altered after
 the fact if desired.
+
+NOTE: Processing is selective and will
+create different files on non-GECO workstations.
 }

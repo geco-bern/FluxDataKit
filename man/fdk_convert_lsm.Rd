@@ -22,7 +22,7 @@ fdk_convert_lsm(
 \item{meta_data}{return meta-data TRUE/FALSE}
 
 \item{out_path}{where to store the converted data if converted to
-fluxnet formatting}
+fluxnet formatting and returns both half-hourly and daily data.}
 }
 \value{
 data frame with merged meteo and flux data

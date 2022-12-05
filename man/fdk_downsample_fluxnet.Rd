@@ -21,12 +21,12 @@ data frame with daily (DD) down sampled values or file in the
 }
 \description{
 Down sampling of GPP values is done at-hoc using a simple
-mean.
+mean or similar per FLUXNET data specifics.
 }
 \details{
-Normally the data is generated using a dedicated flux processing
+Normally the flux data is generated using a dedicated flux processing
 workflow. Therefore the data are not 100% identical but correspondence
-should have an R2 > 0.95, with only structured errors in the NT product.
+should have an R2 > 0.95, with only auto-correlated errors in the NT product.
 
 This function and the data generated should be used with caution, knowing
 the limitations that this routine implies with respect to all variables
