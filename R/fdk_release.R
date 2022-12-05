@@ -1,4 +1,4 @@
-#' Create a new product release
+#' Creates a new FluxDataKit product release
 #'
 #' Creates a new product release when data is organized
 #' in the fixed data structure as specified. This function

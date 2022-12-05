@@ -3,12 +3,13 @@
 #'
 #' Downloads and smooths MODIS LAI/FPAR values
 #' for merging into the final LSM model data.
-#' Smoothing interpolates values to an half-hourly
-#' time step.
+#' Smoothing interpolates values to a daily time step
+#' which is then assigned to half-hourly data on a
+#' day-by-day basis (i.e. remote sensing data remains
+#' static from day-to-day but changes daily across the season).
 #'
-#' This is an almost verbatim copy of the routine as used to generate
-#' the PLUMBER-2 data. For transparency reasons this part was split out into
-#' a function to provide easier debugging and processing options.
+#' Here the code deviates from the standard PLUMBER-2 workflow
+#' and provides a more parsimonious solution.
 #'
 #' @param df data frame with site info
 #' @param path path where to store the MODIS data

@@ -1,7 +1,8 @@
 #' Calculates the optimal span for a loess spline
 #'
-#' The optimal span is calculated based upon the bayesian information
-#' criterion (BIC).
+#' The optimal span is calculated based upon the Bayesian information
+#' criterion (BIC). This is a copy of the routine used in the
+#' {phenocamr} package.
 #'
 #' @param y a vector with measurement values to smooth
 #' @param x a vector with dates / time steps

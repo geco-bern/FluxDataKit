@@ -183,10 +183,8 @@ fdk_convert_lsm <- function(
     # subset columns
     all <- all[c("TIMESTAMP_START","TIMESTAMP_END",keys$new)]
 
-    # remaining unit conversions
-    # K to C
-    # mm s-1 to mm (sum)
-    # other conversions
+    # Unit conversions from ALMA back to FLUXNET
+    # Inverse of what is mentioned in the FluxnetLSM Conversion.R script
     # https://github.com/aukkola/FluxnetLSM/blob/a256ffc894ed8182f9399afa1d83dea43ac36a95/R/Conversions.R
     all <- all |>
       dplyr::mutate(
@@ -196,6 +194,7 @@ fdk_convert_lsm <- function(
         CO2_F_MDS = CO2_F_MDS, # ppm to umolCO2 mol-1
 
         # adding missing data required by ingestr
+        # for conversion to p-model drivers
         # VPD
         VPD_F_QC = 0,
         VPD_F_MDS_QC = NA,

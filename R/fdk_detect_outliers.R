@@ -12,7 +12,7 @@
 
 fdk_detect_outliers <- function(
     df,
-    iterations=20,
+    iterations = 20,
     sigma = 2,
     plot = FALSE
     ){

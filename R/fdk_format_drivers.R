@@ -1,4 +1,4 @@
-#' Format and run p-model drivers on Euler
+#' Format p-model drivers
 #'
 #' Takes site information for a single
 #' or multiple sites and grabs all data
@@ -7,6 +7,9 @@
 #' Parameter settings are provided as
 #' arguments, but could be altered after
 #' the fact if desired.
+#'
+#' NOTE: Processing is selective and will
+#' create different files on non-GECO workstations.
 #'
 #' @param site_info data frame using minimum information required
 #' being five columns: sitename, lon, lat, year_start, year_end
