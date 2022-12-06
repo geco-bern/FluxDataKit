@@ -93,7 +93,18 @@ fdk_format_drivers <- function(
       message("Processing cwdx80 data on server ....")
     }
 
-      filn <- "data-raw/ancillary_data/cwdx80/cwdx80.nc"
+
+    filn <- file.path(tempdir(),"cwdx80.nc")
+
+    # downloading the root zone water storage capacity
+    # data dynamically
+
+    message("downloading root zone water storage data....")
+    download.file(
+      "https://zenodo.org/record/5515246/files/cwdx80.nc?download=1",
+      filn
+    )
+
       site_info <- site_info |>
         left_join(rbeni::extract_nc(
           dplyr::select(site_info,
@@ -194,10 +205,10 @@ fdk_format_drivers <- function(
 
   if (geco_system){
     ddf_cru <- ingest(
-      site_info = site_info,
+      siteinfo = site_info,
       source    = "cru",
       getvars   = "ccov",
-      dir       = "/data/archive/fix_this_path",
+      dir       = "/data/archive/cru_NA_2021/data",
       settings = list(correct_bias = NULL)
     )
   } else {
@@ -228,14 +239,6 @@ fdk_format_drivers <- function(
   if(verbose){
     message("Append CO2 data ....")
   }
-
-  # grab the CO2 data matching date ranges
-  # df_co2 <- ingest(
-  #   site_info,
-  #   source  = "co2_cmip",
-  #   verbose = FALSE,
-  #   dir = "data-raw/ancillary_data/co2/"
-  # )
 
   # use in situ co2_air measurements rather than
   # global values
