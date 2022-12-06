@@ -100,6 +100,7 @@ fdk_downsample_fluxnet <- function(
     dplyr::summarize(
 
       # METEO
+      # add fraction of daily "missing values"
 
       # precipitation is the sum of HH values
       P_F = sum(P_F, na.rm = TRUE),
@@ -126,6 +127,7 @@ fdk_downsample_fluxnet <- function(
       CO2_F_MDS = mean(CO2_F_MDS, na.rm = TRUE),
 
       # FLUXES
+      # add fraction of daily "missing values"
       GPP_NT_VUT_SE = ifelse(
         length(which(!is.na(GPP_NT_VUT_SE)) >= length(GPP_NT_VUT_SE) * 0.5 ),
         sd(GPP_NT_VUT_REF, na.rm = TRUE)/sqrt(length(which(!is.na(GPP_NT_VUT_REF)))),
@@ -152,6 +154,7 @@ fdk_downsample_fluxnet <- function(
 
       # NETRAD/USTAR/SW_out is average from HH data
       # (only days with more than 50% records available)
+      # add fraction of daily "missing values"
       NETRAD = ifelse(
           length(which(!is.na(NETRAD)) > length(NETRAD) * 0.5 ),
           mean(NETRAD, na.rm = TRUE),
@@ -171,10 +174,15 @@ fdk_downsample_fluxnet <- function(
       ),
 
       # Latent heat is the mean of the HH values
+      # add fraction of daily "missing values"
       LE_F_MDS = mean(LE_F_MDS, na.rm = TRUE),
+      LE_F_MDS_QC = 0,
+
       LE_CORR = mean(LE_CORR, na.rm = TRUE),
+      LE_CORR_QC = 0,
 
       # sensible heat is the mean of the HH values
+      # add fraction of daily "missing values"
       H_F_MDS = mean(H_F_MDS, na.rm = TRUE),
       H_CORR = mean(H_CORR, na.rm = TRUE),
 
