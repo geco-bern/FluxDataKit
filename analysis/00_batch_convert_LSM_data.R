@@ -10,7 +10,7 @@ library(ingestr)
 library(rsofun)
 
 input_path <- "/data/scratch/FDK_inputs"
-output_path <- "/data/scratch/test"
+output_path <- "/data/scratch/beta-v2"
 
 # read in all site meta-data, only test on
 # SE-Nor to debug FluxnetLSM for now
