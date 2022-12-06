@@ -19,6 +19,7 @@ Imports:
     tidyr,
     chron,
     ncdf4,
+    raster,
     stats,
     tools,
     utils,

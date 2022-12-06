@@ -67,25 +67,25 @@ fdk_plot <- function(
     )
 
   # plot the data
-  p <- ggplot() +
-    geom_point(
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_point(
       data = df,
-      aes(
+      ggplot2::aes(
         time,
         value,
         group = name
       ),
       colour = rgb(0,0,0, 0.1)
     ) +
-    theme_bw() +
-    facet_wrap(
+    ggplot2::theme_bw() +
+    ggplot2::facet_wrap(
       ~ name,
       scales = "free_y",
       nrow = 14
       )
 
   # saving image
-  ggsave(
+  ggplot2::ggsave(
     filename,
     height = 20,
     width = 20,

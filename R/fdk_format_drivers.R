@@ -78,61 +78,12 @@ fdk_format_drivers <- function(
   # check format of the site_info
   names(site_info) %in% c("sitename","lon","lat","start_year","end_year","elv")
 
+  lapply(site_info$sitename, function(site){
+
   #---- complement site_info with WHC based on S_CWDX80 ----
 
-  # some feedback on the processing
-  if(verbose) {
-    message("Processing WHC data ....")
-  }
+  # TBD
 
-  # don't include water holding capacity
-  # via cwdx80 if not on Euler, Balder or Dash
-  if(grepl('eu-', Sys.info()['nodename'])) {
-
-    if(verbose) {
-      message("Processing cwdx80 data on server ....")
-    }
-
-
-    filn <- file.path(tempdir(),"cwdx80.nc")
-
-    # downloading the root zone water storage capacity
-    # data dynamically
-
-    message("downloading root zone water storage data....")
-    download.file(
-      "https://zenodo.org/record/5515246/files/cwdx80.nc?download=1",
-      filn
-    )
-
-      site_info <- site_info |>
-        left_join(rbeni::extract_nc(
-          dplyr::select(site_info,
-                        sitename,
-                        lon,
-                        lat),
-          filn) |>
-            unnest(data) |>
-            rename(whc = V1),
-          by = c("sitename", "lon", "lat")
-        )
-
-    # median values
-    whc_median <- median(site_info$whc, na.rm = TRUE)
-
-    # append info
-    site_info <- site_info |>
-      mutate(
-        whc = ifelse(
-          is.na(whc),
-          whc_median,
-          whc
-          )
-        )
-  } else {
-    # dummy variable
-    whc_median <- NA
-  }
 
   #---- grabbing data environmental data from FLUX archives ----
 
@@ -208,7 +159,7 @@ fdk_format_drivers <- function(
       siteinfo = site_info,
       source    = "cru",
       getvars   = "ccov",
-      dir       = "/data/archive/cru_NA_2021/data",
+      dir       = "/data/archive/cru_NA_2021/data/", # f-ing trailing /
       settings = list(correct_bias = NULL)
     )
   } else {
@@ -223,7 +174,7 @@ fdk_format_drivers <- function(
   }
 
   if (geco_system) {
-    ddf_meteo <- ddf_flux |>
+    ddf_flux <- ddf_flux |>
       tidyr::unnest(data) |>
       left_join(
         ddf_cru |>
@@ -277,4 +228,8 @@ fdk_format_drivers <- function(
   # return data, either a driver
   # or processed output
   return(output)
+  })
+
+
+
 }

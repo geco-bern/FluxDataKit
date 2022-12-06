@@ -45,7 +45,8 @@ fdk_collect_drivers <- function(
   # complement the setup settings
   site_info <- prepare_setup_sofun(
         site_info = site_info,
-        params_siml = params_siml)
+        params_siml = params_siml
+        )
 
   # check if all required variables are available
   if (!("snow" %in% names(meteo$data[[1]]))) {
