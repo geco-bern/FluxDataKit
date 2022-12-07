@@ -112,12 +112,24 @@ fdk_match_modis <- function(
 
   #---- expand dates ----
 
-  # Use all available data, but fill gaps with
-  # NA
+  # Use all available data, if required
+  # expand to match the data range of the
+  # flux data
+
+  start_date <- as.Date(paste0(df['year_start'],"-01-01"))
+  end_date <-as.Date(paste0(df['year_end'],"-12-31"))
+
+  if (start_date > min(df_modis$calendar_date, na.rm = TRUE)){
+    start_date <- min(df_modis$calendar_date, na.rm = TRUE)
+  }
+
+  if (end_date < min(df_modis$calendar_date, na.rm = TRUE)){
+    end_date <- min(df_modis$calendar_date, na.rm = TRUE)
+  }
 
   dates <- seq.Date(
-    min(df_modis$calendar_date, na.rm = TRUE),
-    max(df_modis$calendar_date, na.rm = TRUE),
+    start_date - 100,
+    end_date + 100,
     by = "day"
   )
 
