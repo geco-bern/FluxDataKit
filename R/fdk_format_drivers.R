@@ -116,10 +116,13 @@ fdk_format_drivers <- function(
         wind = "WS",
         co2_air = "CO2_F_MDS",
         lai = "LAI",
-        fpar = "FPAR"
+        fpar = "FPAR",
+        le = "LE_F_MDS",
+        le_qc = "LE_F_MDS_QC",
+        le_cor = "LE_CORR",
+        le_cor_qc = "LE_CORR_QC"
+        # gpp_qc = "GPP_DT_VUT_REF_QC"
         #lw_down = "LW_IN_F_MDS",
-        #le = "LE_F_MDS",
-        #le_cor = "LE_CORR",
         #h = "H_F_MDS",
         #h_cor = "H_CORR",
         #g  = "G_F_MDS",
