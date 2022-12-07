@@ -176,14 +176,10 @@ fdk_convert_lsm <- function(
       H_CORR_JOINTUNC_QC = 'Qh_cor_uc_qc',
       NEE_VUT_REF_QC = "NEE_qc",
       NEE_VUT_REF_JOINTUNC_QC = "NEE_uc_qc",
-      GPP_NT_VUT_REF = "GPP",
-      GPP_NT_VUT_SE = "GPP_se",
-      GPP_DT_VUT_REF = "GPP_DT",
-      GPP_DT_VUT_SE = "GPP_DT_se",
       RECO_NT_VUT_REF_QC = "Resp_qc",
       RECO_NT_VUT_SE_QC = "Resp_se_qc",
 
-      P_F_QC = "Precip", # in mm -s
+      P_F_QC = "Precip_qc", # in mm -s
       TA_F_MDS_QC = "Tair_qc",
       SW_IN_F_MDS_QC = "SWdown_qc",
       LW_IN_F_MDS_QC = "LWdown_qc",
