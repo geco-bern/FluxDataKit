@@ -81,6 +81,29 @@ fdk_downsample_fluxnet <- function(
     "LE_CORR" = NA,
     "H_F_MDS" = NA,
     "H_CORR" = NA,
+
+    # QC
+    "P_F_QC" = NA,
+    "TA_F_MDS_QC" = NA,
+    "SW_IN_F_MDS_QC" = NA,
+    "LW_IN_F_MDS_QC" = NA,
+    "VPD_F_MDS_QC" = NA,
+    "WS_F_QC" = NA,
+    "PA_F_QC" = NA,
+    "CO2_F_MDS_QC" = NA,
+    "GPP_DT_VUT_REF_QC" = NA,
+    "GPP_DT_VUT_SE_QC" = NA,
+    "GPP_NT_VUT_REF_QC" = NA,
+    "GPP_NT_VUT_SE_QC" = NA,
+    "NETRAD_QC" = NA,
+    "USTAR_QC" = NA,
+    "SW_OUT_QC" = NA,
+    "LE_F_MDS_QC" = NA,
+    "LE_CORR_QC" = NA,
+    "H_F_MDS_QC" = NA,
+    "H_CORR_QC" = NA,
+
+    # remote sensing data
     "LAI" = NA,
     "FPAR" = NA
   )
@@ -104,27 +127,35 @@ fdk_downsample_fluxnet <- function(
 
       # precipitation is the sum of HH values
       P_F = sum(P_F, na.rm = TRUE),
+      P_F_QC = mean(P_F_QC < 1, na.rm = TRUE),
 
       # temperature is the mean of the HH values
       TA_F_MDS = mean(TA_F_MDS, na.rm = TRUE),
+      TA_F_QC = mean(TA_F_QC < 1, na.rm = TRUE),
 
       # temperature is the mean of the HH values
       SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = TRUE),
+      SW_IN_F_MDS_QC = mean(SW_IN_F_MDS_QC < 1, na.rm = TRUE),
 
       # long wave radiation is the mean of the HH values
       LW_IN_F_MDS = mean(LW_IN_F_MDS, na.rm = TRUE),
+      LW_IN_F_MDS_QC = mean(LW_IN_F_MDS_QC < 1, na.rm = TRUE),
 
       # VPD is the mean of the HH values
+      VPD_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
       VPD_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
 
       # wind speed is the mean of the HH values
       WS_F = mean(WS_F, na.rm = TRUE),
+      WS_F_QC = mean(WS_F_QC < 1, na.rm = TRUE),
 
       # temperature is the mean of the HH values
       PA_F = mean(PA_F, na.rm = TRUE),
+      PA_F_QC = mean(PA_F_QC < 1, na.rm = TRUE),
 
       # CO2 is the mean of the HH values
       CO2_F_MDS = mean(CO2_F_MDS, na.rm = TRUE),
+      CO2_F_MDS_QC = mean(CO2_F_MDS_QC < 1, na.rm = TRUE),
 
       # FLUXES
       # add fraction of daily "missing values"
@@ -145,12 +176,14 @@ fdk_downsample_fluxnet <- function(
         mean(GPP_DT_VUT_REF, na.rm = TRUE),
         NA
       ),
+      GPP_DT_VUT_REF_QC = length(which(!is.na(GPP_DT_VUT_REF)))/length(GPP_DT_VUT_REF),
 
       GPP_NT_VUT_REF = ifelse(
         length(which(!is.na(GPP_NT_VUT_REF)) >= length(GPP_NT_VUT_REF) * 0.5 ),
         mean(GPP_NT_VUT_REF, na.rm = TRUE),
         NA
       ),
+      GPP_NT_VUT_REF_QC = length(which(!is.na(GPP_NT_VUT_REF)))/length(GPP_NT_VUT_REF),
 
       # NETRAD/USTAR/SW_out is average from HH data
       # (only days with more than 50% records available)
@@ -161,30 +194,37 @@ fdk_downsample_fluxnet <- function(
           NA
         ),
 
+      NETRAD_QC = length(which(!is.na(NETRAD)))/length(NETRAD),
+
       USTAR = ifelse(
         length(which(!is.na(USTAR)) > length(USTAR) * 0.5 ),
         mean(USTAR, na.rm = TRUE),
         NA
       ),
+      USTAR_QC = length(which(!is.na(USTAR)))/length(USTAR),
 
       SW_OUT = ifelse(
         length(which(!is.na(SW_OUT)) > length(SW_OUT) * 0.5 ),
         mean(SW_OUT, na.rm = TRUE),
         NA
       ),
+      SW_OUT_QC = length(which(!is.na(SW_OUT)))/length(SW_OUT),
 
       # Latent heat is the mean of the HH values
       # add fraction of daily "missing values"
       LE_F_MDS = mean(LE_F_MDS, na.rm = TRUE),
-      LE_F_MDS_QC = 0,
+      LE_F_MDS_QC = mean(LE_F_MDS_QC < 1, na.rm = TRUE),
 
       LE_CORR = mean(LE_CORR, na.rm = TRUE),
-      LE_CORR_QC = 0,
+      LE_CORR_QC = mean(LE_CORR_QC, na.rm = TRUE),
 
       # sensible heat is the mean of the HH values
       # add fraction of daily "missing values"
       H_F_MDS = mean(H_F_MDS, na.rm = TRUE),
+      H_F_MDS_QC = mean(H_F_MDS_QC < 1, na.rm = TRUE),
+
       H_CORR = mean(H_CORR, na.rm = TRUE),
+      H_CORR_QC = mean(H_CORR_QC < 1, na.rm = TRUE),
 
       # Joint uncertainty (can't be produced from)
       # available data in a similar manner as described
@@ -199,7 +239,6 @@ fdk_downsample_fluxnet <- function(
       # MODIS RS data
       LAI = mean(LAI, na.rm = TRUE),
       FPAR = mean(FPAR, na.rm = TRUE)
-
     )
 
   # save data to file, using FLUXNET formatting
