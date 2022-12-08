@@ -54,7 +54,7 @@ fdk_release <- function(
     )
 
   # amend path to the set input path
-  sites <- sites |>
+  sites <- df |>
     mutate(
       data_path = file.path(input_path,"flux_data/")
     )
@@ -83,6 +83,7 @@ fdk_release <- function(
 
   # extract site names from all files
   processed_sites <- substr(basename(nc_files), 1,6)
+  processed_sites <- processed_sites[processed_sites %in% df$sitenames]
 
   #---- Convert files to CSV files ----
 
