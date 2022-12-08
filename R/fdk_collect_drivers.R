@@ -30,6 +30,9 @@ fdk_collect_drivers <- function(
   params_soil
   ){
 
+
+  print(fapar)
+
   # declare variable bindings for CRAN compliance
   # these are internal variables created in mutate
   # statements mostly which need to be defined or
@@ -108,10 +111,7 @@ fdk_collect_drivers <- function(
       co2 |>
         dplyr::rename(co2 = data),
       by = "sitename"
-    ) #|>
-    #dplyr::mutate(
-    #  params_soil = purrr::map(as.list(seq(nrow(.))),
-    #                                   ~return(params_soil)))
+    )
 
   # use only interpolated fapar and combine meteo data and fapar
   # into a single nested column 'forcing'
