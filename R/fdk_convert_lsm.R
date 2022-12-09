@@ -20,7 +20,7 @@
 #' @export
 
 fdk_convert_lsm <- function(
-    site = "AT-Neu",
+    site,
     path,
     fluxnet_format = FALSE,
     meta_data = FALSE,
