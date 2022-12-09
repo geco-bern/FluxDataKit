@@ -73,30 +73,17 @@ fdk_release <- function(
     )
   )
 
-  #---- List all converted files (sites) ----
-
-  nc_files <- list.files(
-    file.path(output_path,"lsm"),
-    glob2rx("*Flux.nc"),
-    full.names = TRUE
-  )
-
-  # extract site names from all files
-  processed_sites <- substr(basename(nc_files), 1,6)
-  processed_sites <- processed_sites[processed_sites %in% df$sitenames]
-
   #---- Convert files to CSV files ----
 
   # loop over all sites and process the
   # LSM data into FLUXNET compatible daily (DD)
   # data formats combining fluxes and ERA gap
   # filled data
-  failed_sites <- lapply(processed_sites, function(site){
+  failed_sites <- lapply(df$sitename, function(site){
 
     # check if site is a plumber site, if so
     # switch input directories
-
-    message("- converting to FLUXNET format")
+    message(sprintf("- converting to FLUXNET format %s", site))
 
     status <- suppressWarnings(
       try(fdk_convert_lsm(
@@ -104,8 +91,8 @@ fdk_release <- function(
         fluxnet_format = TRUE,
         path = file.path(output_path, "lsm"),
         out_path = file.path(output_path, "fluxnet")
+        )
       )
-    )
     )
 
     if(inherits(status, "try-error")){
@@ -116,29 +103,10 @@ fdk_release <- function(
     return(invisible(NULL))
   })
 
-  #failed_sites <- do.call("rbind", failed_sites)
-
-  #----- convert sites to rsofun p-model input ----
-
-  sites <- sites |>
-    dplyr::filter(
-      sitename %in% processed_sites
-    )
-
-  rsofun_drivers <- fdk_format_drivers(
-    sites,
-    path = file.path(output_path, "fluxnet")
-  )
-
-  # save data as a compressed RDS file to save space
-  saveRDS(
-    rsofun_drivers,
-    file.path(output_path, "pmodel/rsofun_drivers.rds"),
-    compress = "xz"
-    )
+  failed_sites <- do.call("rbind", failed_sites)
 
   # return meta-data for all processed sites
   # to be processed into a final meta-data file
   # and distributed together with the data
-  return(sites)
+  return(failed_sites)
 }
