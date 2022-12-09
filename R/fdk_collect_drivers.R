@@ -25,8 +25,6 @@ fdk_collect_drivers <- function(
   site_info,
   params_siml,
   meteo,
-  fapar,
-  co2,
   params_soil
   ){
 
@@ -75,6 +73,11 @@ fdk_collect_drivers <- function(
                                ~dplyr::mutate(., tmax = temp)))
   }
 
+  # Rename fpar
+  meteo <- meteo |>
+    dplyr::mutate(data = purrr::map(data,
+                                    ~dplyr::rename(., fapar = fpar)))
+
   vars_req <- c("ppfd", "rain", "snow", "prec",
                 "temp", "patm", "vpd", "ccov", "tmin", "tmax")
 
@@ -96,31 +99,9 @@ fdk_collect_drivers <- function(
     tidyr::nest(site_info = names_metainfo) |>
     dplyr::left_join(
       meteo |>
-        dplyr::rename(meteo = data),
+        dplyr::rename(forcing = data),
       by = "sitename"
-    ) |>
-    dplyr::left_join(
-      fapar |>
-        dplyr::rename(fapar = data),
-      by = "sitename"
-    ) |>
-    dplyr::left_join(
-      co2 |>
-        dplyr::rename(co2 = data),
-      by = "sitename"
-    ) #|>
-    #dplyr::mutate(
-    #  params_soil = purrr::map(as.list(seq(nrow(.))),
-    #                                   ~return(params_soil)))
-
-  # use only interpolated fapar and combine meteo data and fapar
-  # into a single nested column 'forcing'
-  df_mega <- df_mega |>
-    dplyr::mutate(fapar = purrr::map(fapar, ~dplyr::select(., date, fapar))) |>
-    dplyr::mutate(co2   = purrr::map(co2  , ~dplyr::select(., date, co2))) |>
-    dplyr::mutate(forcing = purrr::map2(meteo, fapar, ~dplyr::left_join( .x, .y, by = "date"))) |>
-    dplyr::mutate(forcing = purrr::map2(forcing, co2, ~dplyr::left_join( .x, .y, by = "date"))) |>
-    dplyr::select(-meteo, -fapar, -co2)
+    )
 
   # Fucking hack because of god knows what kind of tidyverse
   # rubbish included here
@@ -152,7 +133,7 @@ fdk_collect_drivers <- function(
       dplyr::filter(!(sitename %in% pull(df_missing, sitename)))
   }
 
-  ## interpolate to fill gaps in forcing time series
+  # interpolate to fill gaps in forcing time series
   myapprox <- function(vec){
     if(all(is.na(vec))){
       return(vec)

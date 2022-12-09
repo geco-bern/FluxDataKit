@@ -224,7 +224,8 @@ fdk_process_lsm <- function(
               gapfill_met_tier2 = gapfill_met_tier2,
               gapfill_flux=gapfill_flux, min_yrs=min_yrs,
               check_range_action = "warn",
-              include_all_eval=TRUE
+              include_all_eval = TRUE,
+              plot = NA
             )
           )
         )

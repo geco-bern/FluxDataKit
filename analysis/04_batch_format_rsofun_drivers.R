@@ -2,14 +2,20 @@
 options(tidyverse.quiet = TRUE)
 options(dplyr.summarise.inform = FALSE)
 
-library(tidyverse)
+library(dplyr)
 library(ingestr)
 library(rsofun)
 library(FluxDataKit)
 lapply(list.files("R/","*", full.names = TRUE), source)
 
 # read in sites to process
-sites <- readRDS("data/flux_data_kit_site-info.rds")
+sites <- FluxDataKit::fdk_site_info |>
+  mutate(
+    data_path = file.path(input_path, "flux_data/")
+  ) |>
+  filter(
+    sitename == "BE-Bra"
+  )
 
 # loop over all sites and process them to format
 # them into the correct rsofun format
@@ -17,35 +23,35 @@ driver_data <- lapply(sites$sitename, function(site){
 
   message(sprintf("Processing %s ----", site))
 
-  message("- converting to FLUXNET format")
-  df <- suppressWarnings(try(fdk_convert_lsm(
-    site = site,
-    fluxnet_format = TRUE,
-    path = "/data/scratch/PLUMBER_X/"
-    )
-  ))
-
-  if(inherits(df, "try-error")){
-    message("!!! conversion to FLUXNET failed  !!!")
-    return(NULL)
-  }
-
-  message("- downsampling FLUXNET format")
-  filename <-
-    suppressWarnings(
-      try(fdk_downsample_fluxnet(
-        df,
-        site = site,
-        out_path = tempdir(),
-        overwrite = TRUE
-      )
-      )
-    )
-
-  if(inherits(filename, "try-error")){
-    message("!!! downsampling failed !!!")
-    return(NULL)
-  }
+  # message("- converting to FLUXNET format")
+  # df <- suppressWarnings(try(fdk_convert_lsm(
+  #   site = site,
+  #   fluxnet_format = TRUE,
+  #   path = "/data/scratch/beta-v3/"
+  #   )
+  # ))
+  #
+  # if(inherits(df, "try-error")){
+  #   message("!!! conversion to FLUXNET failed  !!!")
+  #   return(NULL)
+  # }
+  #
+  # message("- downsampling FLUXNET format")
+  # filename <-
+  #   suppressWarnings(
+  #     try(fdk_downsample_fluxnet(
+  #       df,
+  #       site = site,
+  #       out_path = tempdir(),
+  #       overwrite = TRUE
+  #     )
+  #     )
+  #   )
+  #
+  # if(inherits(filename, "try-error")){
+  #   message("!!! downsampling failed !!!")
+  #   return(NULL)
+  # }
 
   message("- compiling drivers")
   # Use a uniform FLUXNET HH input
@@ -56,7 +62,7 @@ driver_data <- lapply(sites$sitename, function(site){
     suppressWarnings(
       fdk_format_drivers(
         site_info = sites |> filter(sitename == !!site),
-        path = paste0(tempdir(),"/"),
+        path = "/data/scratch/beta-v3/fluxnet/",  #paste0(tempdir(),"/"),
         verbose = TRUE
       )
     )
@@ -73,13 +79,15 @@ driver_data <- lapply(sites$sitename, function(site){
 # bind all tibbles into one big tibble
 driver_data <- dplyr::bind_rows(driver_data)
 
+print(driver_data$forcing)
+
 # write all drivers to file
 # apply compression to minimize space
-saveRDS(
-  driver_data,
-  "data/p_model_drivers/rsofun_driver_data.rds",
-  compress = "xz"
-  )
+# saveRDS(
+#   driver_data,
+#   "data/p_model_drivers/rsofun_driver_data.rds",
+#   compress = "xz"
+#   )
 
 #--- visualize some data for cursory checks ---
 
@@ -96,7 +104,8 @@ params_modl <- list(
 # run the model for these parameters
 output <- rsofun::runread_pmodel_f(
   driver_data,
-  par = params_modl
+  par = params_modl,
+  makecheck = FALSE
 )
 
 # we only have one site so we'll unnest

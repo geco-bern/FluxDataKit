@@ -25,37 +25,11 @@ failed_sites <- lapply(sites$sitename, function(site){
   message("- converting to FLUXNET format")
   df <- suppressWarnings(try(fdk_convert_lsm(
     site = site,
-    fluxnet_format = TRUE,
-    path = "/data/scratch/PLUMBER_X/lsm/"
+    fluxnet_format = FALSE,
+    path = "/data/scratch/beta-v2/lsm/"
   )
   ))
 
-  if(inherits(df, "try-error")){
-    message("!!! conversion to FLUXNET failed  !!!")
-    return(site)
-  }
+  print(head(df))
 
-  message("- plotting FLUXNET data")
-  filename <- suppressMessages(
-    suppressWarnings(
-      try(fdk_plot(
-        df,
-        site = site,
-        out_path = "/data/scratch/PLUMBER_X/plots/",
-        overwrite = TRUE
-      )
-      )
-    )
-  )
-
-  if(inherits(filename, "try-error")){
-    message("!!! plotting failed !!!")
-    return(site)
-  }
-
-  return(NULL)
 })
-
-# list failed sites
-failed_sites <- do.call("rbind", failed_sites)
-print(failed_sites)

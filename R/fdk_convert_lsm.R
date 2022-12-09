@@ -20,7 +20,7 @@
 #' @export
 
 fdk_convert_lsm <- function(
-    site = "AT-Neu",
+    site,
     path,
     fluxnet_format = FALSE,
     meta_data = FALSE,
@@ -90,7 +90,9 @@ fdk_convert_lsm <- function(
     df$IGBP_veg_short <- trimws(df$IGBP_veg_short)
 
     # drop long names
-    df <- subset(df, select = -IGBP_veg_long)
+    if("IGBP_veg_long" %in% names(df)){
+      df <- subset(df, select = -IGBP_veg_long)
+    }
 
     # subset and constrain data
     if (meta_data) {

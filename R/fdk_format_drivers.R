@@ -25,47 +25,47 @@
 #' @export
 
 fdk_format_drivers <- function(
-  site_info,
-  params_siml = list(
-    spinup             = TRUE,  # to bring soil moisture to steady state
-    spinupyears        = 10,    # 10 is enough for soil moisture.
-    recycle            = 1,     # number of years recycled during spinup
-    soilmstress        = FALSE, # soil moisture stress function is included
-    tempstress         = FALSE, # temperature stress function is included
-    calc_aet_fapar_vpd = FALSE, # set to FALSE - should be dropped again
-    in_ppfd            = TRUE,  # if available from forcing files, set to TRUE
-    in_netrad          = FALSE, # if available from forcing files, set to TRUE
-    outdt              = 1,
-    ltre               = FALSE,
-    ltne               = FALSE,
-    ltrd               = FALSE,
-    ltnd               = FALSE,
-    lgr3               = TRUE,
-    lgn3               = FALSE,
-    lgr4               = FALSE
-  ),
-  params_modl = list(
-    kphio           = 0.09423773,
-    soilm_par_a     = 0.33349283,
-    soilm_par_b     = 1.45602286
-  ),
-  df_soiltexture = bind_rows(
-    top    = tibble(
-      layer = "top",
-      fsand = 0.4,
-      fclay = 0.3,
-      forg = 0.1,
-      fgravel = 0.1),
-    bottom = tibble(
-      layer = "bottom",
-      fsand = 0.4,
-      fclay = 0.3,
-      forg = 0.1,
-      fgravel = 0.1)
-  ),
-  path,
-  verbose = TRUE
-  ){
+    site_info,
+    params_siml = list(
+      spinup             = TRUE,  # to bring soil moisture to steady state
+      spinupyears        = 10,    # 10 is enough for soil moisture.
+      recycle            = 1,     # number of years recycled during spinup
+      soilmstress        = FALSE, # soil moisture stress function is included
+      tempstress         = FALSE, # temperature stress function is included
+      calc_aet_fapar_vpd = FALSE, # set to FALSE - should be dropped again
+      in_ppfd            = TRUE,  # if available from forcing files, set to TRUE
+      in_netrad          = FALSE, # if available from forcing files, set to TRUE
+      outdt              = 1,
+      ltre               = FALSE,
+      ltne               = FALSE,
+      ltrd               = FALSE,
+      ltnd               = FALSE,
+      lgr3               = TRUE,
+      lgn3               = FALSE,
+      lgr4               = FALSE
+    ),
+    params_modl = list(
+      kphio           = 0.09423773,
+      soilm_par_a     = 0.33349283,
+      soilm_par_b     = 1.45602286
+    ),
+    df_soiltexture = bind_rows(
+      top    = tibble(
+        layer = "top",
+        fsand = 0.4,
+        fclay = 0.3,
+        forg = 0.1,
+        fgravel = 0.1),
+      bottom = tibble(
+        layer = "bottom",
+        fsand = 0.4,
+        fclay = 0.3,
+        forg = 0.1,
+        fgravel = 0.1)
+    ),
+    path,
+    verbose = TRUE
+){
 
   #---- start-up checks ----
 
@@ -73,164 +73,178 @@ fdk_format_drivers <- function(
     Sys.info()['nodename'] == "balder" | Sys.info()['nodename'] == "dash",
     TRUE,
     FALSE
-    )
+  )
+
+  geco_system <- FALSE
 
   # check format of the site_info
   names(site_info) %in% c("sitename","lon","lat","start_year","end_year","elv")
 
   lapply(site_info$sitename, function(site){
 
-  #---- complement site_info with WHC based on S_CWDX80 ----
+    #---- merge in other data ----
 
-  # TBD
+    settings_fluxnet <- list(
+      getswc       = FALSE,
+      filter_ntdt  = TRUE,
+      threshold_GPP = 1,
+      remove_neg   = FALSE
+    )
 
+    df_flux <- suppressWarnings(
+      ingestr::ingest(
+        siteinfo = site_info |> slice(1:3),
+        source   = "fluxnet",
+        getvars  = list(
+          gpp = "GPP_DT_VUT_REF",
+          gpp_unc = "GPP_DT_VUT_SE",
+          temp = "TA_F_MDS",
+          prec = "P_F",
+          vpd = "VPD_F_MDS",
+          patm = "PA_F",
+          ppfd = "SW_IN_F_MDS",
+          netrad = "NETRAD",
+          wind = "WS",
+          co2 = "CO2_F_MDS",
+          lai = "LAI",
+          fpar = "FPAR",
+          co2 = "CO2_F_MDS",
+          lai = "LAI",
+          fapar = "FPAR",
+          le = "LE_F_MDS",
+          le_qc = "LE_F_MDS_QC"
+        ),
+        dir = path,
+        settings = settings_fluxnet,
+        timescale = "d"
+      )
+    )
 
-  #---- grabbing data environmental data from FLUX archives ----
+    #--- merge in missing QC flags which are tossed by ingestr ---
 
-  # some feedback on the processing
-  if(verbose){
-    message("Processing FLUX data ....")
-  }
+    file <- list.files(
+      path,
+      glob2rx(sprintf("*%s*DD*",site)),
+      full.names = TRUE
+    )
 
-  settings_fluxnet <- list(
-    getswc       = FALSE,
-    filter_ntdt  = TRUE,
-    threshold_GPP = 1,
-    remove_neg   = FALSE
-  )
+    daily_fluxes <- read.table(
+      file,
+      header = TRUE,
+      sep = ","
+    )
 
-  message("processing flux data using {ingestr}")
-  ddf_flux <- suppressWarnings(
-    ingestr::ingest(
-      siteinfo = site_info |> slice(1:3),
-      source   = "fluxnet",
-      getvars  = list(
+    # keep long list of variables for further
+    # notice - might include more variables later
+    qc_fluxes <- daily_fluxes |>
+      rename(
+        date = "TIMESTAMP",
         gpp = "GPP_DT_VUT_REF",
         gpp_unc = "GPP_DT_VUT_SE",
+        gpp_qc = "GPP_DT_VUT_REF_QC",
         temp = "TA_F_MDS",
         prec = "P_F",
         vpd = "VPD_F_MDS",
         patm = "PA_F",
         ppfd = "SW_IN_F_MDS",
         netrad = "NETRAD",
-        wind = "WS",
-        co2_air = "CO2_F_MDS",
+        wind = "WS_F",
+        co2 = "CO2_F_MDS",
         lai = "LAI",
-        fpar = "FPAR",
+        fapar = "FPAR",
         le = "LE_F_MDS",
         le_qc = "LE_F_MDS_QC",
         le_cor = "LE_CORR",
-        le_cor_qc = "LE_CORR_QC"
-        # gpp_qc = "GPP_DT_VUT_REF_QC"
-        #lw_down = "LW_IN_F_MDS",
-        #h = "H_F_MDS",
-        #h_cor = "H_CORR",
-        #g  = "G_F_MDS",
-        #ustar = "USTAR"
-      ),
-      dir = path,
-      settings = settings_fluxnet,
-      timescale = "d"
-    )
-  )
+        le_cor_qc = "LE_CORR_QC",
+        gpp_qc = "GPP_DT_VUT_REF_QC",
+        lw_down = "LW_IN_F_MDS",
+        h = "H_F_MDS",
+        h_cor = "H_CORR"
+      ) |>
+      select(
+        date,
+        gpp_qc,
+        le_cor,
+        le_qc,
+        le_cor_qc
+      ) |>
+      mutate(
+        date = as.Date(date),
+        snow = 0
+      )
 
-  # GPP conversion factor
-  # in FLUXNET given in umolCO2 m-2 s-1. converted to gC m-2 d-1
-  c_molmass <- 12.0107  # molar mass of C
-  gpp_coversion <- 1e-6 * 60 * 60 * 24 * c_molmass
-
-  #----- convert dates ----
-
-  data <- ddf_flux$data[[1]]
-  ddf_flux$data[[1]] <- data |>
-    mutate(
-      date_time = date,
-      date = as.Date(date)
+    qc_fluxes <- tibble(
+      sitename = site,
+      data = list(qc_fluxes)
     )
 
-  # set snow to 0 (data not available,
-  # but tested for in rsofun)
-  ddf_flux$data[[1]]$snow <- 0
-
-  #---- Processing CRU data (for cloud cover CCOV) ----
-  if(verbose){
-    message("Processing CRU data ....")
-  }
-
-  if (geco_system){
-    ddf_cru <- ingest(
-      siteinfo = site_info,
-      source    = "cru",
-      getvars   = "ccov",
-      dir       = "/data/archive/cru_NA_2021/data/", # f-ing trailing /
-      settings = list(correct_bias = NULL)
-    )
-  } else {
-    ddf_flux$data[[1]]$ccov <- 0
-  }
-  # memory intensive, purge memory
-  gc()
-
-  #---- Merging climate data ----
-  if(verbose){
-    message("Merging climate data ....")
-  }
-
-  if (geco_system) {
-    ddf_flux <- ddf_flux |>
+    df_flux <- df_flux |>
       tidyr::unnest(data) |>
       left_join(
-        ddf_cru |>
+        qc_fluxes |>
           tidyr::unnest(data),
         by = c("sitename", "date")
       ) |>
       group_by(sitename) |>
       tidyr::nest()
-  }
 
-  #---- Append CO2 data ----
+    # GPP conversion factor
+    # in FLUXNET given in umolCO2 m-2 s-1. converted to gC m-2 d-1
+    # c_molmass <- 12.0107  # molar mass of C
+    # gpp_coversion <- 1e-6 * 60 * 60 * 24 * c_molmass
+    # df_flux$data[[1]]$gpp <- df_flux$data[[1]]$gpp
 
-  if(verbose){
-    message("Append CO2 data ....")
-  }
+    #---- Processing CRU data (for cloud cover CCOV) ----
+    if(verbose){
+      message("Processing CRU data ....")
+    }
 
-  # use in situ co2_air measurements rather than
-  # global values
-  df_co2 <- ddf_flux |>
-    dplyr::mutate(
-      data = purrr::map(data, ~ dplyr::mutate(., co2 = co2_air))
+    if (geco_system){
+      df_cru <- ingest(
+        siteinfo = site_info,
+        source    = "cru",
+        getvars   = "ccov",
+        dir       = "/data/archive/cru_NA_2021/data/", # f-ing trailing /
+        settings = list(correct_bias = NULL)
+      )
+    } else {
+      df_flux$data[[1]]$ccov <- 0
+    }
+    # memory intensive, purge memory
+    gc()
+
+    #---- Merging climate data ----
+    if(verbose){
+      message("Merging climate data ....")
+    }
+
+    if (geco_system) {
+      df_flux <- df_flux |>
+        tidyr::unnest(data) |>
+        left_join(
+          df_cru |>
+            tidyr::unnest(data),
+          by = c("sitename", "date")
+        ) |>
+        group_by(sitename) |>
+        tidyr::nest()
+    }
+
+    #---- Format p-model driver data ----
+    if(verbose){
+      message("Combining all driver data ....")
+    }
+
+    output <- fdk_collect_drivers(
+      site_info      = site_info,
+      params_siml    = params_siml,
+      meteo          = df_flux,
+      params_soil    = df_soiltexture
     )
 
-  #---- Append FAPAR data ----
-
-  if(verbose){
-    message("Append FAPAR data ....")
-  }
-
-  # rename loess column to fapar as required
-  # for input below
-  df_fapar <- ddf_flux |>
-    dplyr::mutate(
-      data = purrr::map(data, ~ dplyr::mutate(., fapar = fpar))
-    )
-
-  #---- Format p-model driver data ----
-  if(verbose){
-    message("Combining all driver data ....")
-  }
-
-  output <- fdk_collect_drivers(
-    site_info      = site_info,
-    params_siml    = params_siml,
-    meteo          = ddf_flux,
-    fapar          = df_fapar,
-    co2            = df_co2,
-    params_soil    = df_soiltexture
-  )
-
-  # return data, either a driver
-  # or processed output
-  return(output)
+    # return data, either a driver
+    # or processed output
+    return(output)
   })
 
 
