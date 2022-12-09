@@ -19,7 +19,7 @@ sites <- FluxDataKit::fdk_site_info |>
     data_path = file.path(input_path, "flux_data/")
   ) |>
   filter(
-    sitename == "BE-Bra"
+    sitename == "FR-Pue"
   )
 
 #---- create a new release ----
@@ -27,7 +27,8 @@ sites <- FluxDataKit::fdk_site_info |>
 fdk_release(
   df = sites,
   input_path = input_path,
-  output_path = output_path
+  output_path = output_path,
+  overwrite = TRUE
 )
 
 #---- create matching plots ----

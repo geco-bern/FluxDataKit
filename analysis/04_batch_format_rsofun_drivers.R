@@ -3,10 +3,12 @@ options(tidyverse.quiet = TRUE)
 options(dplyr.summarise.inform = FALSE)
 
 library(dplyr)
+library(ggplot2)
 library(ingestr)
 library(rsofun)
 library(FluxDataKit)
-lapply(list.files("R/","*", full.names = TRUE), source)
+
+input_path <- "/data/scratch/FDK_inputs"
 
 # read in sites to process
 sites <- FluxDataKit::fdk_site_info |>
@@ -14,7 +16,7 @@ sites <- FluxDataKit::fdk_site_info |>
     data_path = file.path(input_path, "flux_data/")
   ) |>
   filter(
-    sitename == "BE-Bra"
+    sitename == "FR-Pue"
   )
 
 # loop over all sites and process them to format
@@ -79,8 +81,6 @@ driver_data <- lapply(sites$sitename, function(site){
 # bind all tibbles into one big tibble
 driver_data <- dplyr::bind_rows(driver_data)
 
-print(driver_data$forcing)
-
 # write all drivers to file
 # apply compression to minimize space
 # saveRDS(
@@ -105,17 +105,17 @@ params_modl <- list(
 output <- rsofun::runread_pmodel_f(
   driver_data,
   par = params_modl,
-  makecheck = FALSE
+  makecheck = TRUE
 )
 
 # we only have one site so we'll unnest
 # the main model output
 model_data <- output |>
-  filter(sitename == "BE-Bra") |>
+  filter(sitename == "FR-Pue") |>
   tidyr::unnest(data)
 
 validation_data <- driver_data |>
-  filter(sitename == "BE-Bra") |>
+  filter(sitename == "FR-Pue") |>
   tidyr::unnest(forcing)
 
 p <- ggplot() +
