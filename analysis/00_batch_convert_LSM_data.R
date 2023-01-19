@@ -17,9 +17,6 @@ output_path <- "/data/scratch/beta-v3"
 sites <- FluxDataKit::fdk_site_info |>
   mutate(
     data_path = file.path(input_path, "flux_data/")
-  ) |>
-  filter(
-    sitename == "FR-Pue"
   )
 
 #---- create a new release ----
