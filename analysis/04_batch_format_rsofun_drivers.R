@@ -14,6 +14,9 @@ input_path <- "/data/scratch/FDK_inputs"
 sites <- FluxDataKit::fdk_site_info |>
   mutate(
     data_path = file.path(input_path, "flux_data/")
+  ) |>
+  filter(
+    sitename == "SE-Nor"
   )
 
 # loop over all sites and process them to format
@@ -22,35 +25,35 @@ driver_data <- lapply(sites$sitename, function(site){
 
   message(sprintf("Processing %s ----", site))
 
-  # message("- converting to FLUXNET format")
-  # df <- suppressWarnings(try(fdk_convert_lsm(
-  #   site = site,
-  #   fluxnet_format = TRUE,
-  #   path = "/data/scratch/beta-v3/"
-  #   )
-  # ))
-  #
-  # if(inherits(df, "try-error")){
-  #   message("!!! conversion to FLUXNET failed  !!!")
-  #   return(NULL)
-  # }
-  #
-  # message("- downsampling FLUXNET format")
-  # filename <-
-  #   suppressWarnings(
-  #     try(fdk_downsample_fluxnet(
-  #       df,
-  #       site = site,
-  #       out_path = tempdir(),
-  #       overwrite = TRUE
-  #     )
-  #     )
-  #   )
-  #
-  # if(inherits(filename, "try-error")){
-  #   message("!!! downsampling failed !!!")
-  #   return(NULL)
-  # }
+  message("- converting to FLUXNET format")
+  df <- suppressWarnings(try(fdk_convert_lsm(
+    site = site,
+    fluxnet_format = TRUE,
+    path = "/data/scratch/beta-v3/"
+    )
+  ))
+
+  if(inherits(df, "try-error")){
+    message("!!! conversion to FLUXNET failed  !!!")
+    return(NULL)
+  }
+
+  message("- downsampling FLUXNET format")
+  filename <-
+    suppressWarnings(
+      try(fdk_downsample_fluxnet(
+        df,
+        site = site,
+        out_path = tempdir(),
+        overwrite = TRUE
+      )
+      )
+    )
+
+  if(inherits(filename, "try-error")){
+    message("!!! downsampling failed !!!")
+    return(NULL)
+  }
 
   message("- compiling drivers")
   # Use a uniform FLUXNET HH input
