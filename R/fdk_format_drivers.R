@@ -99,6 +99,8 @@ fdk_format_drivers <- function(
           gpp = "GPP_DT_VUT_REF",
           gpp_unc = "GPP_DT_VUT_SE",
           temp = "TA_F_MDS",
+          tmin = "TMIN_F_MDS",
+          tmax = "TMAX_F_MDS",
           prec = "P_F",
           vpd = "VPD_F_MDS",
           patm = "PA_F",
@@ -119,6 +121,8 @@ fdk_format_drivers <- function(
         timescale = "d"
       )
     )
+
+    print(head(df_flux$data))
 
     #--- merge in missing QC flags which are tossed by ingestr ---
 
