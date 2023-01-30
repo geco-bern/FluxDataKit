@@ -4,7 +4,7 @@
 \alias{fdk_collect_drivers}
 \title{Collect p-model drivers}
 \usage{
-fdk_collect_drivers(site_info, params_siml, meteo, fapar, co2, params_soil)
+fdk_collect_drivers(site_info, params_siml, meteo, params_soil)
 }
 \arguments{
 \item{site_info}{A data frame containing site meta info (rows for sites).
@@ -17,13 +17,13 @@ simulation parameters by site.}
 \item{meteo}{A nested data frame with rows for each site and meteo
 forcing data time series nested inside a column named \code{"data"}}
 
+\item{params_soil}{Soil texture data descriptor}
+
 \item{fapar}{A nested data frame with rows for each site and fAPAR
 forcing data time series nested inside a column named \code{"data"}}
 
 \item{co2}{A nested data frame with rows for each site and CO2
 forcing data time series nested inside a column named \code{"data"}}
-
-\item{params_soil}{Soil texture data descriptor}
 }
 \value{
 a rsofun input data frame

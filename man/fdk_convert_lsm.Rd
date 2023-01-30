@@ -5,7 +5,7 @@
 \title{Converts LSM netcdf data to FLUXNET}
 \usage{
 fdk_convert_lsm(
-  site = "AT-Neu",
+  site,
   path,
   fluxnet_format = FALSE,
   meta_data = FALSE,
