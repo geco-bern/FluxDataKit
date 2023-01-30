@@ -20,7 +20,7 @@ fdk_download_cloud_cover <- function(
   df$variable <- "total_cloud_cover"
   df$method <- "mean"
   df$product = "reanalysis-era5-single-levels"
-  df$filename <- paste0(df$sitename, "_", settings$variable,"_",settings$method,".csv")
+  df$filename <- paste0(df$sitename, "_", df$variable,"_", df$method,".csv")
   df$date_start <- paste0(df$year_start,"-01-01")
   df$date_end <- paste0(df$year_end,"-12-31")
 
