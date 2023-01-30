@@ -68,7 +68,7 @@ into a nested data frame with one row for each site, as required by rsofun.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_collect_drivers</span><span class="op">(</span><span class="va">site_info</span>, <span class="va">params_siml</span>, <span class="va">meteo</span>, <span class="va">fapar</span>, <span class="va">co2</span>, <span class="va">params_soil</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_collect_drivers</span><span class="op">(</span><span class="va">site_info</span>, <span class="va">params_siml</span>, <span class="va">meteo</span>, <span class="va">params_soil</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -89,6 +89,10 @@ simulation parameters by site.</p></dd>
 forcing data time series nested inside a column named <code>"data"</code></p></dd>
 
 
+<dt>params_soil</dt>
+<dd><p>Soil texture data descriptor</p></dd>
+
+
 <dt>fapar</dt>
 <dd><p>A nested data frame with rows for each site and fAPAR
 forcing data time series nested inside a column named <code>"data"</code></p></dd>
@@ -97,10 +101,6 @@ forcing data time series nested inside a column named <code>"data"</code></p></d
 <dt>co2</dt>
 <dd><p>A nested data frame with rows for each site and CO2
 forcing data time series nested inside a column named <code>"data"</code></p></dd>
-
-
-<dt>params_soil</dt>
-<dd><p>Soil texture data descriptor</p></dd>
 
 </dl></div>
     <div id="value">

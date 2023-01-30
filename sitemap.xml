@@ -43,10 +43,16 @@
     <loc>/reference/fdk_detect_outliers.html</loc>
   </url>
   <url>
+    <loc>/reference/fdk_download_cloud_cover.html</loc>
+  </url>
+  <url>
     <loc>/reference/fdk_download_modis.html</loc>
   </url>
   <url>
     <loc>/reference/fdk_downsample_fluxnet.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fdk_era5_request.html</loc>
   </url>
   <url>
     <loc>/reference/fdk_flux_corrections.html</loc>
