@@ -46,6 +46,9 @@ fdk_collect_drivers <- function(
         params_siml = params_siml
         )
 
+  print(head(meteo$data))
+
+
   # check if all required variables are available
   if (!("snow" %in% names(meteo$data[[1]]))) {
     warning("Variable 'snow' missing in meteo data frame.
@@ -67,16 +70,29 @@ fdk_collect_drivers <- function(
                 Assuming equal to 'temp' for all dates.
                 (same goes for tmax as assumed paired)\n")
     meteo <- meteo |>
-      dplyr::mutate(data = purrr::map(data,
-                               ~dplyr::mutate(., tmin = temp)),
-             data = purrr::map(data,
-                               ~dplyr::mutate(., tmax = temp)))
+      dplyr::mutate(
+        data = purrr::map(
+          data,
+          ~dplyr::mutate(., tmin = temp)),
+        data = purrr::map(
+          data,
+          ~dplyr::mutate(., tmax = temp
+          )
+        )
+      )
   }
 
   # Rename fpar
   meteo <- meteo |>
-    dplyr::mutate(data = purrr::map(data,
-                                    ~dplyr::rename(., fapar = fpar)))
+    dplyr::mutate(
+      data = purrr::map(
+        data,
+        ~dplyr::rename(
+          .,
+          fapar = fpar
+        )
+      )
+    )
 
   vars_req <- c("ppfd", "rain", "snow", "prec",
                 "temp", "patm", "vpd", "ccov", "tmin", "tmax")

@@ -218,33 +218,64 @@ fdk_convert_lsm <- function(
         TA_F_MDS = TA_F_MDS - 273.15, # K to C
         PA_F = PA_F / 1000, # Pa to kPa
         CO2_F_MDS = CO2_F_MDS, # ppm to umolCO2 mol-1
+        )
 
-        # adding missing data required by ingestr
-        # for conversion to p-model drivers
-        # VPD
-        VPD_F_QC = 0,
-        VPD_F_MDS_QC = NA,
-        VPD_ERA = NA,
+    # adding missing data required by ingestr
+    # for conversion to p-model drivers
+    # VPD
 
-        # Temperature
-        TA_F_QC = 0,
-        TA_F_MDS_QC = NA,
-        TA_ERA = NA,
-
-        TMIN_F_QC = 0,
-        TMIN_F_MDS = NA,
-        TMIN_F_MDS_QC = NA,
-        TMIN_ERA = NA,
-
-        TMAX_F_QC = 0,
-        TMAX_F_MDS = NA,
-        TMAX_F_MDS_QC = NA,
-        TMAX_ERA = NA,
-
-        #QA/QC
-        NEE_VUT_REF_QC = 1,
-        GPP_VUT_REF_QC = 1
+    replacements <- data.frame(
+      variable = c(
+        'VPD_F_QC',
+        'VPD_F_MDS_QC',
+        'VPD_ERA',
+        'TA_F_QC',
+        'TA_F_MDS_QC',
+        'TA_ERA',
+        'TMIN_F_QC',
+        'TMIN_F_MDS',
+        'TMIN_F_MDS_QC',
+        'TMIN_ERA',
+        'TMAX_F_QC',
+        'TMAX_F_MDS',
+        'TMAX_F_MDS_QC',
+        'TMAX_ERA',
+        'NEE_VUT_REF_QC',
+        'GPP_VUT_REF_QC'
+      ),
+      value = c(
+        0,
+        NA,
+        NA,
+        0,
+        NA,
+        NA,
+        0,
+        NA,
+        NA,
+        NA,
+        0,
+        NA,
+        NA,
+        NA,
+        1,
+        1
       )
+    )
+
+    # loop over all rows (variables)
+    for (i in seq_len(nrow(replacements))){
+      try(all <-tibble::add_column(all,
+            !!(replacements[i, 'variable']) := replacements[i, 'value']
+            ),
+          silent = TRUE
+      )
+
+      all <- all |>
+        select(
+          -ends_with(".1")
+        )
+    }
   }
 
   # save data to file, using FLUXNET formatting

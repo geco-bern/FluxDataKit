@@ -133,6 +133,12 @@ fdk_downsample_fluxnet <- function(
       TA_F_MDS = mean(TA_F_MDS, na.rm = TRUE),
       TA_F_QC = mean(TA_F_QC < 1, na.rm = TRUE),
 
+      TMIN_F_MDS = min(TA_F_MDS, na.rm = TRUE),
+      TMIN_F_QC = mean(TA_F_QC < 1, na.rm = TRUE),
+
+      TMAX_F_MDS = max(TA_F_MDS, na.rm = TRUE),
+      TMAX_F_QC = mean(TA_F_QC < 1, na.rm = TRUE),
+
       # temperature is the mean of the HH values
       SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = TRUE),
       SW_IN_F_MDS_QC = mean(SW_IN_F_MDS_QC < 1, na.rm = TRUE),
