@@ -20,27 +20,35 @@ fdk_download_cloud_cover <- function(
   # download all drivers, use site info
   # to determine locality etc
   requests <- apply(df, 1, function(x){
-    lapply(seq(as.numeric(x['year_start']), 2022, 5), function(year){
+    req <- lapply(seq(as.numeric(x['year_start']), 2022, 5), function(year){
 
       filename <- paste0(
         x['sitename'],
         "_",
         year,
-        ".csv"
+        ".nc"
         )
+
+      # trap end date exception
+      if(as.numeric(year) + 4 > 2022){
+        end_date <- "2022-12-31"
+      } else {
+        end_date <- paste0(as.numeric(year) + 4, "-12-31")
+      }
 
       output <- fdk_era5_request(
         lon = as.numeric(x['lon']),
         lat = as.numeric(x['lat']),
         filename = filename,
         start_date = paste0(as.numeric(year), "-01-01"),
-        end_date = paste0(as.numeric(year) + 4, "-12-31")
+        end_date = end_date
       )
       return(output)
     })
+    return(req)
   })
 
-  requests <- do.call("rbind", requests)
+  requests <- unlist(requests, recursive=FALSE)
 
   # download the data
   files <- ecmwfr::wf_request_batch(
