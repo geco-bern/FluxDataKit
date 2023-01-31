@@ -17,5 +17,6 @@ sites <- readRDS("data/flux_data_kit_site-info.rds")
 # download the modis data
 fdk_download_cloud_cover(
   df = sites[1:4,],
+  user = "2088",
   path = "data-raw/cloud_cover/"
 )

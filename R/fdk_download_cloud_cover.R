@@ -29,8 +29,8 @@ fdk_download_cloud_cover <- function(
   requests <- apply(df, 1, function(x){
     output <- fdk_era5_request(
       user = user,
-      lon = x['lon'],
-      lat = x['lat'],
+      lon = as.numeric(x['lon']),
+      lat = as.numeric(x['lat']),
       product = x['product'],
       var = x['variable'],
       filename = x['filename'],
@@ -47,8 +47,7 @@ fdk_download_cloud_cover <- function(
     requests,
     time_out = 3 * 3600,
     workers = 2,
-    path = path,
-    over
+    path = path
   )
 
   if(inherits(files, "try-error")) {
