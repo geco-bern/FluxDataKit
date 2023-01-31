@@ -17,9 +17,6 @@ fdk_download_cloud_cover <- function(
 
   #----- settings and startup -----
 
-  df$variable <- "total_cloud_cover"
-  df$method <- "mean"
-  df$product = "reanalysis-era5-single-levels"
   df$filename <- paste0(df$sitename, "_", df$variable,"_", df$method,".csv")
   df$date_start <- paste0(df$year_start,"-01-01")
   df$date_end <- paste0(df$year_end,"-12-31")
@@ -28,15 +25,11 @@ fdk_download_cloud_cover <- function(
   # to determine locality etc
   requests <- apply(df, 1, function(x){
     output <- fdk_era5_request(
-      user = user,
       lon = as.numeric(x['lon']),
       lat = as.numeric(x['lat']),
-      product = x['product'],
-      var = x['variable'],
       filename = x['filename'],
       start_date = x['date_start'],
-      end_date = x['date_end'],
-      method = x['method']
+      end_date = x['date_end']
     )
     return(output)
   })
