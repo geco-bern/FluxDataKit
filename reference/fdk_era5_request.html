@@ -66,39 +66,17 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_era5_request</span><span class="op">(</span></span>
-<span>  <span class="va">user</span>,</span>
-<span>  <span class="va">lat</span>,</span>
-<span>  <span class="va">lon</span>,</span>
-<span>  <span class="va">var</span>,</span>
-<span>  <span class="va">product</span>,</span>
-<span>  <span class="va">filename</span>,</span>
-<span>  <span class="va">start_date</span>,</span>
-<span>  <span class="va">end_date</span>,</span>
-<span>  method <span class="op">=</span> <span class="st">"mean"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_era5_request</span><span class="op">(</span><span class="va">lat</span>, <span class="va">lon</span>, <span class="va">filename</span>, <span class="va">start_date</span>, <span class="va">end_date</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>user</dt>
-<dd><p>ECMWF Copernicus CDS user</p></dd>
-
-
-<dt>lat</dt>
+    <dl><dt>lat</dt>
 <dd><p>latitude</p></dd>
 
 
 <dt>lon</dt>
 <dd><p>longitude</p></dd>
-
-
-<dt>var</dt>
-<dd><p>CDS variable of interest</p></dd>
-
-
-<dt>product</dt>
-<dd><p>CDS product to query</p></dd>
 
 
 <dt>filename</dt>
@@ -111,10 +89,6 @@
 
 <dt>end_date</dt>
 <dd><p>end date as YYYY-MM-DD</p></dd>
-
-
-<dt>method</dt>
-<dd><p>aggregation method (mean, max, min, sum)</p></dd>
 
 </dl></div>
     <div id="value">
