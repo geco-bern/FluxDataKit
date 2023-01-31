@@ -4,36 +4,18 @@
 \alias{fdk_era5_request}
 \title{Download drivers from ECMWF}
 \usage{
-fdk_era5_request(
-  user,
-  lat,
-  lon,
-  var,
-  product,
-  filename,
-  start_date,
-  end_date,
-  method = "mean"
-)
+fdk_era5_request(lat, lon, filename, start_date, end_date)
 }
 \arguments{
-\item{user}{ECMWF Copernicus CDS user}
-
 \item{lat}{latitude}
 
 \item{lon}{longitude}
-
-\item{var}{CDS variable of interest}
-
-\item{product}{CDS product to query}
 
 \item{filename}{output filename (CSV)}
 
 \item{start_date}{start date as YYYY-MM-DD}
 
 \item{end_date}{end date as YYYY-MM-DD}
-
-\item{method}{aggregation method (mean, max, min, sum)}
 }
 \value{
 A data frame with queried data including the date, position and
