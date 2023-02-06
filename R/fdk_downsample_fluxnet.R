@@ -55,7 +55,6 @@ fdk_downsample_fluxnet <- function(
   }
 
   if(file.exists(filename) & !overwrite){
-    message("File exists, skipping...")
     return(invisible())
   }
 

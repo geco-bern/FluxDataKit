@@ -32,7 +32,6 @@ fdk_plot <- function(
   # check if files are already processed
   if(!overwrite){
     if(file.exists(filename)) {
-      message(" files exist, skipping")
       return(invisible(NULL))
     }
   }
