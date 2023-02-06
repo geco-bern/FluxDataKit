@@ -16,7 +16,7 @@ sites <- FluxDataKit::fdk_site_info |>
     data_path = file.path(input_path, "flux_data/")
   ) |>
   filter(
-    sitename == "SE-Nor"
+    sitename == "FR-Fon"
   )
 
 # loop over all sites and process them to format
