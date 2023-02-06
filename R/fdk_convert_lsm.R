@@ -222,8 +222,6 @@ fdk_convert_lsm <- function(
 
     # adding missing data required by ingestr
     # for conversion to p-model drivers
-    # VPD
-
     replacements <- data.frame(
       variable = c(
         'VPD_F_QC',
