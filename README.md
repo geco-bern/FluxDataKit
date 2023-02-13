@@ -76,4 +76,4 @@ Ukkola, Anna M., Gab Abramowitz, and Martin G. De Kauwe. "A flux tower dataset t
 
 Ukkola, A. M., Haughton, N., De Kauwe, M. G., Abramowitz, G., and Pitman, A. J.: FluxnetLSM R package (v1.0): a community tool for processing FLUXNET data for use in land surface modelling, Geosci. Model Dev., 10, 3379-3390, 2017
 
-Walther, Sophia, et al. "A view from space on global flux towers by MODIS and Landsat: the FluxnetEO data set." Biogeosciences 19.11 (2022): 2805-2840.
+Walther, Sophia, et al. "A view from space on global flux towers by MODIS and Landsat: the FluxnetEO data set." Biogeosciences 19.11 (2022): 2805-2840. 
