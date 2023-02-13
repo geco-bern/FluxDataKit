@@ -15,7 +15,7 @@ installing the `FluxDataKit` package.
 
 ```r
 devtools::install_github(
-  "computationales/FluxDataKit"
+  "geco-bern/FluxDataKit"
 )
 ```
 
@@ -23,7 +23,7 @@ In addition clone the project as we'll need some additional scripts which are
 only available in the source code of the project (see data provenance below).
 
 ```bash
-  git clone https://github.com/computationales/FluxDataKit.git
+  git clone https://github.com/geco-bern/FluxDataKit.git
 ```
 
 With all tools installed we need to download the required input data for
@@ -184,7 +184,7 @@ For batch processing we refer tot the `04_download_modis_data.R` script in the
 
 To supplement the land surface model driver data, and the derived p-model (rsofun)
 input, we used the `FluxnetEO` product (Walther et al. 2022) and similarly named 
-[package](https://computationales.github.io/FluxnetEO/).
+[package](https://geco-bern.github.io/FluxnetEO/).
 
 Data is provided as [zipped archives](https://meta.icos-cp.eu/collections/tEAkpU6UduMMONrFyym5-tUW) 
 and total considerable amounts of data, which requires ample storage space. 

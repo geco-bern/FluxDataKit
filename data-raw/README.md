@@ -24,7 +24,7 @@ Data was sourced from different locations:
 - ICOS data was provided through the ICOS carbon portal, this is a pre-release currently *not publicly available*
 - FLUXNET2015 data can be retrieved from the [FLUXNET data porta](https://fluxnet.org/data/fluxnet2015-dataset/)
 - OneFlux data can be retrieved from the [Ameriflux data portal](https://ameriflux.lbl.gov/data/download-data/)
-- PLUMBER data can be downloaded using [an included script](https://github.com/computationales/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R)
+- PLUMBER data can be downloaded using [an included script](https://github.com/geco-bern/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R)
 - MODIS LAI/FPAR data is downloaded by an included script
 
 ## Data structure

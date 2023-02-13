@@ -13,7 +13,7 @@ We sourced data from openly available ecosystem flux networks or products, mainl
 - ICOS data was provided through the ICOS carbon portal, this is a pre-release currently *not publicly available*
 - FLUXNET2015 data can be retrieved from the [FLUXNET data portal](https://fluxnet.org/data/fluxnet2015-dataset/)
 - OneFlux data can be retrieved from the [Ameriflux data portal](https://ameriflux.lbl.gov/data/download-data/)
-- PLUMBER data can be downloaded using [an included script](https://github.com/computationales/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R)
+- PLUMBER data can be downloaded using [an included script](https://github.com/geco-bern/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R)
 - MODIS LAI/FPAR data is downloaded by an included script
 
 Data should be structured in the following directory structure and referenced
@@ -56,7 +56,7 @@ To provide easily readable data as requested by some data users we convert the n
 
 ### p-model drivers (structured R data)
 
-A final data product derived from the initial gap-filled LSM data are p-model driver data for the [`rsofun`](https://github.com/computationales/rsofun) package. In the current setup *in-situ* environmental forcing will be combined with GPP values as target data for model calibration.
+A final data product derived from the initial gap-filled LSM data are p-model driver data for the [`rsofun`](https://github.com/geco-bern/rsofun) package. In the current setup *in-situ* environmental forcing will be combined with GPP values as target data for model calibration.
 
 ### Ancillary remote sensing data
 
@@ -64,7 +64,7 @@ For machine learning or other modelling purposes we provide ancillary MODIS base
 
 ## Data and code availabilty
 
-Data releases are made public via a Zenodo archive at [https://zenodo.org/record/7258291](https://zenodo.org/record/7258291). The processing workflow relies on the `FluxDataKit` R package and a [workflow described in the repository](https://github.com/computationales/FluxDataKit/tree/main/analysis). 
+Data releases are made public via a Zenodo archive at [https://zenodo.org/record/7258291](https://zenodo.org/record/7258291). The processing workflow relies on the `FluxDataKit` R package and a [workflow described in the repository](https://github.com/geco-bern/FluxDataKit/tree/main/analysis). 
 
 ## Acknowledgements
 

@@ -7,7 +7,7 @@
 fdk_data_coverge(
   input_path = "/data/scratch/beta-v3/lsm/",
   output_path,
-  internal = FALSE
+  internal = TRUE
 )
 }
 \arguments{
@@ -15,8 +15,8 @@ fdk_data_coverge(
 
 \item{output_path}{where to store the converted data if converted to csv}
 
-\item{internal}{returna an internal data frame or a csv written to file
-(either TRUE or FALSE)}
+\item{internal}{returns an internal data frame or a csv written to file
+named 'data_coverage.csv' (either TRUE or FALSE)}
 }
 \value{
 data frame or csv written to disk with data coverage statistics
