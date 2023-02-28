@@ -21,7 +21,7 @@ fdk_download_cloud_cover <- function(
   # to determine locality etc
   requests <- apply(df, 1, function(x){
 
-    increment <- 3
+    increment <- 1
     increment_l <- (increment - 1)
 
     req <- lapply(seq(as.numeric(x['year_start']), 2022, increment), function(year){
@@ -57,12 +57,12 @@ fdk_download_cloud_cover <- function(
   # download the data
   files <- lapply(requests, function(request){
 
-    files <- ecmwfr::wf_request(
+    files <- try(ecmwfr::wf_request(
       user = user,
       request,
       time_out = 3600 * 4,
       path = path
-    )
+    ))
 
     if(inherits(files, "try-error")) {
       message("Cloud cover downloads failed!")
