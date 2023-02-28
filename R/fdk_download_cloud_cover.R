@@ -60,37 +60,37 @@ fdk_download_cloud_cover <- function(
   requests <- requests[!(request_files %in% files)]
 
   # download the data
-  # files <- lapply(requests, function(request){
-  #
-  #   files <- try(ecmwfr::wf_request(
-  #     user = user,
-  #     request,
-  #     time_out = 3600 * 4,
-  #     path = path
-  #   ))
-  #
-  #   if(inherits(files, "try-error")) {
-  #     message("Cloud cover downloads failed!")
-  #     return(NULL)
-  #   } else {
-  #     return(files)
-  #   }
-  # })
+  files <- lapply(requests, function(request){
 
-  files <- try(ecmwfr::wf_request_batch(
-    workers = 4,
-    user = user,
-    requests,
-    time_out = 3600 * 4,
-    path = path
-  ))
+    files <- try(ecmwfr::wf_request(
+      user = user,
+      request,
+      time_out = 3600 * 4,
+      path = path
+    ))
 
-  if(inherits(files, "try-error")) {
-    message("Cloud cover downloads failed!")
-    return(NULL)
-  } else {
-    return(files)
-  }
+    if(inherits(files, "try-error")) {
+      message("Cloud cover downloads failed!")
+      return(NULL)
+    } else {
+      return(files)
+    }
+  })
+
+  # files <- try(ecmwfr::wf_request_batch(
+  #   workers = 4,
+  #   user = user,
+  #   requests,
+  #   time_out = 3600 * 4,
+  #   path = path
+  # ))
+  #
+  # if(inherits(files, "try-error")) {
+  #   message("Cloud cover downloads failed!")
+  #   return(NULL)
+  # } else {
+  #   return(files)
+  # }
 
   return(files)
 }
