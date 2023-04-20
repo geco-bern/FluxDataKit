@@ -1,6 +1,6 @@
-Package: flux-data-kit
+Package: FluxDataKit
 Title: Flux Data Kit
-Version: 0.1
+Version: 0.9
 Authors@R: c(
   person(
     family = "Hufkens",
@@ -10,12 +10,36 @@ Authors@R: c(
     comment = c(ORCID = "0000-0002-5070-8109"))
     )
 Description: A processing workflow for aggregated flux and remote sensing data.
+ Returns both Land Surface Model or CSV based harmonized and gap filled data.
 License: AGPL-3
+Depends:
+    R (>= 4.2)
+Imports:
+    dplyr,
+    tidyr,
+    ecmwfr,
+    chron,
+    ncdf4,
+    raster,
+    stats,
+    tools,
+    utils,
+    rvest,
+    zoo
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    ggplot2,
+    mapview,
+    leaflet,
+    leafpop,
+    sf
+Remotes:
+    bluegreen-labs/icoscp,
+    computationales/FluxnetLSM,
+    computationales/FluxnetEO
 VignetteBuilder:
     knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.2.3

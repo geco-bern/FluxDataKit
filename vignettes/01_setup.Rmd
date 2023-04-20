@@ -10,36 +10,20 @@ vignette: >
 
 # Setup
 
-To setup the project first clone the git repository
+Install all critical packages required in gathering and processing the data by
+installing the `FluxDataKit` package.
 
 ```r
-git clone https://github.com/computationales/flux_data_kit.git
+devtools::install_github(
+  "geco-bern/FluxDataKit"
+)
 ```
 
-and install all critical packages required in gathering and processing the data.
+In addition clone the project as we'll need some additional scripts which are
+only available in the source code of the project (see data provenance below).
 
-```r
-install.packages(
-  c(
-    "devtools",
-    "rvest",
-    "tidyverse",
-    "icoscp",
-    "RCurl",
-    "XML",
-    "amerifluxr",
-    "raster",
-    "MODISTools"
-  )
-)
-
-devtools::install_github(
-  "computationales/ingestr"
-)
-
-devtools::install_github(
-  "computationales/rsofun"
-)
+```bash
+  git clone https://github.com/geco-bern/FluxDataKit.git
 ```
 
 With all tools installed we need to download the required input data for
@@ -47,9 +31,12 @@ aggregation.
 
 # data provenance (downloads)
 
-A list of numbered scripts is provided in the `data-raw` directory which govern
-the downloading and compiling of intermediate data. The numbered scripts should
-be run in sequence.
+A list of numbered scripts is provided in the `data-raw` directory of the cloned
+project, and which govern the downloading and compiling of intermediate data. 
+The numbered scripts should be run in sequence. All code is written in `R` and
+should be executed in the project environment of the `FluxDataKit` package
+(i.e. open the FluxDataKit.proj file in RStudio or make sure you have set the
+topmost directory to the project folder).
 
 Due to login-walls, or missing API infrastructure, most data downloads are still
 manual instead of automated. The below section therefore links to the locations
@@ -60,11 +47,35 @@ By default the data will be downloaded to a directory with the `data-raw/`
 base path. Before running any scripts, check if data is written to this directory.
 When you want to alter the storage location you may use soft links.
 
+## Meta data
+
+Meta-data is compiled on a site by site basis using the
+`01_collect_meta-data.R` script. This will compile all easily available
+meta-data through either API calls or scraping the data downloaded in the
+previous step (setup / data collection). In the current scirpt paths are set
+for data stored in `data-raw`. However, you are free to move the data anywhere
+you like as long as you adjust the paths in the meta-data script.
+
+```r
+source("data-raw/01_collect_meta-data.R")
+```
+
+Given the various datasets, and at times overlap between the datasets a priority
+in processing is given to more recent (hopefully) and more complete datasets. In
+order of processing this means that OneFlux has priority over FLUXNET2015, and 
+Plumber2. ICOS data has priority over FLUXNET2015 for European sites. Overall, 
+Plumber2 mostly fills in the remaining sites in Asia and Australia. The final
+picking order is specified and processed by calling the below script.
+
+```r
+source("data-raw/02_compile_final_site_list.R")
+```
+
 ## Flux data
 
-All ecosystem flux sources should be downloaded at half-hourly (HH) rates, unless
-otherwise specified. Data sources and final paths are listed below. Top level
-paths for flux data are considered to be sufficient for further processing.
+All ecosystem flux sources should be downloaded at half-hourly (HH) rates. Data 
+sources and final paths are listed below. Top level paths for flux data are 
+considered to be sufficient for further processing.
 
 Estimated data sizes are provided to indicate network load, although for most
 these downloads should be easily manageable from a download and storage perspective.
@@ -75,7 +86,7 @@ paths for all flux data products considered.
 |----------|:-------------:|:------:|:------|
 | FLUXNET2015 |  ~35GB | 166 | `data-raw/flux_data/fluxnet2015/`
 | ICOS | ~12GB   |  67  | `data-raw/flux_data/icos/`
-| OneFlux | ~12GB | 74 | `data-raw/flux_data/oneflux/`
+| Ameriflux OneFlux | ~12GB | 74 | `data-raw/flux_data/oneflux/`
 | Plumber2 | ~4GB | 112 | `data-raw/flux_data/plumber_fluxnet/`
 
 ### FLUXNET2015
@@ -94,16 +105,15 @@ As of writing ICOS data was provided as a pre-release to our group and is theref
 yet available for a wider public. However, this data should be released shortly through
 the [ICOS carbon portal](https://www.icos-cp.eu/data-services/about-data-portal).
 
-### OneFlux
+### Ameriflux OneFlux
 
-A limited set of sites has been reprocessed using the OneFlux processing chain. This
-beta release can be found (here)[https://ameriflux.lbl.gov/data/download-data-oneflux-beta/].
-Over time a full dataset will supersede the FLUXNET2015 data. However, now the 
-site count is limited.
+A limited set of sites has been reprocessed using the Ameriflux OneFlux processing chain.
+The data should be downloaded manually from the [website data portal](https://ameriflux.lbl.gov/login/?redirect_to=/data/download-data/). A
+login is required.
 
 ### Plumber2
 
-"PLUMBER2 is a model intercomparison project for land surface models. Multiple 
+"PLUMBER2 is a model inter-comparison project for land surface models. Multiple 
 leading land surface and ecosystem models are evaluated for water and carbon fluxes
 at 170 flux tower sites, spanning multiple biomes and climate zones globally." 
 the full description of the dataset can be found in the publication by 
@@ -121,14 +131,14 @@ Detailed links to original publications and data are provided below.
 
 | product   |      data volume      |  data path |
 |-----------|:---------------------:|:-----------|
-| rooting zone water storage |  ~80MB | `data-raw/ancillary_data/cwdx80/`
+| rooting zone water storage |  ~80MB | `data-raw/ancillary_data/rooting_zone_water_storage/`
 | Koeppen-Geiger |  ~22MB | `data-raw/ancillary_data/koeppen_geiger/`
 | field capacity |  ~4MB | `data-raw/ancillary_data/field_capacity/`
 
 ### Rooting zone water storage capacity
 
 Global rooting zone water storage capacity can be
-[downloaded here](https://zenodo.org/record/5515246).
+[downloaded here](https://zenodo.org/record/5515246) (Stocket et al. 2020).
 
 ### Koeppen-Geiger (included in repo)
 
@@ -139,21 +149,51 @@ is also included in the repository due to its small size.
 
 ### Field capacity (included in repo)
 
-Koeppen-Geiger climate classifications are downloaded from the recent
-work by [Beck et al. 2018](https://www.nature.com/articles/sdata2018214). Data
-can be downloaded from the [project website](http://www.gloh2o.org/koppen/) but
-is also included in the repository due to its small size.
+Global Gridded Surfaces of Selected Soil Characteristics on the [ORNL DAAC](
+https://daac.ornl.gov/SOILS/guides/IGBP-SurfaceProducts.html) provides field
+capacity values. Data needs to be manually downloaded from the [visualization
+tools](https://webmap.ornl.gov/ogc/dataset.jsp?ds_id=569) for easy export into
+a geotiff format. A ORNL login is required!
 
 ## Remote sensing data
 
-We include various MODIS products to complement the flux data. Data are downloaded
-from Google Earth Engine using the gee_subset python toolkit using the {ingestr}
-package. Data are stored in a product by product basis. in the `data-raw/modis/`
-directory. Data is downloaded using the `02_download_modis_data.R` script.
+### MODISTools
 
-> Note that you will need to compile the meta-data list first 
-(see meta-data article).
+MODIS data can be gathered for offline processing (recommended) using the
+`fdk_download_modis()` function. This function takes a list of sites and
+meta-data to download the required data using the `MODISTools` package.
 
-| product   |      data volume      |  data path |
-|-----------|:---------------------:|:-----------|
-| MODXXX |  ~80MB | `data-raw/modis/XZY/`
+With the site list generated or manually populated you can download the data
+stored in the `data-raw/modis/` directory as:
+
+```r
+sites <- readRDS("data/flux_data_kit_site-info.rds")
+
+fdk_download_modis(
+  df = sites,
+  path = "data-raw/modis/"
+)
+```
+
+Consider that this will take a while and is preferably wrapped in a script
+to be executed in the background. For one off sites the above method is valid.
+For batch processing we refer tot the `04_download_modis_data.R` script in the 
+`data-raw` directory.
+
+### FluxnetEO
+
+To supplement the land surface model driver data, and the derived p-model (rsofun)
+input, we used the `FluxnetEO` product (Walther et al. 2022) and similarly named 
+[package](https://geco-bern.github.io/FluxnetEO/).
+
+Data is provided as [zipped archives](https://meta.icos-cp.eu/collections/tEAkpU6UduMMONrFyym5-tUW) 
+and total considerable amounts of data, which requires ample storage space. 
+The MODIS dataset has a compressed size of ~32 GB, which results in an uncompressed 
+size of ~68 GB. The LandSat dataset exceeds 150 GB compressed 
+(this data will currently not be considered).
+
+# References
+
+Walther, S., Besnard, S., Nelson, J. A., El-Madany, T. S., Migliavacca, M., Weber, U., Carvalhais, N., Ermida, S. L., Brümmer, C., Schrader, F., Prokushkin, A. S., Panov, A. V., and Jung, M.: Technical note: A view from space on global flux towers by MODIS and Landsat: the FluxnetEO data set, Biogeosciences, 19, 2805–2840, https://doi.org/10.5194/bg-19-2805-2022, 2022.
+
+

@@ -4,10 +4,10 @@
 ^pkgdown$
 ^docs$
 ^data-raw$
-^data$
+^data/.*\\.rds$
+^data/.*\\.csv$
 ^analysis$
 ^vignettes$
-^R$
 ^src$
 
 # R-markdown files in the root folder.
@@ -26,4 +26,3 @@
 ^\.httr-oauth$
 ^.*-logo\..*$
 ^codemeta\.json$
-
