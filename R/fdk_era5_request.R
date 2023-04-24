@@ -1,6 +1,6 @@
-#' Download drivers from ECMWF
+#' Download request for drivers from ECMWF
 #'
-#' Batch downloads ERA5 driver data from the ECMWF API (CDS Toolbox)
+#' Batch request for ERA5 driver data from the ECMWF API (CDS Toolbox)
 #'
 #' @param lat latitude
 #' @param lon longitude
