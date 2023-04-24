@@ -59,16 +59,16 @@ driver_data <- lapply(sites$sitename, function(site){
   # Use a uniform FLUXNET HH input
   # file to generate p-model (rsofun)
   # compatible driver data
-  output <-
-    try(
-    suppressWarnings(
+ output <-
+    #try(
+    #suppressWarnings(
       fdk_format_drivers(
         site_info = sites |> filter(sitename == !!site),
         path = "/data/scratch/beta-v3/fluxnet/",  #paste0(tempdir(),"/"),
         verbose = TRUE
       )
-    )
-  )
+  #  )
+  #)
 
   if(inherits(output, "try-error")){
     message("!!! formatting drivers failed  !!!")
