@@ -204,13 +204,24 @@ fdk_format_drivers <- function(
     }
 
     if (geco_system){
-      df_cru <- ingest(
-        siteinfo = site_info,
-        source    = "cru",
-        getvars   = "ccov",
-        dir       = "/data/archive/cru_NA_2021/data/", # f-ing trailing /
-        settings = list(correct_bias = NULL)
+
+      # include cloud cover data if on
+      # internal GECO system, will skip
+      # when external as the download takes
+      # lots of time
+
+      # constrain range of dates to
+      # required data
+
+      ccov <- fdk_process_cloud_cover(
+        path = "data-raw/cloud_cover/",
+        site = site,
+        start_date = start_date,
+        end_date = end_date
       )
+
+      df_flux$data[[1]]$ccov <- ccov
+
     } else {
       df_flux$data[[1]]$ccov <- 0
     }
