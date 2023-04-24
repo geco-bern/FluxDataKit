@@ -13,11 +13,33 @@
 
 fdk_process_cloud_cover <- function(
     path = "data-raw/cloud_cover/",
-    site,
-    start_date,
-    end_date
+    site = "CA-NS4"
   ) {
 
+ # find all files
+ era_files <-  list.files(path, glob2rx(paste0(site, "*.nc")), full.names = TRUE)
 
+ # load in the data using terra
+ r <- suppressWarnings(
+   terra::rast(era_files)
+ )
 
+ # split out time, convert
+ # time to dates
+ time <- terra::time(r)
+
+ # take the mean value by day
+ r <- terra::tapp(r, "days", fun = "mean")
+
+ # put into data frame
+ df <- terra::values(r, dataframe = TRUE)
+ date <- as.Date(names(df), "d_%Y.%m.%d")
+
+ df <- data.frame(
+   date = date,
+   value = as.vector(unlist(df))
+ )
+
+ # return
+ return(df)
 }
