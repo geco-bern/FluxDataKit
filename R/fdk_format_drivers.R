@@ -122,8 +122,6 @@ fdk_format_drivers <- function(
       )
     )
 
-    print(head(df_flux$data))
-
     #--- merge in missing QC flags which are tossed by ingestr ---
 
     file <- list.files(
@@ -200,7 +198,7 @@ fdk_format_drivers <- function(
 
     #---- Processing CRU data (for cloud cover CCOV) ----
     if(verbose){
-      message("Processing CRU data ....")
+      message("Processing ERA5 cloud cover data ....")
     }
 
     if (geco_system){
