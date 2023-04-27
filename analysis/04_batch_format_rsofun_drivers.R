@@ -6,7 +6,7 @@ library(dplyr)
 library(ggplot2)
 library(ingestr)
 library(rsofun)
-library(FluxDataKit)
+lapply(list.files("R/","*.R", full.names = TRUE), source)
 
 input_path <- "/data/scratch/FDK_inputs"
 

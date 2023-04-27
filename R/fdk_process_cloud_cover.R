@@ -37,7 +37,8 @@ fdk_process_cloud_cover <- function(
 
  df <- data.frame(
    date = date,
-   value = as.vector(unlist(df))
+   ccov = as.vector(unlist(df)),
+   sitename = site
  )
 
  # return
