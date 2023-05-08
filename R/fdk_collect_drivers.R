@@ -46,9 +46,6 @@ fdk_collect_drivers <- function(
         params_siml = params_siml
         )
 
-  print(head(meteo$data))
-
-
   # check if all required variables are available
   if (!("snow" %in% names(meteo$data[[1]]))) {
     warning("Variable 'snow' missing in meteo data frame.

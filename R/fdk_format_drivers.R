@@ -75,7 +75,7 @@ fdk_format_drivers <- function(
     FALSE
   )
 
-  geco_system <- FALSE
+  #geco_system <- FALSE
 
   # check format of the site_info
   names(site_info) %in% c("sitename","lon","lat","start_year","end_year","elv")
@@ -121,8 +121,6 @@ fdk_format_drivers <- function(
         timescale = "d"
       )
     )
-
-    print(head(df_flux$data))
 
     #--- merge in missing QC flags which are tossed by ingestr ---
 
@@ -200,17 +198,32 @@ fdk_format_drivers <- function(
 
     #---- Processing CRU data (for cloud cover CCOV) ----
     if(verbose){
-      message("Processing CRU data ....")
+      message("Processing ERA5 cloud cover data ....")
     }
 
     if (geco_system){
-      df_cru <- ingest(
-        siteinfo = site_info,
-        source    = "cru",
-        getvars   = "ccov",
-        dir       = "/data/archive/cru_NA_2021/data/", # f-ing trailing /
-        settings = list(correct_bias = NULL)
+
+      # include cloud cover data if on
+      # internal GECO system, will skip
+      # when external as the download takes
+      # lots of time
+
+      # constrain range of dates to
+      # required data
+
+      ccov <- fdk_process_cloud_cover(
+        path = "data-raw/cloud_cover/",
+        site = site
       )
+
+     df_flux <- df_flux |>
+        tidyr::unnest(data) |>
+        left_join(
+          ccov, by = c("sitename", "date")
+        ) |>
+        group_by(sitename) |>
+        tidyr::nest()
+
     } else {
       df_flux$data[[1]]$ccov <- 0
     }
@@ -221,18 +234,18 @@ fdk_format_drivers <- function(
     if(verbose){
       message("Merging climate data ....")
     }
-
-    if (geco_system) {
-      df_flux <- df_flux |>
-        tidyr::unnest(data) |>
-        left_join(
-          df_cru |>
-            tidyr::unnest(data),
-          by = c("sitename", "date")
-        ) |>
-        group_by(sitename) |>
-        tidyr::nest()
-    }
+#
+#     if (geco_system) {
+#       df_flux <- df_flux |>
+#         tidyr::unnest(data) |>
+#         left_join(
+#           df_cru |>
+#             tidyr::unnest(data),
+#           by = c("sitename", "date")
+#         ) |>
+#         group_by(sitename) |>
+#         tidyr::nest()
+#     }
 
     #---- Format p-model driver data ----
     if(verbose){
