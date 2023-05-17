@@ -2,7 +2,7 @@
 % Please edit documentation in R/fdk_era5_request.R
 \name{fdk_era5_request}
 \alias{fdk_era5_request}
-\title{Download drivers from ECMWF}
+\title{Download request for drivers from ECMWF}
 \usage{
 fdk_era5_request(lat, lon, filename, start_date, end_date)
 }
@@ -22,5 +22,5 @@ A data frame with queried data including the date, position and
 requested variable
 }
 \description{
-Batch downloads ERA5 driver data from the ECMWF API (CDS Toolbox)
+Batch request for ERA5 driver data from the ECMWF API (CDS Toolbox)
 }
