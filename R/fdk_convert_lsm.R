@@ -102,11 +102,19 @@ fdk_convert_lsm <- function(
     # subset and constrain data
     if (meta_data) {
 
+      meta_columns <- c("latitude", "longitude", "reference_height", "canopy_height", "elevation", "IGBP_veg_short", "year_start","year_end")
+
+      missing_columns <- setdiff(meta_columns, colnames(df))
+      if(length(missing_columns) > 0) {
+          for(col in missing_columns) {
+              warning(paste("Column", col, "does not exist in the data frame. Assigning NA."))
+              df[,col] <- NA
+          }
+      }
+
       df$year_start <- format(min(df$time),"%Y")
       df$year_end <- format(max(df$time),"%Y")
-      df <- df[1,c("latitude", "longitude", "reference_height",
-                   "canopy_height", "elevation", "IGBP_veg_short",
-                   "year_start","year_end")]
+      df <- df[1,meta_columns]
       df$sitename <- site
     }
 
