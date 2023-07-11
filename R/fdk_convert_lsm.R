@@ -87,7 +87,12 @@ fdk_convert_lsm <- function(
 
     # remove trailing / leading white spaces
     # in IGBP classes
+    if ("IGBP_veg_short" %in% colnames(df)) {
     df$IGBP_veg_short <- trimws(df$IGBP_veg_short)
+    } else {
+        warning("Column 'IGBP_veg_short' does not exist in the data frame. Assigning NA.")
+        df$IGBP_veg_short <- NA
+    }
 
     # drop long names
     if("IGBP_veg_long" %in% names(df)){
