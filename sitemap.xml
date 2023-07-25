@@ -73,6 +73,9 @@
     <loc>/reference/fdk_plot.html</loc>
   </url>
   <url>
+    <loc>/reference/fdk_process_cloud_cover.html</loc>
+  </url>
+  <url>
     <loc>/reference/fdk_process_lsm.html</loc>
   </url>
   <url>
@@ -89,9 +92,6 @@
   </url>
   <url>
     <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/prepare_setup_sofun.html</loc>
   </url>
   <url>
     <loc>/reference/site_exceptions.html</loc>
