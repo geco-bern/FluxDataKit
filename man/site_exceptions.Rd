@@ -2,7 +2,7 @@
 % Please edit documentation in R/site_exceptions.R
 \name{site_exceptions}
 \alias{site_exceptions}
-\title{Address ad-hoc data exceptions in conversions}
+\title{Address ad-hoc data exceptions in conversions (lifted from FluxnetLSM)}
 \usage{
 site_exceptions(site_code, var_data, att_data, qc_val)
 }
