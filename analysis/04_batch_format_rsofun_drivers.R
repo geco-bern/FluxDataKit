@@ -14,11 +14,11 @@ input_path <- "/data/scratch/FDK_inputs"
 sites <- FluxDataKit::fdk_site_info |>
   mutate(
     data_path = file.path(input_path, "flux_data/")
-  )
-# |>
-#   filter(
-#     sitename == "FR-Fon"
-#   )
+  ) # |>
+  # ## Uncomment this to generate the object rsofun/data/p_model_drivers.rda
+  # filter(
+  #     sitename == "FR-Pue"
+  #   )
 
 # loop over all sites and process them to format
 # them into the correct rsofun format
