@@ -6,28 +6,18 @@
 \usage{
 fdk_format_drivers(
   site_info,
-  params_siml = list(spinup = TRUE, spinupyears = 10, recycle = 1, soilmstress = FALSE,
-    tempstress = FALSE, calc_aet_fapar_vpd = FALSE, in_ppfd = TRUE, in_netrad = FALSE,
-    outdt = 1, ltre = FALSE, ltne = FALSE, ltrd = FALSE, ltnd = FALSE, lgr3 = TRUE, lgn3
-    = FALSE, lgr4 = FALSE),
-  params_modl = list(kphio = 0.09423773, soilm_par_a = 0.33349283, soilm_par_b =
-    1.45602286),
-  df_soiltexture = bind_rows(top = tibble(layer = "top", fsand = 0.4, fclay = 0.3, forg =
-    0.1, fgravel = 0.1), bottom = tibble(layer = "bottom", fsand = 0.4, fclay = 0.3, forg
-    = 0.1, fgravel = 0.1)),
+  params_siml = dplyr::tibble(spinup = TRUE, spinupyears = 10, recycle = 1, outdt = 1,
+    ltre = FALSE, ltne = FALSE, ltrd = FALSE, ltnd = FALSE, lgr3 = TRUE, lgn3 = FALSE,
+    lgr4 = FALSE),
   path,
   verbose = TRUE
 )
 }
 \arguments{
 \item{site_info}{data frame using minimum information required
-being five columns: sitename, lon, lat, year_start, year_end}
+being five columns: sitename, lon, lat, elv, whc}
 
 \item{params_siml}{simulation parameters (preset)}
-
-\item{params_modl}{model parameters (preset)}
-
-\item{df_soiltexture}{soil data specifics (preset)}
 
 \item{path}{path with daily FLUXNET data}
 
