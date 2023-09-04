@@ -1,5 +1,5 @@
 
-#' Address ad-hoc data exceptions in conversions
+#' Address ad-hoc data exceptions in conversions (lifted from FluxnetLSM)
 #'
 #' Despite standardization efforts it seems that some flux data has
 #' idiosyncratic issues with respect to units etc. For the few sites

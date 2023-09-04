@@ -21,7 +21,7 @@ fdk_download_cloud_cover <- function(
   # to determine locality etc
   requests <- apply(df, 1, function(x){
 
-    increment <- 3
+    increment <- 1
     increment_l <- (increment - 1)
 
     req <- lapply(seq(as.numeric(x['year_start']), 2022, increment), function(year){
@@ -52,25 +52,45 @@ fdk_download_cloud_cover <- function(
     return(req)
   })
 
+  # kick out requests which have already been
+  # completed
   requests <- unlist(requests, recursive=FALSE)
+  request_files <- unlist(lapply(requests, function(request){request$target}))
+  files <- list.files(path, "*.nc")
+  requests <- requests[!(request_files %in% files)]
 
   # download the data
-  files <- lapply(requests, function(request){
+  # files <- lapply(requests, function(request){
+  #
+  #   files <- try(ecmwfr::wf_request(
+  #     user = user,
+  #     request,
+  #     time_out = 3600 * 4,
+  #     path = path
+  #   ))
+  #
+  #   if(inherits(files, "try-error")) {
+  #     message("Cloud cover downloads failed!")
+  #     return(NULL)
+  #   } else {
+  #     return(files)
+  #   }
+  # })
 
-    files <- ecmwfr::wf_request(
-      user = user,
-      request,
-      time_out = 3600 * 4,
-      path = path
-    )
+  files <- try(ecmwfr::wf_request_batch(
+    workers = 8,
+    user = user,
+    requests,
+    time_out = 3600 * 4,
+    path = path
+  ))
 
-    if(inherits(files, "try-error")) {
-      message("Cloud cover downloads failed!")
-      return(NULL)
-    } else {
-      return(files)
-    }
-  })
+  if(inherits(files, "try-error")) {
+    message("Cloud cover downloads failed!")
+    return(NULL)
+  } else {
+    return(files)
+  }
 
   return(files)
 }

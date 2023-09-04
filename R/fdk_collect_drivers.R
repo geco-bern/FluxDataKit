@@ -41,13 +41,10 @@ fdk_collect_drivers <- function(
     tmax <- tmax_doy <- doy <- forcing <- . <- NULL
 
   # complement the setup settings
-  site_info <- prepare_setup_sofun(
+  site_info <- ingestr::prepare_setup_sofun(
         site_info = site_info,
         params_siml = params_siml
         )
-
-  print(head(meteo$data))
-
 
   # check if all required variables are available
   if (!("snow" %in% names(meteo$data[[1]]))) {
