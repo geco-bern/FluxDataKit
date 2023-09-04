@@ -25,7 +25,8 @@ Imports:
     tools,
     utils,
     rvest,
-    zoo
+    zoo,
+    lubridate
 Suggests:
     knitr,
     rmarkdown,

@@ -92,10 +92,10 @@ fdk_format_drivers <- function(
     )
 
     df_flux <- suppressWarnings(
-      ingestr::ingest(
-        siteinfo = site_info |> slice(1:3),
-        source   = "fluxnet",
-        getvars  = list(
+        ingestr::ingest(
+          siteinfo = site_info |> slice(1:3),
+          source   = "fluxnet",
+          getvars  = list(
           gpp = "GPP_DT_VUT_REF",
           gpp_unc = "GPP_DT_VUT_SE",
           temp = "TA_F_MDS",
