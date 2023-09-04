@@ -124,8 +124,10 @@ fdk_format_drivers <- function(
                     fapar,
                     co2) |>
       dplyr::group_by(sitename) |>
-      tidyr::nest()
+      tidyr::nest() |>
 
+    # net radiation data is often missing. Impute by KNN.
+    mutate(data = purrr::map(data, ~fill_missing_netrad(.)))
 
     #--- merge in missing QC flags which are tossed by ingestr ---
     file <- list.files(
@@ -292,3 +294,45 @@ fdk_format_drivers <- function(
 
   return(df_drivers)
 }
+
+# This is now written with the recipes package. Rewrite code to make it base-R
+# compatible.
+fill_missing_netrad <- function(df){
+
+  if (sum(is.na(df$netrad)) > 0.0){
+    message(paste0("Missing net radiation data fraction: ", sum(is.na(df$netrad))/nrow(df)))
+    if (sum(is.na(df$netrad))/nrow(df) < 0.4){
+
+      message("Imputing net radiation with KNN ....")
+
+      # impute missing with KNN
+      pp <- recipes::recipe(netrad ~ temp + ppfd,
+                            data = df |>
+                              drop_na()) |>
+
+        recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) |>
+        recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) |>
+
+        recipes::step_impute_knn(recipes::all_outcomes(), neighbors = 5)
+
+      pp_prep <- recipes::prep(pp, training = df |> drop_na())
+
+      df_baked <- recipes::bake(pp_prep, new_data = df)
+
+      # fill missing with gap-filled
+      df <- df |>
+        dplyr::bind_cols(
+          df_baked |>
+            dplyr::select(netrad_filled = netrad)) |>
+        dplyr::mutate(netrad = ifelse(is.na(netrad), netrad_filled, netrad)) |>
+        dplyr::select(-netrad_filled)
+
+    } else {
+      df$netrad <- NA
+    }
+  }
+
+
+  return(df)
+}
+
