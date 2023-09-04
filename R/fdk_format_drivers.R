@@ -259,11 +259,15 @@ fdk_format_drivers <- function(
 
   df_flux <- list_flux |>
     dplyr::bind_rows() |>
+
+    # remove 29 Feb of leap years
+    dplyr::filter(!(lubridate::mday(date) == 29 & lubridate::month(date) == 2)) |>
+
     dplyr::group_by(sitename) |>
     tidyr::nest()
 
   #---- Format p-model driver data ----
-  if(verbose){
+  if (verbose){
     message("Combining all driver data ....")
   }
 
