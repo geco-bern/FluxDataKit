@@ -29,7 +29,7 @@ fdk_downsample_fluxnet <- function(
 
   # Using the FLUXNET instructions, however in some cases there will
   # be no equivalence giving missing information. Downsampled data should
-  # therefore note be considered equal to the original FLUXNET/ONEFLUX
+  # therefore not be considered equal to the original FLUXNET/ONEFLUX
   # processing chain.
   # https://fluxnet.org/data/fluxnet2015-dataset/fullset-data-product/
 
@@ -113,7 +113,27 @@ fdk_downsample_fluxnet <- function(
   # if the columns are missing bind them to the current data frame
   if(ncol(missing_columns) > 0){
       df <- dplyr::bind_cols(df, missing_columns)
-    }
+  }
+
+  # determine daytime threshold based on 1% quantile of solar radiation
+  daytime_thresh <- stats::quantile(df$SW_IN_F_MDS, probs = 0.01)
+
+  # get daytime averages separately
+  df_day <- df |>
+    dplyr::mutate(DAY = ifelse(SW_IN_F_MDS > daytime_thresh, TRUE, FALSE)) |>
+    dplyr::filter(DAY) |>
+    dplyr::group_by(TIMESTAMP) |>
+    dplyr::summarize(
+
+      # daytime temperature
+      TA_DAY_F_MDS = mean(TA_F_MDS, na.rm = TRUE),
+      TA_DAY_F_QC = mean(TA_F_QC < 1, na.rm = TRUE),
+
+      # VPD as the mean of the daytime values
+      VPD_DAY_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
+      VPD_DAY_F_MDS_QC = mean(VPD_F_MDS_QC < 1, na.rm = TRUE),
+
+    )
 
   # downsample the data to a daily time step
   # using FLUXNET naming conventions
@@ -148,7 +168,7 @@ fdk_downsample_fluxnet <- function(
 
       # VPD is the mean of the HH values
       VPD_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
-      VPD_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
+      VPD_F_MDS_QC = mean(VPD_F_MDS_QC < 1, na.rm = TRUE),
 
       # wind speed is the mean of the HH values
       WS_F = mean(WS_F, na.rm = TRUE),
@@ -245,6 +265,10 @@ fdk_downsample_fluxnet <- function(
       LAI = mean(LAI, na.rm = TRUE),
       FPAR = mean(FPAR, na.rm = TRUE)
     )
+
+  # combine daytime averages and whole-day averages
+  df <- df |>
+    dplyr::left_join(df_day, by = "TIMESTAMP")
 
   # save data to file, using FLUXNET formatting
   if (!missing(out_path)) {
