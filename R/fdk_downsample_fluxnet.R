@@ -29,7 +29,7 @@ fdk_downsample_fluxnet <- function(
 
   # Using the FLUXNET instructions, however in some cases there will
   # be no equivalence giving missing information. Downsampled data should
-  # therefore note be considered equal to the original FLUXNET/ONEFLUX
+  # therefore not be considered equal to the original FLUXNET/ONEFLUX
   # processing chain.
   # https://fluxnet.org/data/fluxnet2015-dataset/fullset-data-product/
 
@@ -113,7 +113,27 @@ fdk_downsample_fluxnet <- function(
   # if the columns are missing bind them to the current data frame
   if(ncol(missing_columns) > 0){
       df <- dplyr::bind_cols(df, missing_columns)
-    }
+  }
+
+  # determine daytime threshold based on 1% quantile of solar radiation
+  daytime_thresh <- stats::quantile(df$SW_IN_F_MDS, probs = 0.01)
+
+  # get daytime averages separately
+  df_day <- df |>
+    dplyr::mutate(DAY = ifelse(SW_IN_F_MDS > daytime_thresh, TRUE, FALSE)) |>
+    dplyr::filter(DAY) |>
+    dplyr::group_by(TIMESTAMP) |>
+    dplyr::summarize(
+
+      # daytime temperature
+      TA_DAY_F_MDS = mean(TA_F_MDS, na.rm = TRUE),
+      TA_DAY_F_QC = mean(TA_F_QC < 1, na.rm = TRUE),
+
+      # VPD as the mean of the daytime values
+      VPD_DAY_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
+      VPD_DAY_F_MDS_QC = mean(VPD_F_MDS_QC < 1, na.rm = TRUE),
+
+    )
 
   # downsample the data to a daily time step
   # using FLUXNET naming conventions
@@ -125,67 +145,67 @@ fdk_downsample_fluxnet <- function(
       # add fraction of daily "missing values"
 
       # precipitation is the sum of HH values
-      P_F = sum(P_F, na.rm = TRUE),
-      P_F_QC = mean(P_F_QC < 1, na.rm = TRUE),
+      P_F = sum(P_F, na.rm = FALSE),
+      P_F_QC = mean(P_F_QC < 1, na.rm = FALSE),
 
       # temperature is the mean of the HH values
-      TA_F_MDS = mean(TA_F_MDS, na.rm = TRUE),
-      TA_F_QC = mean(TA_F_QC < 1, na.rm = TRUE),
+      TMIN_F_MDS = min(TA_F_MDS, na.rm = FALSE),
+      TMIN_F_QC = mean(TA_F_QC < 1, na.rm = FALSE),
 
-      TMIN_F_MDS = min(TA_F_MDS, na.rm = TRUE),
-      TMIN_F_QC = mean(TA_F_QC < 1, na.rm = TRUE),
+      TMAX_F_MDS = max(TA_F_MDS, na.rm = FALSE),
+      TMAX_F_QC = mean(TA_F_QC < 1, na.rm = FALSE),
 
-      TMAX_F_MDS = max(TA_F_MDS, na.rm = TRUE),
-      TMAX_F_QC = mean(TA_F_QC < 1, na.rm = TRUE),
+      TA_F_MDS = mean(TA_F_MDS, na.rm = FALSE),
+      TA_F_QC = mean(TA_F_QC < 1, na.rm = FALSE),
 
       # temperature is the mean of the HH values
-      SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = TRUE),
-      SW_IN_F_MDS_QC = mean(SW_IN_F_MDS_QC < 1, na.rm = TRUE),
+      SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = FALSE),
+      SW_IN_F_MDS_QC = mean(SW_IN_F_MDS_QC < 1, na.rm = FALSE),
 
       # long wave radiation is the mean of the HH values
-      LW_IN_F_MDS = mean(LW_IN_F_MDS, na.rm = TRUE),
-      LW_IN_F_MDS_QC = mean(LW_IN_F_MDS_QC < 1, na.rm = TRUE),
+      LW_IN_F_MDS = mean(LW_IN_F_MDS, na.rm = FALSE),
+      LW_IN_F_MDS_QC = mean(LW_IN_F_MDS_QC < 1, na.rm = FALSE),
 
       # VPD is the mean of the HH values
-      VPD_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
-      VPD_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
+      VPD_F_MDS = mean(VPD_F_MDS, na.rm = FALSE),
+      VPD_F_MDS_QC = mean(VPD_F_MDS_QC < 1, na.rm = FALSE),
 
       # wind speed is the mean of the HH values
-      WS_F = mean(WS_F, na.rm = TRUE),
-      WS_F_QC = mean(WS_F_QC < 1, na.rm = TRUE),
+      WS_F = mean(WS_F, na.rm = FALSE),
+      WS_F_QC = mean(WS_F_QC < 1, na.rm = FALSE),
 
       # temperature is the mean of the HH values
-      PA_F = mean(PA_F, na.rm = TRUE),
-      PA_F_QC = mean(PA_F_QC < 1, na.rm = TRUE),
+      PA_F = mean(PA_F, na.rm = FALSE),
+      PA_F_QC = mean(PA_F_QC < 1, na.rm = FALSE),
 
       # CO2 is the mean of the HH values
-      CO2_F_MDS = mean(CO2_F_MDS, na.rm = TRUE),
-      CO2_F_MDS_QC = mean(CO2_F_MDS_QC < 1, na.rm = TRUE),
+      CO2_F_MDS = mean(CO2_F_MDS, na.rm = FALSE),
+      CO2_F_MDS_QC = mean(CO2_F_MDS_QC < 1, na.rm = FALSE),
 
       # FLUXES
       # add fraction of daily "missing values"
       GPP_NT_VUT_SE = ifelse(
         length(which(!is.na(GPP_NT_VUT_SE)) >= length(GPP_NT_VUT_SE) * 0.5 ),
-        sd(GPP_NT_VUT_REF, na.rm = TRUE)/sqrt(length(which(!is.na(GPP_NT_VUT_REF)))),
+        sd(GPP_NT_VUT_REF, na.rm = FALSE)/sqrt(length(which(!is.na(GPP_NT_VUT_REF)))),
         NA
       ),
 
       GPP_DT_VUT_SE = ifelse(
         length(which(!is.na(GPP_DT_VUT_SE)) >= length(GPP_DT_VUT_SE) * 0.5 ),
-        sd(GPP_DT_VUT_REF, na.rm = TRUE)/sqrt(length(which(!is.na(GPP_DT_VUT_REF)))),
+        sd(GPP_DT_VUT_REF, na.rm = FALSE)/sqrt(length(which(!is.na(GPP_DT_VUT_REF)))),
         NA
       ),
 
       GPP_DT_VUT_REF = ifelse(
         length(which(!is.na(GPP_DT_VUT_REF)) >= length(GPP_DT_VUT_REF) * 0.5 ),
-        mean(GPP_DT_VUT_REF, na.rm = TRUE),
+        mean(GPP_DT_VUT_REF, na.rm = FALSE),
         NA
       ),
       GPP_DT_VUT_REF_QC = length(which(!is.na(GPP_DT_VUT_REF)))/length(GPP_DT_VUT_REF),
 
       GPP_NT_VUT_REF = ifelse(
         length(which(!is.na(GPP_NT_VUT_REF)) >= length(GPP_NT_VUT_REF) * 0.5 ),
-        mean(GPP_NT_VUT_REF, na.rm = TRUE),
+        mean(GPP_NT_VUT_REF, na.rm = FALSE),
         NA
       ),
       GPP_NT_VUT_REF_QC = length(which(!is.na(GPP_NT_VUT_REF)))/length(GPP_NT_VUT_REF),
@@ -195,7 +215,7 @@ fdk_downsample_fluxnet <- function(
       # add fraction of daily "missing values"
       NETRAD = ifelse(
           length(which(!is.na(NETRAD)) > length(NETRAD) * 0.5 ),
-          mean(NETRAD, na.rm = TRUE),
+          mean(NETRAD, na.rm = FALSE),
           NA
         ),
 
@@ -203,33 +223,33 @@ fdk_downsample_fluxnet <- function(
 
       USTAR = ifelse(
         length(which(!is.na(USTAR)) > length(USTAR) * 0.5 ),
-        mean(USTAR, na.rm = TRUE),
+        mean(USTAR, na.rm = FALSE),
         NA
       ),
       USTAR_QC = length(which(!is.na(USTAR)))/length(USTAR),
 
       SW_OUT = ifelse(
         length(which(!is.na(SW_OUT)) > length(SW_OUT) * 0.5 ),
-        mean(SW_OUT, na.rm = TRUE),
+        mean(SW_OUT, na.rm = FALSE),
         NA
       ),
       SW_OUT_QC = length(which(!is.na(SW_OUT)))/length(SW_OUT),
 
       # Latent heat is the mean of the HH values
       # add fraction of daily "missing values"
-      LE_F_MDS = mean(LE_F_MDS, na.rm = TRUE),
-      LE_F_MDS_QC = mean(LE_F_MDS_QC < 1, na.rm = TRUE),
+      LE_F_MDS = mean(LE_F_MDS, na.rm = FALSE),
+      LE_F_MDS_QC = mean(LE_F_MDS_QC < 1, na.rm = FALSE),
 
-      LE_CORR = mean(LE_CORR, na.rm = TRUE),
-      LE_CORR_QC = mean(LE_CORR_QC, na.rm = TRUE),
+      LE_CORR = mean(LE_CORR, na.rm = FALSE),
+      LE_CORR_QC = mean(LE_CORR_QC, na.rm = FALSE),
 
       # sensible heat is the mean of the HH values
       # add fraction of daily "missing values"
-      H_F_MDS = mean(H_F_MDS, na.rm = TRUE),
-      H_F_MDS_QC = mean(H_F_MDS_QC < 1, na.rm = TRUE),
+      H_F_MDS = mean(H_F_MDS, na.rm = FALSE),
+      H_F_MDS_QC = mean(H_F_MDS_QC < 1, na.rm = FALSE),
 
-      H_CORR = mean(H_CORR, na.rm = TRUE),
-      H_CORR_QC = mean(H_CORR_QC < 1, na.rm = TRUE),
+      H_CORR = mean(H_CORR, na.rm = FALSE),
+      H_CORR_QC = mean(H_CORR_QC < 1, na.rm = FALSE),
 
       # Joint uncertainty (can't be produced from)
       # available data in a similar manner as described
@@ -245,6 +265,10 @@ fdk_downsample_fluxnet <- function(
       LAI = mean(LAI, na.rm = TRUE),
       FPAR = mean(FPAR, na.rm = TRUE)
     )
+
+  # combine daytime averages and whole-day averages
+  df <- df |>
+    dplyr::left_join(df_day, by = "TIMESTAMP")
 
   # save data to file, using FLUXNET formatting
   if (!missing(out_path)) {

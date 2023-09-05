@@ -63,10 +63,14 @@ fdk_convert_lsm <- function(
       ncdf4::ncatt_get(nc, "time")$units,
       "seconds since ")[[1]][2]
 
-    # Convert to Y-M-D h-m-s (hack around attribute issues in dates
-    # when using bind_cols() or joins)
-    time_date <- as.character(as.POSIXct(time, origin = time_units, tz="GMT"))
-    time_date <- as.POSIXct(time_date, tz = "GMT")
+    # # Convert to Y-M-D h-m-s (hack around attribute issues in dates
+    # # when using bind_cols() or joins)
+    # time_date <- as.character(as.POSIXct(time, origin = time_units, tz="GMT"))
+    # time_date <- as.POSIXct(time_date, tz = "GMT")
+
+    # use lubridate to solve join problem
+    time_date <- lubridate::ymd_hms(time_units, tz = "GMT") +
+      lubridate::seconds(time)
 
     # Get variable names
     vars <- names(nc$var)
@@ -130,7 +134,7 @@ fdk_convert_lsm <- function(
   } else {
     # combine meteo and flux data
     all <- suppressMessages(
-      dplyr::left_join(df[[1]], df[[2]])
+      dplyr::left_join(df[[1]], df[[2]], by = "time")
     )
   }
 
@@ -302,17 +306,17 @@ fdk_convert_lsm <- function(
       filename
     )
 
-    utils::write.table(
-      all,
-      file = filename,
-      quote = FALSE,
-      col.names = TRUE,
-      row.names = FALSE,
-      sep = ","
-    )
-
     message("---> writing data to file:")
     message(sprintf("   %s", filename))
+
+    utils::write.table(
+        all,
+        file = filename,
+        quote = FALSE,
+        col.names = TRUE,
+        row.names = FALSE,
+        sep = ","
+      )
 
     # write downsampled data as well
     suppressWarnings(
