@@ -109,20 +109,10 @@ fdk_format_drivers <- function(
 
          # atmospheric CO2 concentration in ppmv
          co2 = CO2_F_MDS
+
       ) |>
-      dplyr::select(sitename,
-                    date,
-                    temp,
-                    vpd,
-                    ppfd,
-                    netrad,
-                    patm,
-                    snow,
-                    rain,
-                    tmin,
-                    tmax,
-                    fapar,
-                    co2) |>
+
+      # make nested
       dplyr::group_by(sitename) |>
       tidyr::nest() |>
 
@@ -187,11 +177,28 @@ fdk_format_drivers <- function(
 
     df_flux <- df_flux |>
       tidyr::unnest(data) |>
-      left_join(
-        qc_fluxes |>
-          tidyr::unnest(data),
-        by = c("sitename", "date")
-      )
+
+      # avoid taking additional variables forward
+      dplyr::select(sitename,
+                    date,
+                    temp,
+                    vpd,
+                    ppfd,
+                    netrad,
+                    patm,
+                    snow,
+                    rain,
+                    tmin,
+                    tmax,
+                    fapar,
+                    co2)
+
+      ## no qc information in forcing data frame
+      # left_join(
+      #   qc_fluxes |>
+      #     tidyr::unnest(data),
+      #   by = c("sitename", "date")
+      # )
 
     # GPP conversion factor
     # in FLUXNET given in umolCO2 m-2 s-1. converted to gC m-2 d-1
@@ -230,7 +237,7 @@ fdk_format_drivers <- function(
     } else {
 
       message("Filling cloud cover forcing with 0. Use net radiation for simulations.")
-      df_flux$data[[1]]$ccov <- 0
+      df_flux$ccov <- 0
 
     }
     # # memory intensive, purge memory
@@ -299,6 +306,12 @@ fdk_format_drivers <- function(
   return(df_drivers)
 }
 
+# Fill missing net radiation data using KNN with temperature and PPFD as predictors
+# and K = 5.
+# This is only applied if there is at least one missing net radiation data point
+# and if the missing fraction is smaller than 40% of the whole time series. Otherwise
+# all net radiation data are made missing (triggering the internal net radiation
+# calculation in rsofun-P-model).
 # This is now written with the recipes package. Rewrite code to make it base-R
 # compatible.
 fill_missing_netrad <- function(df){
@@ -335,7 +348,6 @@ fill_missing_netrad <- function(df){
       df$netrad <- NA
     }
   }
-
 
   return(df)
 }

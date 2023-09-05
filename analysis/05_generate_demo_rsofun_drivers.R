@@ -60,11 +60,11 @@ df_drivers <-
   )
 
 # for demo, use just a subset of years
-df_drivers$forcing <- df_drivers$forcing[[1]][1:(5*365),]
+df_drivers$forcing[[1]] <- df_drivers$forcing[[1]][1:(5*365),]
 
 # write all drivers to file
 # apply compression to minimize space
-filn <- "data/p_model_drivers.rda"
+filn <- "data/p_model_drivers.rds"
 message(paste0("- writing to file: ", filn))
 saveRDS(
   df_drivers,
