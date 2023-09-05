@@ -280,6 +280,9 @@ fdk_format_drivers <- function(
 
   df_drivers <- site_info |>
 
+    # keep only those actually needed for the rsofun run
+    dplyr::select(sitename, lon, lat, elv, whc) |>
+
     # nest site info for each site
     dplyr::group_by(sitename) |>
     tidyr::nest() |>
@@ -301,7 +304,10 @@ fdk_format_drivers <- function(
         dplyr::group_by(sitename) |>
         tidyr::nest() |>
         dplyr::rename(params_siml = data),
-      by = "sitename")
+      by = "sitename") |>
+
+    # change order - critical for rsofun
+    dplyr::select(sitename, params_siml, site_info, forcing)
 
   return(df_drivers)
 }
@@ -325,14 +331,14 @@ fill_missing_netrad <- function(df){
       # impute missing with KNN
       pp <- recipes::recipe(netrad ~ temp + ppfd,
                             data = df |>
-                              drop_na()) |>
+                              drop_na(temp, ppfd)) |>
 
         recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) |>
         recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) |>
 
         recipes::step_impute_knn(recipes::all_outcomes(), neighbors = 5)
 
-      pp_prep <- recipes::prep(pp, training = df |> drop_na())
+      pp_prep <- recipes::prep(pp, training = df |> drop_na(netrad, temp, ppfd))
 
       df_baked <- recipes::bake(pp_prep, new_data = df)
 

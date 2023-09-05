@@ -68,5 +68,6 @@ filn <- "data/p_model_drivers.rds"
 message(paste0("- writing to file: ", filn))
 saveRDS(
   df_drivers,
-  filn
+  filn,
+  compress = "xz"
   )
