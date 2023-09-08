@@ -47,7 +47,7 @@ message("- compiling drivers")
 # Use a uniform FLUXNET HH input
 # file to generate p-model (rsofun)
 # compatible driver data
-df_drivers <-
+p_model_drivers <-
   try(
     suppressWarnings(
       fdk_format_drivers(
@@ -60,14 +60,13 @@ df_drivers <-
   )
 
 # for demo, use just a subset of years
-df_drivers$forcing[[1]] <- df_drivers$forcing[[1]][1:(5*365),]
+p_model_drivers$forcing[[1]] <- p_model_drivers$forcing[[1]] |>
+  dplyr::filter(lubridate::year(date) %in% 2007:2014)
 
 # write all drivers to file
 # apply compression to minimize space
-filn <- "data/p_model_drivers.rds"
+filn <- "data/p_model_drivers.rda"
 message(paste0("- writing to file: ", filn))
-saveRDS(
-  df_drivers,
-  filn,
-  compress = "xz"
-  )
+save(p_model_drivers,
+     file = filn
+     )
