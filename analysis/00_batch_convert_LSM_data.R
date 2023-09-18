@@ -2,8 +2,8 @@
 # in line with the PLUMBER2 release
 options(tidyverse.quiet = TRUE)
 options(dplyr.summarise.inform = FALSE)
-
-library(FluxDataKit)
+lapply(list.files("R/","*.R", full.names = TRUE), source)
+#library(FluxDataKit)
 library(FluxnetLSM)
 library(dplyr)
 library(ingestr)
@@ -13,13 +13,13 @@ input_path <- "/data/scratch/FDK_inputs"
 output_path <- "/data/scratch/beta-v3"
 
 # read in all site meta-data, only test on
-# SE-Nor to debug FluxnetLSM for now
+# FR-Pue to debug FluxnetLSM for now
 sites <- FluxDataKit::fdk_site_info |>
   mutate(
     data_path = file.path(input_path, "flux_data/")
   ) |>
   filter(
-    sitename == "SE-Nor"
+    sitename == "FR-Pue"
   )
 
 #---- create a new release ----
