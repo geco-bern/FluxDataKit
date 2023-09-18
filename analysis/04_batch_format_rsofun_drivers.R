@@ -3,6 +3,7 @@ options(tidyverse.quiet = TRUE)
 options(dplyr.summarise.inform = FALSE)
 
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(ingestr)
 library(rsofun)
@@ -16,6 +17,12 @@ sites <- FluxDataKit::fdk_site_info |>
     data_path = file.path(input_path, "flux_data/")
   )
 
+# subset sites
+sites <- sites |>
+  dplyr::filter(
+    sitename == "FR-Pue"
+  )
+
 # loop over all sites and process them to format
 # them into the correct rsofun format
 driver_data <- lapply(sites$sitename, function(site){
@@ -26,7 +33,7 @@ driver_data <- lapply(sites$sitename, function(site){
   df <- suppressWarnings(try(fdk_convert_lsm(
     site = site,
     fluxnet_format = TRUE,
-    path = "/data/scratch/beta-v3/"
+    path = input_path
     )
   ))
 
@@ -61,7 +68,7 @@ driver_data <- lapply(sites$sitename, function(site){
     suppressWarnings(
       fdk_format_drivers(
         site_info = sites |> filter(sitename == !!site),
-        path = "/data/scratch/beta-v3/fluxnet/",  #paste0(tempdir(),"/"),
+        path = paste0(tempdir(),"/"),
         verbose = TRUE
       )
     )
@@ -108,12 +115,11 @@ output <- rsofun::runread_pmodel_f(
 # we only have one site so we'll unnest
 # the main model output
 model_data <- output |>
-  filter(sitename == "FR-Fon") |>
-  tidyr::unnest("data") |>
+  filter(sitename == "FR-Pue") |>
   tidyr::unnest("data")
 
 validation_data <- driver_data |>
-  filter(sitename == "FR-Fon") |>
+  filter(sitename == "FR-Pue") |>
   tidyr::unnest(forcing)
 
 p <- ggplot() +
