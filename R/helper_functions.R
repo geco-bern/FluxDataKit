@@ -104,8 +104,8 @@ fill_netrad <- function(df){
               netrad_filled = netrad)
         ) |>
         dplyr::mutate(
-          netrad = ifelse(is.na(netrad), netrad_filled, netrad),
-          qc = ifelse(is.na(netrad), TRUE, FALSE)
+          netrad = ifelse(is.na(netrad), netrad_filled, netrad)
+          #qc = ifelse(is.na(netrad), TRUE, FALSE)
         ) |>
         dplyr::select(
           -netrad_filled

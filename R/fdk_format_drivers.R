@@ -291,6 +291,7 @@ fdk_format_drivers <- function(
       by = "sitename")
 
   # change order - critical for rsofun
+  # but also checked in rsofun
   df_drivers <- df_drivers |>
     dplyr::select(
       sitename,
