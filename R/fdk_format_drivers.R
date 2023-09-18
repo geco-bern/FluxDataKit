@@ -312,43 +312,60 @@ fdk_format_drivers <- function(
   return(df_drivers)
 }
 
-# Fill missing net radiation data using KNN with temperature and PPFD as predictors
-# and K = 5.
-# This is only applied if there is at least one missing net radiation data point
-# and if the missing fraction is smaller than 40% of the whole time series. Otherwise
-# all net radiation data are made missing (triggering the internal net radiation
-# calculation in rsofun-P-model).
-# This is now written with the recipes package. Rewrite code to make it base-R
-# compatible.
+
 fill_missing_netrad <- function(df){
 
   if (sum(is.na(df$netrad)) > 0.0){
-    message(paste0("Missing net radiation data fraction: ", sum(is.na(df$netrad))/nrow(df)))
     if (sum(is.na(df$netrad))/nrow(df) < 0.4){
 
       message("Imputing net radiation with KNN ....")
+      message(
+        paste0("Missing net radiation data fraction: ",
+               sum(is.na(df$netrad))/nrow(df)
+        )
+      )
 
       # impute missing with KNN
-      pp <- recipes::recipe(netrad ~ temp + ppfd,
-                            data = df |>
-                              drop_na(temp, ppfd)) |>
+      pp <- recipes::recipe(
+        netrad ~ temp + ppfd,
+        data = df |> drop_na(temp, ppfd)
+        ) |>
+        recipes::step_center(
+          recipes::all_numeric(),
+          -recipes::all_outcomes()
+          ) |>
+        recipes::step_scale(
+          recipes::all_numeric(),
+          -recipes::all_outcomes()
+          ) |>
+        recipes::step_impute_knn(
+          recipes::all_outcomes(),
+          neighbors = 5
+          )
 
-        recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) |>
-        recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) |>
+      pp_prep <- recipes::prep(
+        pp,
+        training = df |> drop_na(netrad, temp, ppfd)
+        )
 
-        recipes::step_impute_knn(recipes::all_outcomes(), neighbors = 5)
-
-      pp_prep <- recipes::prep(pp, training = df |> drop_na(netrad, temp, ppfd))
-
-      df_baked <- recipes::bake(pp_prep, new_data = df)
+      df_baked <- recipes::bake(
+        pp_prep,
+        new_data = df
+        )
 
       # fill missing with gap-filled
       df <- df |>
         dplyr::bind_cols(
           df_baked |>
-            dplyr::select(netrad_filled = netrad)) |>
-        dplyr::mutate(netrad = ifelse(is.na(netrad), netrad_filled, netrad)) |>
-        dplyr::select(-netrad_filled)
+            dplyr::select(
+              netrad_filled = netrad)
+          ) |>
+        dplyr::mutate(
+          netrad = ifelse(is.na(netrad), netrad_filled, netrad)
+          ) |>
+        dplyr::select(
+          -netrad_filled
+          )
 
     } else {
       df$netrad <- NA
