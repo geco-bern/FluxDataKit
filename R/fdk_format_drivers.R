@@ -49,8 +49,6 @@ fdk_format_drivers <- function(
     FALSE
   )
 
-  #geco_system <- FALSE
-
   # check format of the site_info
   names(site_info) %in% c("sitename", "lon", "lat", "start_year", "end_year", "elv")
 
@@ -117,7 +115,7 @@ fdk_format_drivers <- function(
       tidyr::nest() |>
 
     # net radiation data is often missing. Impute by KNN.
-    mutate(data = purrr::map(data, ~fill_missing_netrad(.)))
+    mutate(data = purrr::map(data, ~fill_netrad(.)))
 
     #--- merge in missing QC flags which are tossed by ingestr ---
     file <- list.files(
@@ -175,23 +173,24 @@ fdk_format_drivers <- function(
       data = list(qc_fluxes)
     )
 
+    # subset data
     df_flux <- df_flux |>
       tidyr::unnest(data) |>
-
-      # avoid taking additional variables forward
-      dplyr::select(sitename,
-                    date,
-                    temp,
-                    vpd,
-                    ppfd,
-                    netrad,
-                    patm,
-                    snow,
-                    rain,
-                    tmin,
-                    tmax,
-                    fapar,
-                    co2)
+      dplyr::select(
+        sitename,
+        date,
+        temp,
+        vpd,
+        ppfd,
+        netrad,
+        patm,
+        snow,
+        rain,
+        tmin,
+        tmax,
+        fapar,
+        co2
+      )
 
       ## no qc information in forcing data frame
       # left_join(
@@ -236,40 +235,25 @@ fdk_format_drivers <- function(
 
     } else {
 
-      message("Filling cloud cover forcing with 0. Use net radiation for simulations.")
+      message("Filling cloud cover forcing with 0.
+              Use net radiation for simulations.")
       df_flux$ccov <- 0
 
     }
-    # # memory intensive, purge memory
-    # gc()
 
-    # #---- Merging climate data ----
-    # if(verbose){
-    #   message("Merging climate data ....")
-    # }
-    # if (geco_system) {
-    #   df_flux <- df_flux |>
-    #     tidyr::unnest(data) |>
-    #     left_join(
-    #       df_cru |>
-    #         tidyr::unnest(data),
-    #       by = c("sitename", "date")
-    #     ) |>
-    #     group_by(sitename) |>
-    #     tidyr::nest()
-    # }
+    # memory intensive, purge memory
+    gc()
 
     # return data, either a driver
     # or processed output
     return(df_flux)
   })
 
+  # remove 29 Feb of leap years
   df_flux <- list_flux |>
     dplyr::bind_rows() |>
-
-    # remove 29 Feb of leap years
-    dplyr::filter(!(lubridate::mday(date) == 29 & lubridate::month(date) == 2)) |>
-
+    dplyr::filter(
+      !(lubridate::mday(date) == 29 & lubridate::month(date) == 2)) |>
     dplyr::group_by(sitename) |>
     tidyr::nest()
 
@@ -278,21 +262,21 @@ fdk_format_drivers <- function(
     message("Combining all driver data ....")
   }
 
+  # construct the final driver file
+  # first join in the site info data
   df_drivers <- site_info |>
-
-    # keep only those actually needed for the rsofun run
     dplyr::select(sitename, lon, lat, elv, whc) |>
-
-    # nest site info for each site
     dplyr::group_by(sitename) |>
     tidyr::nest() |>
-    dplyr::rename(site_info = data) |>
+    dplyr::rename(site_info = data)
 
-    # combine forcing time series nested data frame
+  # join in the flux driver data
+  df_drivers <- df_drivers |>
     dplyr::left_join(df_flux, by = "sitename") |>
-    dplyr::rename(forcing = data) |>
+    dplyr::rename(forcing = data)
 
-    # repeat the same simulation parameters for each site
+  # join in the parameter settings
+  df_drivers <- df_drivers |>
     dplyr::left_join(
       tibble(
         sitename = site_info$sitename
@@ -304,74 +288,16 @@ fdk_format_drivers <- function(
         dplyr::group_by(sitename) |>
         tidyr::nest() |>
         dplyr::rename(params_siml = data),
-      by = "sitename") |>
+      by = "sitename")
 
-    # change order - critical for rsofun
-    dplyr::select(sitename, params_siml, site_info, forcing)
+  # change order - critical for rsofun
+  df_drivers <- df_drivers |>
+    dplyr::select(
+      sitename,
+      params_siml,
+      site_info,
+      forcing
+    )
 
   return(df_drivers)
 }
-
-
-fill_missing_netrad <- function(df){
-
-  if (sum(is.na(df$netrad)) > 0.0){
-    if (sum(is.na(df$netrad))/nrow(df) < 0.4){
-
-      message("Imputing net radiation with KNN ....")
-      message(
-        paste0("Missing net radiation data fraction: ",
-               sum(is.na(df$netrad))/nrow(df)
-        )
-      )
-
-      # impute missing with KNN
-      pp <- recipes::recipe(
-        netrad ~ temp + ppfd,
-        data = df |> drop_na(temp, ppfd)
-        ) |>
-        recipes::step_center(
-          recipes::all_numeric(),
-          -recipes::all_outcomes()
-          ) |>
-        recipes::step_scale(
-          recipes::all_numeric(),
-          -recipes::all_outcomes()
-          ) |>
-        recipes::step_impute_knn(
-          recipes::all_outcomes(),
-          neighbors = 5
-          )
-
-      pp_prep <- recipes::prep(
-        pp,
-        training = df |> drop_na(netrad, temp, ppfd)
-        )
-
-      df_baked <- recipes::bake(
-        pp_prep,
-        new_data = df
-        )
-
-      # fill missing with gap-filled
-      df <- df |>
-        dplyr::bind_cols(
-          df_baked |>
-            dplyr::select(
-              netrad_filled = netrad)
-          ) |>
-        dplyr::mutate(
-          netrad = ifelse(is.na(netrad), netrad_filled, netrad)
-          ) |>
-        dplyr::select(
-          -netrad_filled
-          )
-
-    } else {
-      df$netrad <- NA
-    }
-  }
-
-  return(df)
-}
-
