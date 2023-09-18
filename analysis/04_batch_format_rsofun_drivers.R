@@ -9,18 +9,17 @@ library(ingestr)
 library(rsofun)
 lapply(list.files("R/","*.R", full.names = TRUE), source)
 
-input_path <- "/data/scratch/FDK_inputs"
+input_path <- "/data/scratch/beta-v3/fluxnet/"
 
 # read in sites to process
-sites <- FluxDataKit::fdk_site_info |>
-  mutate(
-    data_path = file.path(input_path, "flux_data/")
-  )
+sites <- FluxDataKit::fdk_site_info
+
+site <- c("FR-Pue", "CH-Lae")
 
 # subset sites
 sites <- sites |>
   dplyr::filter(
-    sitename == "FR-Pue"
+    sitename %in% site
   )
 
 # loop over all sites and process them to format
@@ -29,46 +28,17 @@ driver_data <- lapply(sites$sitename, function(site){
 
   message(sprintf("Processing %s ----", site))
 
-  message("- converting to FLUXNET format")
-  df <- suppressWarnings(try(fdk_convert_lsm(
-    site = site,
-    fluxnet_format = TRUE,
-    path = input_path
-    )
-  ))
-
-  if(inherits(df, "try-error")){
-    message("!!! conversion to FLUXNET failed  !!!")
-    return(NULL)
-  }
-
-  message("- downsampling FLUXNET format")
-  filename <-
-    suppressWarnings(
-      try(fdk_downsample_fluxnet(
-        df,
-        site = site,
-        out_path = tempdir(),
-        overwrite = TRUE
-      )
-      )
-    )
-
-  if(inherits(filename, "try-error")){
-    message("!!! downsampling failed !!!")
-    return(NULL)
-  }
-
   message("- compiling drivers")
   # Use a uniform FLUXNET HH input
   # file to generate p-model (rsofun)
   # compatible driver data
+
  output <-
     try(
     suppressWarnings(
       fdk_format_drivers(
         site_info = sites |> filter(sitename == !!site),
-        path = paste0(tempdir(),"/"),
+        path = input_path,
         verbose = TRUE
       )
     )
@@ -98,11 +68,15 @@ saveRDS(
 # optimized parameters from previous
 # work
 params_modl <- list(
-  kphio           = 0.09423773,
-  soilm_par_a     = 0.33349283,
-  soilm_par_b     = 1.45602286,
-  tau_acclim_tempstress = 10,
-  par_shape_tempstress  = 0.0
+  kphio              = 0.04998,    # setup ORG in Stocker et al. 2020 GMD
+  kphio_par_a        = 0.0,        # set to zero to disable temperature-dependence of kphio
+  kphio_par_b        = 1.0,
+  soilm_thetastar    = 0.6 * 240,  # to recover old setup with soil moisture stress
+  soilm_betao        = 0.0,
+  beta_unitcostratio = 146.0,
+  rd_to_vcmax        = 0.014,      # value from Atkin et al. 2015 for C3 herbaceous
+  tau_acclim         = 30.0,
+  kc_jmax            = 0.41
 )
 
 # run the model for these parameters
@@ -115,11 +89,11 @@ output <- rsofun::runread_pmodel_f(
 # we only have one site so we'll unnest
 # the main model output
 model_data <- output |>
-  filter(sitename == "FR-Pue") |>
+  filter(sitename %in% site) |>
   tidyr::unnest("data")
 
 validation_data <- driver_data |>
-  filter(sitename == "FR-Pue") |>
+  filter(sitename %in% site) |>
   tidyr::unnest(forcing)
 
 p <- ggplot() +
@@ -141,6 +115,7 @@ p <- ggplot() +
   labs(
     x = "Date",
     y = "GPP"
-  )
+  ) +
+  facet_wrap(~sitename)
 
 print(p)

@@ -19,9 +19,12 @@ sites <- FluxDataKit::fdk_site_info |>
     data_path = file.path(input_path, "flux_data/")
   ) |>
   filter(
-    sitename == "FR-Pue"
+    sitename == "CH-Lae"
   )
 
+# CH-Lae
+# CH-Dav
+#
 #---- create a new release ----
 
 fdk_release(
