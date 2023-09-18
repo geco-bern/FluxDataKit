@@ -106,7 +106,16 @@ fdk_convert_lsm <- function(
     # subset and constrain data
     if (meta_data) {
 
-      meta_columns <- c("latitude", "longitude", "reference_height", "canopy_height", "elevation", "IGBP_veg_short", "year_start","year_end")
+      meta_columns <- c(
+        "latitude",
+        "longitude",
+        "reference_height",
+        "canopy_height",
+        "elevation",
+        "IGBP_veg_short",
+        "year_start",
+        "year_end"
+        )
 
       missing_columns <- setdiff(meta_columns, colnames(df))
       if(length(missing_columns) > 0) {
