@@ -49,8 +49,6 @@ fdk_format_drivers <- function(
     FALSE
   )
 
-  #geco_system <- FALSE
-
   # check format of the site_info
   names(site_info) %in% c("sitename", "lon", "lat", "start_year", "end_year", "elv")
 
@@ -77,7 +75,8 @@ fdk_format_drivers <- function(
          # temp is daytime temperature (deg C)
          temp = TA_DAY_F_MDS,
 
-         # vapour pressure deficit is averaged over daytime hours, given in hPa, required in Pa
+         # vapour pressure deficit is averaged over daytime hours,
+         # given in hPa, required in Pa
          vpd = VPD_DAY_F_MDS * 1.0e2,
 
          # photosynthetic photon flux density based on shortwave radiation
@@ -92,7 +91,8 @@ fdk_format_drivers <- function(
          # atmospheric pressure, given in kPa, required in Pa
          patm = PA_F * 1e3,
 
-         # precipitation as snow, in mm (is not provided explicilty in FLUXNET-type data)
+         # precipitation as snow, in mm
+         # (is not provided explicilty in FLUXNET-type data)
          snow = 0,
 
          # precipitation as water, mean rate over time step (day, 24 hours)
@@ -108,90 +108,72 @@ fdk_format_drivers <- function(
          fapar = FPAR,
 
          # atmospheric CO2 concentration in ppmv
-         co2 = CO2_F_MDS
-
-      ) |>
-
-      # make nested
-      dplyr::group_by(sitename) |>
-      tidyr::nest() |>
-
-    # net radiation data is often missing. Impute by KNN.
-    mutate(data = purrr::map(data, ~fill_missing_netrad(.)))
-
-    #--- merge in missing QC flags which are tossed by ingestr ---
-    file <- list.files(
-      path,
-      glob2rx(sprintf("*%s*DD*",site)),
-      full.names = TRUE
-    )
-
-    daily_fluxes <- read.table(
-      file,
-      header = TRUE,
-      sep = ","
-    )
-
-    # keep long list of variables for further
-    # notice - might include more variables later
-    qc_fluxes <- daily_fluxes |>
-      rename(
-        date = "TIMESTAMP",
-        gpp = "GPP_DT_VUT_REF",
-        gpp_unc = "GPP_DT_VUT_SE",
-        gpp_qc = "GPP_DT_VUT_REF_QC",
-        temp = "TA_F_MDS",
-        prec = "P_F",
-        vpd = "VPD_F_MDS",
-        patm = "PA_F",
-        ppfd = "SW_IN_F_MDS",
-        netrad = "NETRAD",
-        wind = "WS_F",
-        co2 = "CO2_F_MDS",
-        lai = "LAI",
-        fapar = "FPAR",
-        le = "LE_F_MDS",
-        le_qc = "LE_F_MDS_QC",
-        le_cor = "LE_CORR",
-        le_cor_qc = "LE_CORR_QC",
-        gpp_qc = "GPP_DT_VUT_REF_QC",
-        lw_down = "LW_IN_F_MDS",
-        h = "H_F_MDS",
-        h_cor = "H_CORR"
-      ) |>
-      select(
-        date,
-        gpp_qc,
-        le_cor,
-        le_qc,
-        le_cor_qc
-      ) |>
-      mutate(
-        date = as.Date(date)
+         co2 = CO2_F_MDS,
+         gpp = GPP_DT_VUT_REF
       )
 
-    qc_fluxes <- tibble(
-      sitename = site,
-      data = list(qc_fluxes)
-    )
-
     df_flux <- df_flux |>
-      tidyr::unnest(data) |>
+      dplyr::group_by(sitename) |>
+      tidyr::nest() |>
+      mutate(
+        data = purrr::map(data, ~fill_netrad(.))
+      )
 
-      # avoid taking additional variables forward
-      dplyr::select(sitename,
-                    date,
-                    temp,
-                    vpd,
-                    ppfd,
-                    netrad,
-                    patm,
-                    snow,
-                    rain,
-                    tmin,
-                    tmax,
-                    fapar,
-                    co2)
+    #--- merge in missing QC flags which are tossed by ingestr ---
+    # file <- list.files(
+    #   path,
+    #   glob2rx(sprintf("*%s*DD*",site)),
+    #   full.names = TRUE
+    # )
+    #
+    # daily_fluxes <- read.table(
+    #   file,
+    #   header = TRUE,
+    #   sep = ","
+    # )
+    #
+    # # keep long list of variables for further
+    # # notice - might include more variables later
+    # qc_fluxes <- daily_fluxes |>
+    #   rename(
+    #     date = "TIMESTAMP",
+    #     gpp = "GPP_DT_VUT_REF",
+    #     gpp_unc = "GPP_DT_VUT_SE",
+    #     gpp_qc = "GPP_DT_VUT_REF_QC",
+    #     temp = "TA_F_MDS",
+    #     prec = "P_F",
+    #     vpd = "VPD_F_MDS",
+    #     patm = "PA_F",
+    #     ppfd = "SW_IN_F_MDS",
+    #     netrad = "NETRAD",
+    #     wind = "WS_F",
+    #     co2 = "CO2_F_MDS",
+    #     lai = "LAI",
+    #     fapar = "FPAR",
+    #     le = "LE_F_MDS",
+    #     le_qc = "LE_F_MDS_QC",
+    #     le_cor = "LE_CORR",
+    #     le_cor_qc = "LE_CORR_QC",
+    #     gpp_qc = "GPP_DT_VUT_REF_QC",
+    #     lw_down = "LW_IN_F_MDS",
+    #     h = "H_F_MDS",
+    #     h_cor = "H_CORR"
+    #   ) |>
+    #   select(
+    #     date,
+    #     gpp_qc,
+    #     le_cor,
+    #     le_qc,
+    #     le_cor_qc
+    #   ) |>
+    #   mutate(
+    #     date = as.Date(date)
+    #   )
+    #
+    # qc_fluxes <- tibble(
+    #   sitename = site,
+    #   data = list(qc_fluxes)
+    # )
 
       ## no qc information in forcing data frame
       # left_join(
@@ -199,12 +181,6 @@ fdk_format_drivers <- function(
       #     tidyr::unnest(data),
       #   by = c("sitename", "date")
       # )
-
-    # GPP conversion factor
-    # in FLUXNET given in umolCO2 m-2 s-1. converted to gC m-2 d-1
-    # c_molmass <- 12.0107  # molar mass of C
-    # gpp_coversion <- 1e-6 * 60 * 60 * 24 * c_molmass
-    # df_flux$data[[1]]$gpp <- df_flux$data[[1]]$gpp
 
     #---- Processing CRU data (for cloud cover CCOV) ----
     if (geco_system){
@@ -236,40 +212,56 @@ fdk_format_drivers <- function(
 
     } else {
 
-      message("Filling cloud cover forcing with 0. Use net radiation for simulations.")
-      df_flux$ccov <- 0
+      message("Filling cloud cover forcing with 0.
+              Use net radiation for simulations.")
+
+      df_flux <- df_flux |>
+        tidyr::unnest(data) |>
+        mutate(
+         ccov = 0
+        ) |>
+        group_by(sitename) |>
+        tidyr::nest()
 
     }
-    # # memory intensive, purge memory
-    # gc()
 
-    # #---- Merging climate data ----
-    # if(verbose){
-    #   message("Merging climate data ....")
-    # }
-    # if (geco_system) {
-    #   df_flux <- df_flux |>
-    #     tidyr::unnest(data) |>
-    #     left_join(
-    #       df_cru |>
-    #         tidyr::unnest(data),
-    #       by = c("sitename", "date")
-    #     ) |>
-    #     group_by(sitename) |>
-    #     tidyr::nest()
-    # }
+    df_flux <- df_flux |>
+      dplyr::group_by(sitename) |>
+      tidyr::unnest(data) |>
+      dplyr::select(
+        sitename,
+        date,
+        temp,
+        vpd,
+        ppfd,
+        netrad,
+        patm,
+        snow,
+        rain,
+        tmin,
+        tmax,
+        fapar,
+        co2,
+        ccov,
+        gpp
+      ) |>
+      dplyr::group_by(sitename) |>
+      tidyr::nest()
+
+    # memory intensive, purge memory
+    gc()
 
     # return data, either a driver
     # or processed output
     return(df_flux)
-  })
+  }) |>
+    dplyr::bind_rows()
 
+  # remove 29 Feb of leap years
   df_flux <- list_flux |>
-    dplyr::bind_rows() |>
-
-    # remove 29 Feb of leap years
-    dplyr::filter(!(lubridate::mday(date) == 29 & lubridate::month(date) == 2)) |>
-
+    tidyr::unnest(data) |>
+    dplyr::filter(
+      !(lubridate::mday(date) == 29 & lubridate::month(date) == 2)) |>
     dplyr::group_by(sitename) |>
     tidyr::nest()
 
@@ -278,21 +270,25 @@ fdk_format_drivers <- function(
     message("Combining all driver data ....")
   }
 
+  # construct the final driver file
+  # first join in the site info data
   df_drivers <- site_info |>
-
-    # keep only those actually needed for the rsofun run
     dplyr::select(sitename, lon, lat, elv, whc) |>
-
-    # nest site info for each site
     dplyr::group_by(sitename) |>
     tidyr::nest() |>
-    dplyr::rename(site_info = data) |>
+    dplyr::rename(
+      site_info = data
+      )
 
-    # combine forcing time series nested data frame
+  # join in the flux driver data
+  df_drivers <- df_drivers |>
     dplyr::left_join(df_flux, by = "sitename") |>
-    dplyr::rename(forcing = data) |>
+    dplyr::rename(
+      forcing = data
+      )
 
-    # repeat the same simulation parameters for each site
+  # join in the parameter settings
+  df_drivers <- df_drivers |>
     dplyr::left_join(
       tibble(
         sitename = site_info$sitename
@@ -304,57 +300,18 @@ fdk_format_drivers <- function(
         dplyr::group_by(sitename) |>
         tidyr::nest() |>
         dplyr::rename(params_siml = data),
-      by = "sitename") |>
+      by = "sitename")
 
-    # change order - critical for rsofun
-    dplyr::select(sitename, params_siml, site_info, forcing)
+  # change order - critical for rsofun
+  # but also checked in rsofun
+  df_drivers <- df_drivers |>
+    dplyr::select(
+      sitename,
+      params_siml,
+      site_info,
+      forcing
+    ) |>
+    ungroup()
 
   return(df_drivers)
 }
-
-# Fill missing net radiation data using KNN with temperature and PPFD as predictors
-# and K = 5.
-# This is only applied if there is at least one missing net radiation data point
-# and if the missing fraction is smaller than 40% of the whole time series. Otherwise
-# all net radiation data are made missing (triggering the internal net radiation
-# calculation in rsofun-P-model).
-# This is now written with the recipes package. Rewrite code to make it base-R
-# compatible.
-fill_missing_netrad <- function(df){
-
-  if (sum(is.na(df$netrad)) > 0.0){
-    message(paste0("Missing net radiation data fraction: ", sum(is.na(df$netrad))/nrow(df)))
-    if (sum(is.na(df$netrad))/nrow(df) < 0.4){
-
-      message("Imputing net radiation with KNN ....")
-
-      # impute missing with KNN
-      pp <- recipes::recipe(netrad ~ temp + ppfd,
-                            data = df |>
-                              drop_na(temp, ppfd)) |>
-
-        recipes::step_center(recipes::all_numeric(), -recipes::all_outcomes()) |>
-        recipes::step_scale(recipes::all_numeric(), -recipes::all_outcomes()) |>
-
-        recipes::step_impute_knn(recipes::all_outcomes(), neighbors = 5)
-
-      pp_prep <- recipes::prep(pp, training = df |> drop_na(netrad, temp, ppfd))
-
-      df_baked <- recipes::bake(pp_prep, new_data = df)
-
-      # fill missing with gap-filled
-      df <- df |>
-        dplyr::bind_cols(
-          df_baked |>
-            dplyr::select(netrad_filled = netrad)) |>
-        dplyr::mutate(netrad = ifelse(is.na(netrad), netrad_filled, netrad)) |>
-        dplyr::select(-netrad_filled)
-
-    } else {
-      df$netrad <- NA
-    }
-  }
-
-  return(df)
-}
-

@@ -4,7 +4,6 @@ options(dplyr.summarise.inform = FALSE)
 
 library(dplyr)
 library(tidyr)
-
 lapply(list.files("R/","*.R", full.names = TRUE), source)
 
 # read in sites to process

@@ -44,3 +44,77 @@ linear_pred_co2 <- function(co2, start_ind, end_ind){
   return(co2_pred)
 
 }
+
+
+#' Gap fill net radiation measurements
+#'
+#' Gap fill net radiation measurements using a
+#' KNN approach, using temperature and ppfd
+#'
+#' @param df a data frame containing a netrad data column, and temperature
+#' and light variables
+#'
+#' @return a gap filled data frame
+#' @export
+
+fill_netrad <- function(df){
+
+    if (sum(is.na(df$netrad)) > 0.0 & sum(is.na(df$netrad))/nrow(df) < 0.4){
+
+      message("Imputing net radiation with KNN ....")
+      message(
+        paste0("Missing net radiation data fraction: ",
+               sum(is.na(df$netrad))/nrow(df)
+        )
+      )
+
+      # impute missing with KNN
+      pp <- recipes::recipe(
+        netrad ~ temp + ppfd,
+        data = df |> drop_na(temp, ppfd)
+      ) |>
+        recipes::step_center(
+          recipes::all_numeric(),
+          -recipes::all_outcomes()
+        ) |>
+        recipes::step_scale(
+          recipes::all_numeric(),
+          -recipes::all_outcomes()
+        ) |>
+        recipes::step_impute_knn(
+          recipes::all_outcomes(),
+          neighbors = 5
+        )
+
+      pp_prep <- recipes::prep(
+        pp,
+        training = df |> drop_na(netrad, temp, ppfd)
+      )
+
+      df_baked <- recipes::bake(
+        pp_prep,
+        new_data = df
+      )
+
+      # fill missing with gap-filled
+      df <- df |>
+        dplyr::bind_cols(
+          df_baked |>
+            dplyr::select(
+              netrad_filled = netrad)
+        ) |>
+        dplyr::mutate(
+          netrad = ifelse(is.na(netrad), netrad_filled, netrad)
+          #qc = ifelse(is.na(netrad), TRUE, FALSE)
+        ) |>
+        dplyr::select(
+          -netrad_filled
+        )
+
+    } else {
+      df$netrad <- NA
+    }
+
+  return(df)
+}
+
