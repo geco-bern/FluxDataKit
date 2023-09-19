@@ -13,7 +13,7 @@ input_path <- "/data/scratch/beta-v3/fluxnet/"
 # read in sites to process
 sites <- FluxDataKit::fdk_site_info
 
-site <- c("FR-Pue", "CH-Lae")
+site <- c("FR-Pue", "CH-Lae", "CH-Dav")
 
 # subset sites
 sites <- sites |>
