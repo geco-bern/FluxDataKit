@@ -5,7 +5,6 @@ options(dplyr.summarise.inform = FALSE)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-library(ingestr)
 library(rsofun)
 lapply(list.files("R/","*.R", full.names = TRUE), source)
 
