@@ -9,7 +9,7 @@ library(dplyr)
 library(ggplot2)
 
 # load site meta-data
-sites <- readRDS("data/flux_data_kit_site-info.rds")$sitename[1:2]
+sites <- readRDS("data/flux_data_kit_site-info.rds")
 
 cloud_cover <- lapply(sites, function(site){
 
@@ -62,9 +62,6 @@ cloud_cover <- lapply(sites, function(site){
   # combine list elements
   df <- bind_rows(df)
 
-  print("main file")
-  print(head(df))
-
   # add site name
   df$site <- site
 
@@ -75,13 +72,5 @@ cloud_cover <- lapply(sites, function(site){
 # bind all data together
 cloud_cover <- bind_rows(cloud_cover)
 
-# p <- ggplot(cloud_cover) +
-#   geom_line(
-#     aes(
-#       date,
-#       cloud_cover
-#     )
-#   ) +
-#   facet_wrap(~site, scales = "free")
-#
-# print(p)
+# save the data
+saveRDS(cloud_cover, "data/cloud_cover.rds", compress = "xz")
