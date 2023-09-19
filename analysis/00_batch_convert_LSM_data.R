@@ -10,16 +10,13 @@ library(ingestr)
 library(rsofun)
 
 input_path <- "/data/scratch/FDK_inputs"
-output_path <- "/data/scratch/beta-v3"
+output_path <- "/data/scratch/beta-v4"
 
 # read in all site meta-data, only test on
 # SE-Nor to debug FluxnetLSM for now
 sites <- FluxDataKit::fdk_site_info |>
   mutate(
     data_path = file.path(input_path, "flux_data/")
-  ) |>
-  filter(
-    sitename == "SE-Nor"
   )
 
 #---- create a new release ----

@@ -5,6 +5,7 @@
 data-raw/flux_data/
 data-raw/modis_gee/
 data-raw/ancillary/
+data-raw/cloud_cover/
 data-raw/modis/
 data/tmp/
 docs/
