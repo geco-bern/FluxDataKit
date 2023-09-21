@@ -72,10 +72,10 @@ df1 <- df |>
 df2 <- df |>
   filter(!(tolower(sitename) %in% tolower(screen$sitename)))
 
-data <- bind_rows(df1, df2) #|>
-#   filter(
-#     sitename == "AR-SLu"
-#   )
+data <- bind_rows(df1, df2)
+
+# save data
+saveRDS(data, "data/rsofun_driver_data_clean.rds", compress = "xz")
 
 data |>
   group_by(sitename) |>
