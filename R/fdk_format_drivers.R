@@ -182,6 +182,9 @@ fdk_format_drivers <- function(
         ccov,
         gpp
       ) |>
+      dplyr::mutate(
+        patm = ifelse(patm <= 300, NA, patm)
+      ) |>
       dplyr::group_by(sitename) |>
       tidyr::nest()
 
