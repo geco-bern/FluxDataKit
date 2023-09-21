@@ -25,7 +25,10 @@ screen <- readODS::read_ods("data/rsofun_sites.ods") |>
 
 df <- df |>
   filter(
-    !(sitename %in% screen$sitename)
+    !(tolower(sitename) %in% tolower(screen$sitename))
+  ) |>
+  select(
+    -keep
   )
 
 # screen manually, drop funky years
@@ -35,21 +38,24 @@ screen <- readODS::read_ods("data/rsofun_sites.ods") |>
   )
 
 data_fix_years <- df |>
-  filter(sitename %in% screen$sitename) |>
+  filter(tolower(sitename) %in% tolower(screen$sitename)) |>
   group_by(sitename) |>
   unnest(forcing) |>
+  left_join(screen) |>
   mutate(
     year = as.numeric(format(date, "%Y"))
   ) |>
   filter(
-    (year >= screen$start[which(tolower(screen$sitename) %in% tolower(sitename))] &
-       year <= screen$end[which(tolower(screen$sitename) %in% tolower(sitename))])
+    (year >= start & year <= end)
   ) |>
   select(
     -params_siml,
     -site_info,
-    -keep,
-    -year
+    -year,
+    -end,
+    -start,
+    -drop,
+    -notes
   ) |>
   nest() |>
   rename(
@@ -57,24 +63,21 @@ data_fix_years <- df |>
   )
 
 df1 <- df |>
-  filter(sitename %in% screen$sitename) |>
+  filter(tolower(sitename) %in% tolower(screen$sitename)) |>
   select(
     -forcing
   ) |>
   left_join(data_fix_years)
 
 df2 <- df |>
-  filter(!(sitename %in% screen$sitename))
+  filter(!(tolower(sitename) %in% tolower(screen$sitename)))
 
-df <- bind_rows(df1, df2) |>
-  select(
-    -keep
-  ) |>
-  filter(
-    sitename == "AR-SLu"
-  )
+data <- bind_rows(df1, df2) #|>
+#   filter(
+#     sitename == "AR-SLu"
+#   )
 
-df |>
+data |>
   group_by(sitename) |>
   do({
 
