@@ -1,40 +1,77 @@
 library(rsofun)
+library(tidyverse)
 
-# set model parameters
+df <- readRDS("data/rsofun_driver_data.rds")
+
+#--- visualize some data for cursory checks ---
+
+# optimized parameters from previous
+# work
 params_modl <- list(
-  kphio           = 0.09423773,
-  soilm_par_a     = 0.33349283,
-  soilm_par_b     = 1.45602286,
-  tau_acclim_tempstress = 10,
-  par_shape_tempstress  = 0.0
+  kphio              = 0.04998,    # setup ORG in Stocker et al. 2020 GMD
+  kphio_par_a        = 0.0,        # set to zero to disable temperature-dependence of kphio
+  kphio_par_b        = 1.0,
+  soilm_thetastar    = 0.6 * 240,  # to recover old setup with soil moisture stress
+  soilm_betao        = 0.0,
+  beta_unitcostratio = 146.0,
+  rd_to_vcmax        = 0.014,      # value from Atkin et al. 2015 for C3 herbaceous
+  tau_acclim         = 30.0,
+  kc_jmax            = 0.41
 )
 
-# run P-model for rsofun driver file
-df_output <- rsofun::runread_pmodel_f(
-        driver_data,
-        par = params_modl,
-        makecheck = TRUE,
-        parallel = FALSE
-      )$data[[1]]
 
-# plot both the original gpp
-# data as well as model results
-# (no parameter optimization)
-p <- ggplot(df_output) +
-  geom_point(
-    aes(
-      date,
-      gpp
+driver_data |>
+  rowwise() |>
+  do({
+
+    # run the model for these parameters
+    output <- try(rsofun::runread_pmodel_f(
+      .,
+      par = params_modl,
+      makecheck = TRUE
+    ))
+
+    if(inherits(output, "try-error")){
+      return(NULL)
+    }
+
+    # we only have one site so we'll unnest
+    # the main model output
+    model_data <- output |>
+      filter(sitename %in% site) |>
+      tidyr::unnest("data")
+
+    validation_data <- driver_data |>
+      filter(sitename %in% site) |>
+      tidyr::unnest(forcing)
+
+    p <- ggplot() +
+      geom_line(
+        data = model_data,
+        aes(
+          date,
+          gpp
+        ),
+        colour = "red"
+      ) +
+      geom_line(
+        data = validation_data,
+        aes(
+          date,
+          gpp
+        )
+      ) +
+      labs(
+        x = "Date",
+        y = "GPP"
+      ) +
+      facet_wrap(~sitename)
+
+    ggsave(
+      file.path(
+        "./manuscript",
+        paste0(.$sitename,".png")
+        )
     )
-  ) +
-  geom_point(
-    data = driver_data$forcing[[1]],
-    aes(
-      date,
-      gpp
-    ),
-    colour = "red"
-  )
 
-plot(p)
-
+  })
