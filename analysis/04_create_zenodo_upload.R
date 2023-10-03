@@ -12,7 +12,7 @@
 # https://zenodo.org/record/7258291
 
 input_path <- "/data/scratch/beta-v4/"
-tmp_path <- "/data/scratch/upload"z
+tmp_path <- "/data/scratch/upload"
 
 #---- purge old data -----
 
