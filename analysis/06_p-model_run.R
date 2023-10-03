@@ -28,7 +28,7 @@ for(i in driver_data$sitename){
       output <- try(rsofun::runread_pmodel_f(
         df,
         par = params_modl,
-        makecheck = TRUE
+        makecheck = FALSE
       ))
 
       print(output)
@@ -68,7 +68,7 @@ for(i in driver_data$sitename){
 
       ggsave(
         file.path(
-          "./manuscript/figures/",
+          "./manuscript/rsofun_output/",
           paste0(df$sitename,".png")
         ),
         width = 12,
