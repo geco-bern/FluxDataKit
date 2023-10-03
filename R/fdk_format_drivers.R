@@ -119,69 +119,6 @@ fdk_format_drivers <- function(
         data = purrr::map(data, ~fill_netrad(.))
       )
 
-    #--- merge in missing QC flags which are tossed by ingestr ---
-    # file <- list.files(
-    #   path,
-    #   glob2rx(sprintf("*%s*DD*",site)),
-    #   full.names = TRUE
-    # )
-    #
-    # daily_fluxes <- read.table(
-    #   file,
-    #   header = TRUE,
-    #   sep = ","
-    # )
-    #
-    # # keep long list of variables for further
-    # # notice - might include more variables later
-    # qc_fluxes <- daily_fluxes |>
-    #   rename(
-    #     date = "TIMESTAMP",
-    #     gpp = "GPP_DT_VUT_REF",
-    #     gpp_unc = "GPP_DT_VUT_SE",
-    #     gpp_qc = "GPP_DT_VUT_REF_QC",
-    #     temp = "TA_F_MDS",
-    #     prec = "P_F",
-    #     vpd = "VPD_F_MDS",
-    #     patm = "PA_F",
-    #     ppfd = "SW_IN_F_MDS",
-    #     netrad = "NETRAD",
-    #     wind = "WS_F",
-    #     co2 = "CO2_F_MDS",
-    #     lai = "LAI",
-    #     fapar = "FPAR",
-    #     le = "LE_F_MDS",
-    #     le_qc = "LE_F_MDS_QC",
-    #     le_cor = "LE_CORR",
-    #     le_cor_qc = "LE_CORR_QC",
-    #     gpp_qc = "GPP_DT_VUT_REF_QC",
-    #     lw_down = "LW_IN_F_MDS",
-    #     h = "H_F_MDS",
-    #     h_cor = "H_CORR"
-    #   ) |>
-    #   select(
-    #     date,
-    #     gpp_qc,
-    #     le_cor,
-    #     le_qc,
-    #     le_cor_qc
-    #   ) |>
-    #   mutate(
-    #     date = as.Date(date)
-    #   )
-    #
-    # qc_fluxes <- tibble(
-    #   sitename = site,
-    #   data = list(qc_fluxes)
-    # )
-
-      ## no qc information in forcing data frame
-      # left_join(
-      #   qc_fluxes |>
-      #     tidyr::unnest(data),
-      #   by = c("sitename", "date")
-      # )
-
     #---- Processing CRU data (for cloud cover CCOV) ----
     if (geco_system){
 
@@ -244,6 +181,9 @@ fdk_format_drivers <- function(
         co2,
         ccov,
         gpp
+      ) |>
+      dplyr::mutate(
+        patm = ifelse(patm <= 300, NA, patm)
       ) |>
       dplyr::group_by(sitename) |>
       tidyr::nest()

@@ -1,12 +1,10 @@
 library(rsofun)
 library(tidyverse)
 
-df <- readRDS("data/rsofun_driver_data.rds")
+# read data
+driver_data <- readRDS("data/rsofun_driver_data_clean.rds")
 
-#--- visualize some data for cursory checks ---
-
-# optimized parameters from previous
-# work
+# optimized parameters
 params_modl <- list(
   kphio              = 0.04998,    # setup ORG in Stocker et al. 2020 GMD
   kphio_par_a        = 0.0,        # set to zero to disable temperature-dependence of kphio
@@ -19,59 +17,62 @@ params_modl <- list(
   kc_jmax            = 0.41
 )
 
+for(i in driver_data$sitename){
+      df <- driver_data |>
+        filter(
+          sitename == i
+        ) |>
+        ungroup()
 
-driver_data |>
-  rowwise() |>
-  do({
+      # run the model for these parameters
+      output <- try(rsofun::runread_pmodel_f(
+        df,
+        par = params_modl,
+        makecheck = TRUE
+      ))
 
-    # run the model for these parameters
-    output <- try(rsofun::runread_pmodel_f(
-      .,
-      par = params_modl,
-      makecheck = TRUE
-    ))
+      print(output)
 
-    if(inherits(output, "try-error")){
-      return(NULL)
-    }
+      if(inherits(output, "try-error")){
+        return(NULL)
+      }
 
-    # we only have one site so we'll unnest
-    # the main model output
-    model_data <- output |>
-      filter(sitename %in% site) |>
-      tidyr::unnest("data")
+      # we only have one site so we'll unnest
+      # the main model output
+      model_data <- output |>
+        tidyr::unnest("data")
 
-    validation_data <- driver_data |>
-      filter(sitename %in% site) |>
-      tidyr::unnest(forcing)
+      validation_data <- df |>
+        tidyr::unnest(forcing)
 
-    p <- ggplot() +
-      geom_line(
-        data = model_data,
-        aes(
-          date,
-          gpp
+      p <- ggplot() +
+        geom_line(
+          data = model_data,
+          aes(
+            date,
+            gpp
+          ),
+          colour = "red"
+        ) +
+        geom_line(
+          data = validation_data,
+          aes(
+            date,
+            gpp
+          )
+        ) +
+        labs(
+          x = "Date",
+          y = "GPP"
+        )
+
+      ggsave(
+        file.path(
+          "./manuscript/figures/",
+          paste0(df$sitename,".png")
         ),
-        colour = "red"
-      ) +
-      geom_line(
-        data = validation_data,
-        aes(
-          date,
-          gpp
-        )
-      ) +
-      labs(
-        x = "Date",
-        y = "GPP"
-      ) +
-      facet_wrap(~sitename)
+        width = 12,
+        height = 7
+      )
 
-    ggsave(
-      file.path(
-        "./manuscript",
-        paste0(.$sitename,".png")
-        )
-    )
-
-  })
+}
