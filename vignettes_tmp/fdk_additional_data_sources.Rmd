@@ -1,0 +1,200 @@
+---
+title: "Additional data sources"
+author: "Beni Stocker"
+date: "2023-10-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Ameriflux
+
+Downloaded data on 14 Oct 2023 from [https://ameriflux.lbl.gov/](https://ameriflux.lbl.gov/).
+
+```{r}
+path_ameriflux <- "~/data/FluxDataKit/FDK_inputs/ameriflux/"
+dirs <- list.files(path = path_ameriflux, pattern = "_FLUXNET_FULLSET_")
+
+# interpret directory names
+sites_ameriflux <- tibble(
+  site = str_sub(dirs, start = 5, end = 10),
+  year_start = as.integer(str_sub(dirs, start = 28, end = 31)),
+  year_end = as.integer(str_sub(dirs, start = 33, end = 36))) |> 
+  mutate(nyears = year_end - year_start + 1)
+```
+
+
+
+## ICOS Drought 2018
+
+Data downloaded from [https://doi.org/10.18160/YVR0-4898](https://doi.org/10.18160/YVR0-4898).
+
+```{r}
+path_icos_drought2018 <- "~/data/FluxDataKit/FDK_inputs/icos_drought_2018/"
+dirs <- list.files(path = path_icos_drought2018, pattern = "_FLUXNET2015_FULLSET_")
+
+# interpret directory names
+sites_icos_drought2018 <- tibble(
+  site = str_sub(dirs, start = 5, end = 10),
+  year_start = as.integer(str_sub(dirs, start = 32, end = 35)),
+  year_end = as.integer(str_sub(dirs, start = 37, end = 40))) |> 
+  mutate(nyears = year_end - year_start + 1)
+```
+
+
+## ICOS Warm Winter 2020
+
+Data downloaded from [https://doi.org/10.18160/2G60-ZHAK](https://doi.org/10.18160/2G60-ZHAK)
+
+```{r}
+path_icos_warm_winter_2020 <- "~/data/FluxDataKit/FDK_inputs/icos_warm_winter_2020/"
+dirs <- list.files(path = path_icos_warm_winter_2020, pattern = "_FLUXNET2015_FULLSET_")
+
+# interpret directory names
+sites_icos_warm_winter_2020 <- tibble(
+  site = str_sub(dirs, start = 5, end = 10),
+  year_start = as.integer(str_sub(dirs, start = 32, end = 35)),
+  year_end = as.integer(str_sub(dirs, start = 37, end = 40))) |> 
+  mutate(nyears = year_end - year_start + 1)
+```
+
+## ICOS Release 2023-1
+
+Data downloaded from [https://doi.org/10.18160/YDH2-VFYE](https://doi.org/10.18160/YDH2-VFYE)
+
+This is more challenging to handle. Covered years cannot be read from file name. Need to open files instead.
+```{r message=FALSE}
+path_icos_2023_1 <- "~/data/FluxDataKit/FDK_inputs/icos_2023_1/"
+dirs <- list.files(path = path_icos_2023_1, pattern = "_FLUXNET_YY_L2", recursive = TRUE, include.dirs = TRUE)
+dirs <- dirs[str_detect(dirs, "VARINFO", negate = TRUE)]
+
+get_years <- function(filn){
+  read_csv(paste0(path_icos_2023_1, filn)) |> 
+    pull(TIMESTAMP)
+}
+
+sites_icos_2023_1 <- tibble(path = dirs) |> 
+  mutate(data = purrr::map(path, ~get_years(.))) |> 
+  mutate(site = str_sub(path, start = 9, end = 14),
+         year_start = purrr::map_int(data, ~min(.)),
+         year_end = purrr::map_int(data, ~max(.))) |> 
+  select(-path, -data)
+```
+
+
+## Visualise data availability
+
+```{r}
+sites <- FluxDataKit::fdk_site_info |> 
+  select(site = sitename, year_start, year_end) |> 
+  mutate(source = "fdk",
+         year_start = as.integer(year_start),
+         year_end = as.integer(year_end)) |> 
+  mutate(nyears = year_end - year_start + 1) |> 
+  as_tibble() |> 
+  bind_rows(
+    sites_ameriflux |> 
+      mutate(source = "ameriflux")
+  ) |> 
+  bind_rows(
+    sites_icos_drought2018 |> 
+      mutate(source = "icos_drought2018")
+  ) |> 
+  bind_rows(
+    sites_icos_warm_winter_2020 |> 
+      mutate(source = "icos_warm_winter_2020")
+  ) |> 
+  bind_rows(
+    sites_icos_2023_1 |> 
+      mutate(source = "icos_2023_1")
+  ) |> 
+  arrange(site)
+```
+
+```{r, fig.height=70}
+sites |> 
+  ggplot(aes(y = site, 
+             xmin = year_start, 
+             xmax = year_end, 
+             color = factor(source, levels = c("fdk", 
+                                               "ameriflux", 
+                                               "icos_drought2018", 
+                                               "icos_warm_winter_2020", 
+                                               "icos_2023_1")))) +
+  geom_linerange(position = position_dodge(width = 0.7)) +
+  scale_color_manual(values = c("black",
+                                "royalblue",
+                                "tomato1",
+                                "springgreen4",
+                                "tomato4")) +
+  theme(legend.title = element_blank(),
+        legend.position="top")
+
+ggsave(paste0(here::here(), "/fig/additional_data_sources.pdf"),
+       width = 6, 
+       height = 70, 
+       limitsize = FALSE)
+```
+
+## Select source
+
+Determine source that provides the most abundant data per site. Ignore ICOS 2023-1. This is in most cases added on top of other data sets.
+```{r}
+sites_maximised <- sites |> 
+  filter(source != "icos_2023_1") |> 
+  group_by(site) |> 
+  mutate(nyears = ifelse(source == "fdk", nyears + 0.01, nyears)) |>  # trick
+  filter(nyears == max(nyears)) |> 
+  mutate(nyears = round(nyears))
+```
+
+```{r, fig.height=70}
+sites_maximised |> 
+  ggplot(aes(y = site, 
+             xmin = year_start, 
+             xmax = year_end, 
+             color = factor(source, levels = c("fdk", 
+                                               "ameriflux", 
+                                               "icos_drought2018", 
+                                               "icos_warm_winter_2020", 
+                                               "icos_2023_1")))) +
+  geom_linerange(position = position_dodge(width = 0.7)) +
+  scale_color_manual(values = c("black",
+                                "royalblue",
+                                "tomato1",
+                                "springgreen4",
+                                "tomato4")) +
+  theme(legend.title = element_blank(),
+        legend.position="top")
+
+ggsave(paste0(here::here(), "/fig/additional_data_sources_maximised.pdf"),
+       width = 6, 
+       height = 70, 
+       limitsize = FALSE)
+```
+
+
+By including ICOS Warm Winter 2020 and Ameriflux, we can increase the total data volume by about 50% - from 2000 to 3000 site-years.
+```{r}
+df_plot <- sites_maximised |> 
+  ungroup() |> 
+  group_by(source) |> 
+  summarise(nyears = sum(nyears))
+
+df_plot |> 
+  ggplot(aes(source, nyears)) +
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  theme_classic()
+```
+
+The best source per site is:
+```{r}
+sites_maximised |> 
+  knitr::kable()
+
+write_csv(sites_maximised, file = paste0(here::here(), "/data-raw/sites_maximised.csv"))
+```
