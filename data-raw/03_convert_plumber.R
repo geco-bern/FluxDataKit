@@ -16,9 +16,9 @@ df |>
   do({
     fdk_convert_lsm(
       site = .$sitename,
-      path = "/scratch/FDK_inputs/flux_data/plumber/",
+      path = "~/data/FluxDataKit/FDK_inputs/plumber/", #  "/scratch/FDK_inputs/flux_data/plumber/",
       fluxnet_format = TRUE,
       meta_data = FALSE,
-      out_path = "/scratch/FDK_inputs/flux_data/plumber_fluxnet/"
+      out_path ="~/data/FluxDataKit/FDK_inputs/plumber_fluxnet/" # "/scratch/FDK_inputs/flux_data/plumber_fluxnet/"
     )
   })

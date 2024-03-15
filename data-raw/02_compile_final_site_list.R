@@ -11,7 +11,6 @@ library(raster)
 # Read collected meta data------------------------------------------------------
 ## Plumber ----------------------------------------------------------------------
 plumber <- readRDS(here::here("data-raw/meta_data/plumber_meta-data.rds")) |>
-  as_tibble() |>
   dplyr::select(
     sitename,
     lon = longitude,
@@ -92,7 +91,7 @@ icos_warmwinter2020 <- readRDS(here::here("data-raw/meta_data/icos_warmwinter202
     nyears = year_end - year_start + 1,
   )
 
-# ## FLUXNET2015 ------------------------------------------------------------------
+## ## FLUXNET2015 ------------------------------------------------------------------
 # fluxnet <- readRDS(here::here("data-raw/meta_data/fluxnet_meta_data.rds")) |>
 #   rename(
 #     'lat' = 'latitude',
@@ -124,10 +123,14 @@ df <- plumber |>
   bind_rows(
     icos_warmwinter2020
   ) |>
-  # bind_rows(
-  #   fluxnet
-  # )
   group_by(sitename) |>
+
+  # fill missing values within product, ideally with PLUMBER data
+  tidyr::fill(
+    c(lon, lat, elv, koeppen_code, classid),
+    .direction = c("down")) |>
+
+  # retain only product providing longest running data
   filter(nyears == max(nyears))
 
 # Complement missing meta information-------------------------------------------
@@ -279,7 +282,8 @@ df$whc <- whc_v
 #   )
 
 
-# save the data
+# save the data, retaining only key columns (note: valuable information also in
+# other columns!)
 df <- df |>
   dplyr::select(
     sitename,
@@ -292,8 +296,9 @@ df <- df |>
     igbp_land_use = classid,
     whc,
     product
-  )
+  ) |>
+  ungroup()
 
-# saveRDS(df, file = "data/flux_data_kit_site-info.rds", compress = "xz")
+saveRDS(df, file = "data/flux_data_kit_site-info.rds", compress = "xz")
 save(df, file = "data/flux_data_kit_site-info.rda", compress = "xz")
 write_csv(df, file = "data/flux_data_kit_site-info.csv")

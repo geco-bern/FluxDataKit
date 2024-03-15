@@ -6,7 +6,8 @@
 library(rvest)
 
 # set destination path
-dest_path <- "/data/scratch/FDK_inputs/flux_data/plumber/"
+# dest_path <- "/data/scratch/FDK_inputs/flux_data/plumber/"
+dest_path <- "~/data/FluxDataKit/FDK_inputs/plumber/"
 
 # set catalogues
 catalogues <- data.frame(

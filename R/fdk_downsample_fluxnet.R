@@ -158,7 +158,7 @@ fdk_downsample_fluxnet <- function(
       TA_F_MDS = mean(TA_F_MDS, na.rm = FALSE),
       TA_F_QC = mean(TA_F_QC < 1, na.rm = FALSE),
 
-      # temperature is the mean of the HH values
+      # shortwave radiation is the mean of the HH values
       SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = FALSE),
       SW_IN_F_MDS_QC = mean(SW_IN_F_MDS_QC < 1, na.rm = FALSE),
 
@@ -174,7 +174,7 @@ fdk_downsample_fluxnet <- function(
       WS_F = mean(WS_F, na.rm = FALSE),
       WS_F_QC = mean(WS_F_QC < 1, na.rm = FALSE),
 
-      # temperature is the mean of the HH values
+      # atmospheric pressure is the mean of the HH values
       PA_F = mean(PA_F, na.rm = FALSE),
       PA_F_QC = mean(PA_F_QC < 1, na.rm = FALSE),
 

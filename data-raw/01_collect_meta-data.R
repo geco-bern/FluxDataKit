@@ -13,7 +13,8 @@ library(amerifluxr)
 
 # Set local paths of data files -------------------------------------------------
 # Get PLUMBER2 data from https://dx.doi.org/10.25914/5fdb0902607e1
-plumber_path <- "/scratch/FDK_inputs/flux_data/plumber_fluxnet/"
+# plumber_path <- "/scratch/FDK_inputs/flux_data/plumber_fluxnet/"
+plumber_path <- "~/data/FluxDataKit/FDK_inputs/plumber/"
 
 # Get Ameriflux data from Downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
 path_ameriflux <- "~/data/FluxDataKit/FDK_inputs/ameriflux/"
