@@ -91,27 +91,6 @@ icos_warmwinter2020 <- readRDS(here::here("data-raw/meta_data/icos_warmwinter202
     nyears = year_end - year_start + 1,
   )
 
-## ## FLUXNET2015 ------------------------------------------------------------------
-# fluxnet <- readRDS(here::here("data-raw/meta_data/fluxnet_meta_data.rds")) |>
-#   rename(
-#     'lat' = 'latitude',
-#     'lon' = 'longitude',
-#     'elv' = 'altitude',
-#     'date_start' = 'year_start',
-#     'date_end' = 'year_end'
-#   ) |>
-#   dplyr::select(
-#     sitename,
-#     lat,
-#     lon,
-#     elv,
-#     date_start,
-#     date_end
-#   ) |>
-#   mutate(
-#     product = "fluxnet2015"
-#   )
-
 # Determine longest source per site --------------------------------------------
 df <- plumber |>
   bind_rows(
@@ -128,14 +107,22 @@ df <- plumber |>
   # fill missing values within product, ideally with PLUMBER data
   tidyr::fill(
     c(lon, lat, elv, koeppen_code, classid),
-    .direction = c("down")) |>
+    .direction = c("downup")) |>
 
   # retain only product providing longest running data
-  filter(nyears == max(nyears))
+  filter(nyears == max(nyears)) |>
+
+  # there are (two) duplicates because of identical nyears
+  # keep only the one with the most recent 'year_end'
+  filter(year_end == max(year_end)) |>
+
+  # there may still be duplicates (FR-LGt), drop duplicates
+  distinct(sitename, .keep_all = TRUE)
+
 
 # Complement missing meta information-------------------------------------------
 ## Get info from Falge et al https://doi.org/10.3334/ORNLDAAC/1530 -------------
-siteinfo_falge <- read_csv(here::here("data-raw/meta_data/fluxnet_site_info_all_falge.csv")) |>
+siteinfo_falge <- readr::read_csv(here::here("data-raw/meta_data/fluxnet_site_info_all_falge.csv")) |>
   dplyr::select(-sitename) |>
   dplyr::rename(
     sitename = fluxnetid
@@ -147,7 +134,7 @@ siteinfo_falge <- read_csv(here::here("data-raw/meta_data/fluxnet_site_info_all_
   dplyr::mutate(koeppen_climate = str_split( koeppen_climate, " - " ) ) |>
   dplyr::mutate(koeppen_code_falge = purrr::map( koeppen_climate, 1 ) ) |>
   dplyr::mutate(koeppen_word = purrr::map( koeppen_climate, 2 ) ) |>
-  unnest(c(koeppen_code_falge, koeppen_word)) |>
+  tidyr::unnest(c(koeppen_code_falge, koeppen_word)) |>
 
   # treat IGBP codes
   mutate(
@@ -186,7 +173,7 @@ df <- df |>
   )
 
 ## Get missing data from ICOS site list file -----------------------------------
-siteinfo_icos <- read_csv(
+siteinfo_icos <- readr::read_csv(
   here::here(
     "data-raw/meta_data/sites_list_icos.csv"
   )
@@ -247,6 +234,34 @@ whc_v <- raster::extract(whc, loc)
 # append to original data frame
 df$whc <- whc_v
 
+# for missing values extract with buffer (in m)
+whc_v <- raster::extract(whc, loc, buffer = 10000)
+df$whc_buffer <- whc_v
+
+df <- df |>
+  mutate(whc_buffer = purrr::map_dbl(
+    whc_buffer,
+    ~mean(., na.rm = TRUE)
+  )) |>
+  mutate(whc = ifelse(is.na(whc), whc_buffer, whc))
+
+
+## Get still missing elevation data from ETOPO1---------------------------------
+etopo <- raster("~/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")
+etopo_v <- raster::extract(etopo, loc)
+
+# add etopo1 column
+df$elv_etopo1 = etopo_v
+
+# backfill elevation data
+df <- df |>
+  mutate(
+    elv = ifelse(
+      is.na(elv),
+      elv_etopo1,
+      elv)
+  )
+
 # ## get IGBP from MODIS data-----------------------------------------------------
 # # download IGBP class values (MODISTools)
 # igbp <- apply(df, 1, function(x){
@@ -299,6 +314,11 @@ df <- df |>
   ) |>
   ungroup()
 
-saveRDS(df, file = "data/flux_data_kit_site-info.rds", compress = "xz")
-save(df, file = "data/flux_data_kit_site-info.rda", compress = "xz")
-write_csv(df, file = "data/flux_data_kit_site-info.csv")
+# # quick check for missing data
+# visdat::vis_miss(df)
+
+saveRDS(df, file = here::here("data/flux_data_kit_site-info.rds"), compress = "xz")
+save(df, file = here::here("data/flux_data_kit_site-info.rda"), compress = "xz")
+readr::write_csv(df, file = here::here("data/flux_data_kit_site-info.csv"))
+
+
