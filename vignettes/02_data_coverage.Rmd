@@ -17,14 +17,12 @@ library(leafpop)
 library(sf)
 
 sites <- FluxDataKit::fdk_site_info |>
-  select(-date_start,-date_end,-koeppen_code_beck) |>
   rename(
     'koeppen' = 'koeppen_code',
     'start' = 'year_start',
     'end' = 'year_end',
     'IGBP' = 'igbp_land_use'
   )
-
 ```
 
 <center>
