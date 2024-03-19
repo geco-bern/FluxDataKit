@@ -3,14 +3,14 @@
 options(tidyverse.quiet = TRUE)
 options(dplyr.summarise.inform = FALSE)
 lapply(list.files("R/","*.R", full.names = TRUE), source)
-#library(FluxDataKit)
+library(FluxDataKit)
 library(FluxnetLSM)
 library(dplyr)
 library(ingestr)
 library(rsofun)
 
-input_path <- "/data/scratch/FDK_inputs"
-output_path <- "/data/scratch/beta-v4"
+input_path <- "~/data/FluxDataKit/FDK_inputs"  # "/data/scratch/FDK_inputs"
+output_path <- "~/data/FluxDataKit/v3"  #  "/data/scratch/beta-v4"
 
 # read in all site meta-data, only test on
 # FR-Pue to debug FluxnetLSM for now
@@ -19,16 +19,13 @@ sites <- FluxDataKit::fdk_site_info |>
     data_path = file.path(input_path, "flux_data/")
   )
 
-# CH-Lae
-# CH-Dav
-#
 #---- create a new release ----
 
 fdk_release(
   df = sites,
   input_path = input_path,
   output_path = output_path,
-  overwrite = TRUE
+  overwrite = FALSE
 )
 
 #---- create matching plots ----
@@ -70,3 +67,5 @@ failed_sites <- lapply(sites$sitename, function(site){
 
   return(NULL)
 })
+
+

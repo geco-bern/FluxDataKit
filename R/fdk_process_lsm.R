@@ -128,7 +128,7 @@ fdk_process_lsm <- function(
 
     } else {
 
-      if ( x['product'] == "icos" ){
+      if ( x['product'] == "icos_warmwinter2020" || x['product'] == "icos_drought2018" ){
         infile <- FluxnetLSM::get_fluxnet_files(
           x['data_path'],
           x['sitename'],
@@ -145,7 +145,7 @@ fdk_process_lsm <- function(
         )
       }
 
-      if ( x['product'] == "oneflux" ){
+      if ( x['product'] == "ameriflux" ){
         infile <- FluxnetLSM::get_fluxnet_files(
           x['data_path'],
           x['sitename'],

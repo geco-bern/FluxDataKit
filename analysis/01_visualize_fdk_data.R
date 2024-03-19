@@ -26,10 +26,11 @@ failed_sites <- lapply(sites$sitename, function(site){
   df <- suppressWarnings(try(fdk_convert_lsm(
     site = site,
     fluxnet_format = FALSE,
-    path = "/data/scratch/beta-v2/lsm/"
+    path = "~/data/FluxDataKit/v3"
   )
   ))
 
   print(head(df))
 
 })
+

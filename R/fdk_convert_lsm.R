@@ -289,14 +289,14 @@ fdk_convert_lsm <- function(
 
     # loop over all rows (variables)
     for (i in seq_len(nrow(replacements))){
-      try(all <-tibble::add_column(all,
+      try(all <- tibble::add_column(all,
             !!(replacements[i, 'variable']) := replacements[i, 'value']
             ),
           silent = TRUE
       )
 
       all <- all |>
-        select(
+        dplyr::select(
           -ends_with(".1")
         )
     }
