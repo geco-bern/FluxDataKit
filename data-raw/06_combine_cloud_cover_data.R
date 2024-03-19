@@ -11,13 +11,13 @@ library(ggplot2)
 # load site meta-data
 sites <- readRDS("data/flux_data_kit_site-info.rds")
 
-cloud_cover <- lapply(sites, function(site){
+cloud_cover <- lapply(sites$sitename, function(site){
 
   message(paste0("--- processing site: ", site, "\n"))
 
   # list all files for a given site
   files <- list.files(
-    "data-raw/cloud_cover/",
+    "~/data/FluxDataKit/FDK_inputs/cloud_cover/",
     glob2rx(paste0(site,"*.nc")),
     full.names = TRUE
     )
@@ -72,5 +72,25 @@ cloud_cover <- lapply(sites, function(site){
 # bind all data together
 cloud_cover <- bind_rows(cloud_cover)
 
+# missing data for some sites - take them from the cloud cover data extracted
+# from CRU
+missing_sites <- sites$sitename[which(!(sites$sitename %in% cloud_cover$site))]
+
+cloud_cover_cru <- read_rds("~/data/FluxDataKit/FDK_inputs/cloud_cover/df_cru.rds")
+
+cloud_cover_cru <- cloud_cover_cru |>
+  filter(sitename %in% missing_sites) |>
+  unnest(data) |>
+  rename(cloud_cover = ccov,
+         site = sitename) |>
+  mutate(cloud_cover = cloud_cover/100)
+
+cloud_cover <- cloud_cover |>
+  bind_rows(
+    cloud_cover_cru
+  ) |>
+  arrange(site) |>
+  dplyr::select(-ccov_int)
+
 # save the data
-saveRDS(cloud_cover, "data/cloud_cover.rds", compress = "xz")
+saveRDS(cloud_cover, "~/data/FluxDataKit/FDK_inputs/cloud_cover/cloud_cover.rds", compress = "xz")

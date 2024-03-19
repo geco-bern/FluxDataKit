@@ -234,7 +234,7 @@ whc_v <- raster::extract(whc, loc)
 # append to original data frame
 df$whc <- whc_v
 
-# for missing values extract with buffer (in m)
+# for missing values, extract again with buffer (in m)
 whc_v <- raster::extract(whc, loc, buffer = 10000)
 df$whc_buffer <- whc_v
 
@@ -247,6 +247,7 @@ df <- df |>
 
 
 ## Get still missing elevation data from ETOPO1---------------------------------
+# file is too large to add it to this repo.
 etopo <- raster("~/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")
 etopo_v <- raster::extract(etopo, loc)
 
@@ -299,7 +300,7 @@ df <- df |>
 
 # save the data, retaining only key columns (note: valuable information also in
 # other columns!)
-df <- df |>
+fdk_site_info <- df |>
   dplyr::select(
     sitename,
     lon,
@@ -317,8 +318,10 @@ df <- df |>
 # # quick check for missing data
 # visdat::vis_miss(df)
 
-saveRDS(df, file = here::here("data/flux_data_kit_site-info.rds"), compress = "xz")
-save(df, file = here::here("data/flux_data_kit_site-info.rda"), compress = "xz")
-readr::write_csv(df, file = here::here("data/flux_data_kit_site-info.csv"))
+# saveRDS(df, file = here::here("data/fdk_site_info.rds"), compress = "xz")
+save(fdk_site_info,
+     file = here::here("data/fdk_site_info.rda"), compress = "xz"
+     )
+# readr::write_csv(df, file = here::here("data/fdk_site_info.csv"))
 
 

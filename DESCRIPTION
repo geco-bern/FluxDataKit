@@ -27,7 +27,9 @@ Imports:
     rvest,
     zoo,
     lubridate,
-    recipes
+    recipes,
+    readr,
+    here
 Suggests:
     knitr,
     rmarkdown,
