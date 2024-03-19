@@ -18,17 +18,6 @@ sites <- FluxDataKit::fdk_site_info |>
   mutate(
     data_path = file.path(input_path, "flux_data/")
   )
-  # # test: plumber
-  # filter(sitename == "AR-SLu")
-
-  # # test: ameriflux
-  # filter(sitename == "AR-TF1")
-  #
-  # # test: icos drought 2018
-  # filter(sitename == "DE-Hte")
-  #
-  # # test: icos warm winter 2020
-  # filter(sitename == "BE-Bra")
 
 #---- create a new release ----
 
