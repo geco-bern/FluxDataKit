@@ -113,11 +113,11 @@ fdk_format_drivers <- function(
          # used as target data for rsofun, not forcing
          # gross primary production
          gpp = GPP_NT_VUT_REF,
-         gpp_qc = GPP_NT_VUT_REF_QC,
+         gpp_qc = NEE_VUT_REF_QC,
 
          # energy balance-corrected latent heat flux (~ evapotranspiration)
          le = LE_CORR,
-         le_qc = H_CORR_QC
+         le_qc = LE_F_MDS_QC
       )
 
     df_flux <- df_flux |>
