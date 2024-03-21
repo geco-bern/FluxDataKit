@@ -109,7 +109,15 @@ fdk_format_drivers <- function(
 
          # atmospheric CO2 concentration in ppmv
          co2 = CO2_F_MDS,
-         gpp = GPP_DT_VUT_REF
+
+         # used as target data for rsofun, not forcing
+         # gross primary production
+         gpp = GPP_NT_VUT_REF,
+         gpp_qc = GPP_NT_VUT_REF_QC,
+
+         # energy balance-corrected latent heat flux (~ evapotranspiration)
+         le = LE_CORR,
+         le_qc = H_CORR_QC
       )
 
     df_flux <- df_flux |>
@@ -180,7 +188,10 @@ fdk_format_drivers <- function(
         fapar,
         co2,
         ccov,
-        gpp
+        gpp,
+        gpp_qc,
+        le,
+        le_qc
       ) |>
       dplyr::mutate(
         patm = ifelse(patm <= 300, NA, patm)

@@ -54,7 +54,7 @@ failed_sites <- lapply(sites$sitename, function(site){
         df,
         site = site,
         out_path = file.path(output_path, "plots"),
-        overwrite = TRUE
+        overwrite = FALSE
       )
       )
     )
