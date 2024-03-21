@@ -8,7 +8,10 @@
 #' @param df data frame with site meta-data information
 #' @param input_path path with input data
 #' @param output_path path where to store the output data
-#' @param overwrite overwrite the results if the output path exists
+#' @param overwrite_lsm overwrite the LSM-formatted NetCDF files if the output
+#' path exists
+#' @param overwrite_fluxnet overwrite the FLUXNET-formatted CSV files if the
+#' output path exists
 #'
 #' @return the FluxDataKit data release as a set of netCDF, CSV data,
 #'  compressed RDS rsofun drivers and meta-data
@@ -18,8 +21,9 @@ fdk_release <- function(
   df,
   input_path,
   output_path,
-  overwrite = TRUE
-  ) {
+  overwrite_lsm = TRUE,
+  overwrite_fluxnet = TRUE
+) {
 
   # create output directories
 
@@ -61,17 +65,17 @@ fdk_release <- function(
 
   #---- FluxnetLSM reprocessing routine ----
 
-  # process all sites, by calling the processing routine
-  # all data is returned to the specified output path (out_path)
-  suppressMessages(
-    fdk_process_lsm(
-      sites,
-      out_path = file.path(output_path, "lsm"),
-      modis_path = file.path(input_path,"modis"),
-      overwrite = overwrite,
-      save_tmp_files = FALSE
-    )
-  )
+  # # process all sites, by calling the processing routine
+  # # all data is returned to the specified output path (out_path)
+  # suppressMessages(
+  #   fdk_process_lsm(
+  #     sites,
+  #     out_path = file.path(output_path, "lsm"),
+  #     modis_path = file.path(input_path,"modis"),
+  #     overwrite = overwrite_lsm,
+  #     save_tmp_files = FALSE
+  #   )
+  # )
 
   #---- Convert files to CSV files ----
 
@@ -90,7 +94,8 @@ fdk_release <- function(
         site = site,
         fluxnet_format = TRUE,
         path = file.path(output_path, "lsm"),
-        out_path = file.path(output_path, "fluxnet")
+        out_path = file.path(output_path, "fluxnet"),
+        overwrite = overwrite_fluxnet
         )
       )
     )
