@@ -72,7 +72,13 @@ for consistency this wrapper restricts things further.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_release</span><span class="op">(</span><span class="va">df</span>, <span class="va">input_path</span>, <span class="va">output_path</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fdk_release</span><span class="op">(</span></span>
+<span>  <span class="va">df</span>,</span>
+<span>  <span class="va">input_path</span>,</span>
+<span>  <span class="va">output_path</span>,</span>
+<span>  overwrite_lsm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  overwrite_fluxnet <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -89,8 +95,14 @@ for consistency this wrapper restricts things further.</p>
 <dd><p>path where to store the output data</p></dd>
 
 
-<dt>overwrite</dt>
-<dd><p>overwrite the results if the output path exists</p></dd>
+<dt>overwrite_lsm</dt>
+<dd><p>overwrite the LSM-formatted NetCDF files if the output
+path exists</p></dd>
+
+
+<dt>overwrite_fluxnet</dt>
+<dd><p>overwrite the FLUXNET-formatted CSV files if the
+output path exists</p></dd>
 
 </dl></div>
     <div id="value">
