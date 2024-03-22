@@ -7,20 +7,12 @@ library(tidyr)
 library(ggplot2)
 library(ingestr)
 library(rsofun)
-lapply(list.files("R/","*.R", full.names = TRUE), source)
+# lapply(list.files("R/","*.R", full.names = TRUE), source)
 
 input_path <- "~/data/FluxDataKit/v3/fluxnet/"
 
 # read in sites to process
 sites <- FluxDataKit::fdk_site_info
-
-#site <- c("FR-Pue", "CH-Lae")
-
-# subset sites
-# sites <- sites |>
-#   dplyr::filter(
-#     sitename %in% site
-#   )
 
 # loop over all sites and process them to format
 # them into the correct rsofun format

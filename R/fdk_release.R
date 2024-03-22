@@ -65,17 +65,17 @@ fdk_release <- function(
 
   #---- FluxnetLSM reprocessing routine ----
 
-  # # process all sites, by calling the processing routine
-  # # all data is returned to the specified output path (out_path)
-  # suppressMessages(
-  #   fdk_process_lsm(
-  #     sites,
-  #     out_path = file.path(output_path, "lsm"),
-  #     modis_path = file.path(input_path,"modis"),
-  #     overwrite = overwrite_lsm,
-  #     save_tmp_files = FALSE
-  #   )
-  # )
+  # process all sites, by calling the processing routine
+  # all data is returned to the specified output path (out_path)
+  suppressMessages(
+    fdk_process_lsm(
+      sites,
+      out_path = file.path(output_path, "lsm"),
+      modis_path = file.path(input_path,"modis"),
+      overwrite = overwrite_lsm,
+      save_tmp_files = FALSE
+    )
+  )
 
   #---- Convert files to CSV files ----
 

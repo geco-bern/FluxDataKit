@@ -50,8 +50,6 @@ fdk_format_drivers <- function(
   )
 
   # check format of the site_info
-  names(site_info) %in% c("sitename", "lon", "lat", "start_year", "end_year", "elv")
-
   list_flux <- lapply(site_info$sitename, function(site){
 
     # get file name path
@@ -128,47 +126,60 @@ fdk_format_drivers <- function(
       )
 
     #---- Processing CRU data (for cloud cover CCOV) ----
-    if (geco_system){
+    ccov <- fdk_process_cloud_cover(
+      path = "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
+      site = site
+    )
 
-      if (verbose){
-        message("Processing ERA5 cloud cover data ....")
-      }
+    df_flux <- df_flux |>
+      tidyr::unnest(data) |>
+      left_join(
+        ccov, by = c("sitename", "date")
+      ) |>
+      group_by(sitename) |>
+      tidyr::nest()
 
-      # include cloud cover data if on
-      # internal GECO system, will skip
-      # when external as the download takes
-      # lots of time
-
-      # constrain range of dates to
-      # required data
-
-      ccov <- fdk_process_cloud_cover(
-        path = "data-raw/cloud_cover/",
-        site = site
-      )
-
-     df_flux <- df_flux |>
-        tidyr::unnest(data) |>
-        left_join(
-          ccov, by = c("sitename", "date")
-        ) |>
-        group_by(sitename) |>
-        tidyr::nest()
-
-    } else {
-
-      message("Filling cloud cover forcing with 0.
-              Use net radiation for simulations.")
-
-      df_flux <- df_flux |>
-        tidyr::unnest(data) |>
-        mutate(
-         ccov = 0
-        ) |>
-        group_by(sitename) |>
-        tidyr::nest()
-
-    }
+    # if (geco_system){
+    #
+    #   if (verbose){
+    #     message("Processing ERA5 cloud cover data ....")
+    #   }
+    #
+    #   # include cloud cover data if on
+    #   # internal GECO system, will skip
+    #   # when external as the download takes
+    #   # lots of time
+    #
+    #   # constrain range of dates to
+    #   # required data
+    #
+    #   ccov <- fdk_process_cloud_cover(
+    #     path = "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
+    #     site = site
+    #   )
+    #
+    #  df_flux <- df_flux |>
+    #     tidyr::unnest(data) |>
+    #     left_join(
+    #       ccov, by = c("sitename", "date")
+    #     ) |>
+    #     group_by(sitename) |>
+    #     tidyr::nest()
+    #
+    # } else {
+    #
+    #   message("Filling cloud cover forcing with 0.
+    #           Use net radiation for simulations.")
+    #
+    #   df_flux <- df_flux |>
+    #     tidyr::unnest(data) |>
+    #     mutate(
+    #      ccov = 0
+    #     ) |>
+    #     group_by(sitename) |>
+    #     tidyr::nest()
+    #
+    # }
 
     df_flux <- df_flux |>
       dplyr::group_by(sitename) |>
