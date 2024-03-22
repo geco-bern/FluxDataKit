@@ -13,7 +13,7 @@ library(tidyverse)
 library(FluxDataKit)
 
 # load sites
-sites <- readRDS("data/flux_data_kit_site-info.rds") |>
+sites <- FluxDataKit::fdk_site_info |>
     filter(
       sitename %in% c("FR-Fon")
     )

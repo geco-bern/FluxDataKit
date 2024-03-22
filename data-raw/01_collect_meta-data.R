@@ -14,16 +14,16 @@ library(amerifluxr)
 # Set local paths of data files -------------------------------------------------
 # Get PLUMBER2 data from https://dx.doi.org/10.25914/5fdb0902607e1
 # plumber_path <- "/scratch/FDK_inputs/flux_data/plumber_fluxnet/"
-plumber_path <- "~/data/FluxDataKit/FDK_inputs/plumber/"
+plumber_path <- "~/data/FluxDataKit/FDK_inputs/flux_data/plumber/"
 
 # Get Ameriflux data from Downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
-path_ameriflux <- "~/data/FluxDataKit/FDK_inputs/ameriflux/"
+path_ameriflux <- "~/data/FluxDataKit/FDK_inputs/flux_data/ameriflux/"
 
 # Get ICOS Drought2018 data from https://doi.org/10.18160/YVR0-4898.
-path_icos_drought2018 <- "~/data/FluxDataKit/FDK_inputs/icos_drought_2018/"
+path_icos_drought2018 <- "~/data/FluxDataKit/FDK_inputs/flux_data/icos_drought_2018/"
 
 # Get ICOS WarmWinter2020. data from https://doi.org/10.18160/2G60-ZHAK
-path_icos_warm_winter_2020 <- "~/data/FluxDataKit/FDK_inputs/icos_warm_winter_2020/"
+path_icos_warm_winter_2020 <- "~/data/FluxDataKit/FDK_inputs/flux_data/icos_warm_winter_2020/"
 
 # No other sources to be used!
 # oneflux_path <- "/scratch/FDK_inputs/flux_data/oneflux/"

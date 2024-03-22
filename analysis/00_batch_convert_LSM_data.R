@@ -25,7 +25,8 @@ fdk_release(
   df = sites,
   input_path = input_path,
   output_path = output_path,
-  overwrite = FALSE
+  overwrite_lsm = FALSE,
+  overwrite_fluxnet = TRUE
 )
 
 #---- create matching plots ----
@@ -54,7 +55,7 @@ failed_sites <- lapply(sites$sitename, function(site){
         df,
         site = site,
         out_path = file.path(output_path, "plots"),
-        overwrite = TRUE
+        overwrite = FALSE
       )
       )
     )
