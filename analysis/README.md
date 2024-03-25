@@ -6,7 +6,7 @@ Scripts need to be run in chronological order
 
 ## Scripts
 
-- 00_batch_convert_LSM_data.R - converts FLUXNET data to LSM data
+- 00_batch_convert_LSM_data.R - converts FLUXNET data (standard CSV files) to LSM data (NetCDF)
  - the output is land surface model (LSM) compatible data in a netcdf format 
 - 01_visualize_fdk_data.R - Plots all converted data for visual checks (not mandatory)
 - 03_batch_convert_to_CSV_data.R - converts LSM data to FLUXNET compatible CSVs

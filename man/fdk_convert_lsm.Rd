@@ -9,7 +9,8 @@ fdk_convert_lsm(
   path,
   fluxnet_format = FALSE,
   meta_data = FALSE,
-  out_path
+  out_path,
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ fdk_convert_lsm(
 
 \item{out_path}{where to store the converted data if converted to
 fluxnet formatting and returns both half-hourly and daily data.}
+
+\item{overwrite}{overwriting existing files (TRUE/FALSE). Defaults to FALSE.}
 }
 \value{
 data frame with merged meteo and flux data

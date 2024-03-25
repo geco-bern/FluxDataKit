@@ -11,11 +11,8 @@
 # load libraries
 library(FluxDataKit)
 
-# load site meta-data
-sites <- readRDS("data/flux_data_kit_site-info.rds")
-
-# download the modis data
+ # download the modis data
 fdk_download_modis(
-  df = sites,
-  path = "data-raw/modis/"
+  df = fdk_site_info,
+  path = "~/data/FluxDataKit/FDK_inputs/modis/"
 )

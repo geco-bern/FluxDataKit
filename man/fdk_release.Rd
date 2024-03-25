@@ -4,7 +4,13 @@
 \alias{fdk_release}
 \title{Creates a new FluxDataKit product release}
 \usage{
-fdk_release(df, input_path, output_path, overwrite = TRUE)
+fdk_release(
+  df,
+  input_path,
+  output_path,
+  overwrite_lsm = TRUE,
+  overwrite_fluxnet = TRUE
+)
 }
 \arguments{
 \item{df}{data frame with site meta-data information}
@@ -13,7 +19,11 @@ fdk_release(df, input_path, output_path, overwrite = TRUE)
 
 \item{output_path}{path where to store the output data}
 
-\item{overwrite}{overwrite the results if the output path exists}
+\item{overwrite_lsm}{overwrite the LSM-formatted NetCDF files if the output
+path exists}
+
+\item{overwrite_fluxnet}{overwrite the FLUXNET-formatted CSV files if the
+output path exists}
 }
 \value{
 the FluxDataKit data release as a set of netCDF, CSV data,

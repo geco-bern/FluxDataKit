@@ -15,6 +15,7 @@
 #' @param meta_data return meta-data TRUE/FALSE
 #' @param out_path where to store the converted data if converted to
 #'  fluxnet formatting and returns both half-hourly and daily data.
+#' @param overwrite overwriting existing files (TRUE/FALSE). Defaults to FALSE.
 #'
 #' @return data frame with merged meteo and flux data
 #' @export
@@ -24,7 +25,8 @@ fdk_convert_lsm <- function(
     path,
     fluxnet_format = FALSE,
     meta_data = FALSE,
-    out_path
+    out_path,
+    overwrite = FALSE
 ){
 
   # CRAN settings
@@ -214,6 +216,7 @@ fdk_convert_lsm <- function(
       VPD_F_MDS_QC = "VPD_qc",
       WS_F_QC = "Wind_qc",
       PA_F_QC = "Psurf_qc",
+      CO2_F_MDS_QC = "CO2air_qc",
 
       # MODIS data
       LAI = "LAI",
@@ -246,60 +249,61 @@ fdk_convert_lsm <- function(
         CO2_F_MDS = CO2_F_MDS, # ppm to umolCO2 mol-1
         )
 
-    # adding missing data required by ingestr
-    # for conversion to p-model drivers
-    replacements <- data.frame(
-      variable = c(
-        'VPD_F_QC',
-        'VPD_F_MDS_QC',
-        'VPD_ERA',
-        'TA_F_QC',
-        'TA_F_MDS_QC',
-        'TA_ERA',
-        'TMIN_F_QC',
-        'TMIN_F_MDS',
-        'TMIN_F_MDS_QC',
-        'TMIN_ERA',
-        'TMAX_F_QC',
-        'TMAX_F_MDS',
-        'TMAX_F_MDS_QC',
-        'TMAX_ERA',
-        'NEE_VUT_REF_QC',
-        'GPP_VUT_REF_QC'
-      ),
-      value = c(
-        0,
-        NA,
-        NA,
-        0,
-        NA,
-        NA,
-        0,
-        NA,
-        NA,
-        NA,
-        0,
-        NA,
-        NA,
-        NA,
-        1,
-        1
-      )
-    )
+    # # adding missing data required by ingestr
+    # # for conversion to p-model drivers
+    # replacements <- data.frame(
+    #   variable = c(
+    #     'VPD_F_QC',
+    #     'VPD_F_MDS_QC',
+    #     'VPD_ERA',
+    #     'TA_F_QC',
+    #     'TA_F_MDS_QC',
+    #     'TA_ERA',
+    #     'TMIN_F_QC',
+    #     'TMIN_F_MDS',
+    #     'TMIN_F_MDS_QC',
+    #     'TMIN_ERA',
+    #     'TMAX_F_QC',
+    #     'TMAX_F_MDS',
+    #     'TMAX_F_MDS_QC',
+    #     'TMAX_ERA',
+    #     'NEE_VUT_REF_QC',
+    #     'GPP_VUT_REF_QC'
+    #   ),
+    #   value = c(
+    #     0,
+    #     NA,
+    #     NA,
+    #     0,
+    #     NA,
+    #     NA,
+    #     0,
+    #     NA,
+    #     NA,
+    #     NA,
+    #     0,
+    #     NA,
+    #     NA,
+    #     NA,
+    #     1,
+    #     1
+    #   )
+    # )
+    #
+    # # loop over all rows (variables)
+    # for (i in seq_len(nrow(replacements))){
+    #   try(all <- tibble::add_column(all,
+    #         !!(replacements[i, 'variable']) := replacements[i, 'value']
+    #         ),
+    #       silent = TRUE
+    #   )
+    #
+    #   all <- all |>
+    #     dplyr::select(
+    #       -ends_with(".1")
+    #     )
+    # }
 
-    # loop over all rows (variables)
-    for (i in seq_len(nrow(replacements))){
-      try(all <-tibble::add_column(all,
-            !!(replacements[i, 'variable']) := replacements[i, 'value']
-            ),
-          silent = TRUE
-      )
-
-      all <- all |>
-        select(
-          -ends_with(".1")
-        )
-    }
   }
 
   # save data to file, using FLUXNET formatting
@@ -314,6 +318,10 @@ fdk_convert_lsm <- function(
       out_path,
       filename
     )
+
+    if(file.exists(filename) & !overwrite){
+      return(invisible())
+    }
 
     message("---> writing data to file:")
     message(sprintf("   %s", filename))
@@ -334,6 +342,7 @@ fdk_convert_lsm <- function(
           all,
           site = site,
           out_path = out_path,
+          overwrite = overwrite
         )
       )
     )

@@ -13,7 +13,7 @@ library(tidyverse)
 library(FluxDataKit)
 
 # load sites
-sites <- readRDS("data/flux_data_kit_site-info.rds") |>
+sites <- FluxDataKit::fdk_site_info |>
     filter(
       sitename %in% c("FR-Fon")
     )
@@ -26,10 +26,11 @@ failed_sites <- lapply(sites$sitename, function(site){
   df <- suppressWarnings(try(fdk_convert_lsm(
     site = site,
     fluxnet_format = FALSE,
-    path = "/data/scratch/beta-v2/lsm/"
+    path = "~/data/FluxDataKit/v3"
   )
   ))
 
   print(head(df))
 
 })
+

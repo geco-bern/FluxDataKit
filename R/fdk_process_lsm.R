@@ -128,7 +128,7 @@ fdk_process_lsm <- function(
 
     } else {
 
-      if ( x['product'] == "icos" ){
+      if ( x['product'] == "icos_warmwinter2020" || x['product'] == "icos_drought2018" ){
         infile <- FluxnetLSM::get_fluxnet_files(
           x['data_path'],
           x['sitename'],
@@ -145,7 +145,8 @@ fdk_process_lsm <- function(
         )
       }
 
-      if ( x['product'] == "oneflux" ){
+      if ( x['product'] == "ameriflux" ){
+        # first, try half-hourly file
         infile <- FluxnetLSM::get_fluxnet_files(
           x['data_path'],
           x['sitename'],
@@ -154,7 +155,19 @@ fdk_process_lsm <- function(
           datasetversion = "[0-9]{1}-[0-9]{1}"
         )
 
+        # if HH file not available, try getting HR file
+        if (length(infile) == 0){
+          infile <- FluxnetLSM::get_fluxnet_files(
+            x['data_path'],
+            x['sitename'],
+            resolution = "HR",
+            datasetname = "FLUXNET",
+            datasetversion = "[0-9]{1}-[0-9]{1}"
+          )
+        }
+
         # Retrieve ERAinterim file
+        # first, try half-hourly file
         era_file <- FluxnetLSM::get_fluxnet_erai_files(
           x['data_path'],
           x['sitename'],
@@ -162,6 +175,18 @@ fdk_process_lsm <- function(
           datasetname = "FLUXNET",
           datasetversion = "[0-9]{1}-[0-9]{1}"
         )
+
+        # if HH file not available, try getting HR file
+        if (length(era_file) == 0){
+          era_file <- FluxnetLSM::get_fluxnet_erai_files(
+            x['data_path'],
+            x['sitename'],
+            resolution = "HR",
+            datasetname = "FLUXNET",
+            datasetversion = "[0-9]{1}-[0-9]{1}"
+          )
+        }
+
       }
 
       if (x['product'] == "fluxnet2015" ) {

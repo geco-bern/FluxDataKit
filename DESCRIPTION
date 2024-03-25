@@ -27,7 +27,10 @@ Imports:
     rvest,
     zoo,
     lubridate,
-    recipes
+    recipes,
+    readr,
+    here,
+    cowplot
 Suggests:
     knitr,
     rmarkdown,

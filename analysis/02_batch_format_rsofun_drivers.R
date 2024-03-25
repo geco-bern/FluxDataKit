@@ -7,20 +7,12 @@ library(tidyr)
 library(ggplot2)
 library(ingestr)
 library(rsofun)
-lapply(list.files("R/","*.R", full.names = TRUE), source)
+# lapply(list.files("R/","*.R", full.names = TRUE), source)
 
-input_path <- "/data/scratch/beta-v4/fluxnet/"
+input_path <- "~/data/FluxDataKit/v3/fluxnet/"
 
 # read in sites to process
 sites <- FluxDataKit::fdk_site_info
-
-#site <- c("FR-Pue", "CH-Lae")
-
-# subset sites
-# sites <- sites |>
-#   dplyr::filter(
-#     sitename %in% site
-#   )
 
 # loop over all sites and process them to format
 # them into the correct rsofun format
@@ -59,7 +51,7 @@ driver_data <- dplyr::bind_rows(driver_data)
 # apply compression to minimize space
 saveRDS(
   driver_data,
-  "data/rsofun_driver_data.rds",
+  "~/data/FluxDataKit/v3/rsofun_driver_data_v3.rds",
   compress = "xz"
   )
 

@@ -3,7 +3,6 @@
 # (note set the correct paths if these do
 # not correspond to the defaults as listed
 # below)
-#
 
 library(ingestr)
 library(icoscp)
@@ -12,163 +11,169 @@ library(XML)
 library(dplyr)
 library(amerifluxr)
 
-#---- set data paths ----
-plumber_path <- "/scratch/FDK_inputs/flux_data/plumber_fluxnet/"
-oneflux_path <- "/scratch/FDK_inputs/flux_data/oneflux/"
-icos_path <- "/scratch/FDK_inputs/flux_data/icos/"
-fluxnet_path <- "/scratch/FDK_inputs/flux_data/fluxnet2015/"
+# Set local paths of data files -------------------------------------------------
+# Get PLUMBER2 data from https://dx.doi.org/10.25914/5fdb0902607e1
+# plumber_path <- "/scratch/FDK_inputs/flux_data/plumber_fluxnet/"
+plumber_path <- "~/data/FluxDataKit/FDK_inputs/flux_data/plumber/"
 
-#--- plumber meta_data ----
+# Get Ameriflux data from Downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
+path_ameriflux <- "~/data/FluxDataKit/FDK_inputs/flux_data/ameriflux/"
 
-# collect Plumber meta_data
-if(!file.exists("data-raw/meta_data/plumber_meta-data.rds")){
+# Get ICOS Drought2018 data from https://doi.org/10.18160/YVR0-4898.
+path_icos_drought2018 <- "~/data/FluxDataKit/FDK_inputs/flux_data/icos_drought_2018/"
 
-# list files
-files <- list.files(
-  plumber_path,
-  utils::glob2rx(paste0("*Flux.nc")),
-  full.names = TRUE,
-  recursive = TRUE
-)
+# Get ICOS WarmWinter2020. data from https://doi.org/10.18160/2G60-ZHAK
+path_icos_warm_winter_2020 <- "~/data/FluxDataKit/FDK_inputs/flux_data/icos_warm_winter_2020/"
 
-# collect meta data
-df <- do.call("rbind",
-        lapply(files, function(file){
-          fdk_convert_lsm(file, meta_data = TRUE)
-        }
+# No other sources to be used!
+# oneflux_path <- "/scratch/FDK_inputs/flux_data/oneflux/"
+# icos_path <- "/scratch/FDK_inputs/flux_data/icos/"
+# fluxnet_path <- "/scratch/FDK_inputs/flux_data/fluxnet2015/"
+# fluxnet_path <- "~/data/FLUXNET-2015_Tier1/"
+
+# Plumber ----------------------------------------------------------------------
+filnam <- here::here("data-raw/meta_data/plumber_meta-data.rds")
+if (!file.exists(filnam)){
+
+  # list files
+  files <- list.files(
+    plumber_path,
+    utils::glob2rx(paste0("*Flux.nc")),
+    full.names = TRUE,
+    recursive = TRUE
+  )
+
+  # collect meta data
+  df <- do.call("rbind",
+          lapply(files, function(file){
+            fdk_convert_lsm(file, meta_data = TRUE)
+          }
+      )
     )
-  )
 
-# save output to file
-saveRDS(df, file = "data-raw/meta_data/plumber_meta-data.rds", compress = "xz")
+  # save output to file
+  saveRDS(df, file = filnam, compress = "xz")
 }
 
-#---- ameriflux / fluxnet2015 metadata ----
+# Ameriflux  -------------------------------------------------------------------
+filnam <- here::here("data-raw/meta_data/amf_meta_data.rds")
+if (!file.exists(filnam)){
 
-if(!file.exists("data-raw/meta_data/amf_meta_data.rds")){
-amf <- amf_site_info()
-saveRDS(amf, file = "data-raw/meta_data/amf_meta-data.rds", compress = "xz")
+  # Downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
+  dirs <- list.files(path = path_ameriflux, pattern = "_FLUXNET_FULLSET_")
+
+  # take only sites for which there is data
+  amf <- tibble(site = str_sub(dirs, start = 5, end = 10)) |>
+
+    # complement with meta info
+    left_join(
+      amerifluxr::amf_site_info() |>
+        rename(site = SITE_ID),
+      by = "site"
+    ) |>
+
+    # determine number of years data
+    mutate(nyears = DATA_END - DATA_START + 1)
+
+  saveRDS(amf, file = filnam, compress = "xz")
 }
 
-#----- oneflux sites ----
+# ICOS Drought 2018 release ---------------------------------------------------
+## Data downloaded from https://doi.org/10.18160/YVR0-4898.
+filnam <- here::here("data-raw/meta_data/icos_drought2018_meta_data.rds")
+if (!file.exists(filnam)){
 
-if(!file.exists("data-raw/meta_data/oneflux_meta_data.rds")){
+  dirs <- list.files(path = path_icos_drought2018, pattern = "_FLUXNET2015_FULLSET_")
 
-of_sites <- unique(substring(list.files(oneflux_path,"*"),5,10))
+  sites_icos_drought2018 <- tibble(
+    site = str_sub(dirs, start = 5, end = 10),
+    year_start = as.integer(str_sub(dirs, start = 32, end = 35)),
+    year_end = as.integer(str_sub(dirs, start = 37, end = 40))) |>
+    mutate(nyears = year_end - year_start + 1) |>
+    left_join(
+      icoscp::icos_stations() |>
+        filter(
+          theme == "ES"
+        ) |>
+        rename(site = id),
+      by = "site"
+    )
 
-# list files
-files <- list.files(
-  oneflux_path,
-  utils::glob2rx(paste0("*FULLSET_HH*.csv")),
-  full.names = TRUE,
-  recursive = TRUE
-)
-
-oneflux_sites <- amf_site_info() |>
- filter(
-  SITE_ID %in% of_sites
- )
-
-saveRDS(oneflux_sites, file = "data-raw/meta_data/oneflux_meta-data.rds", compress = "xz")
+  saveRDS(sites_icos_drought2018, file = filnam, compress = "xz")
 }
 
-#---- ICOS meta_data ----
-if(!file.exists("data-raw/meta_data/icos_meta_data.rds")){
+# ICOS Warm Winter 2020 release-------------------------------------------------
+## Data downloaded from https://doi.org/10.18160/2G60-ZHAK
+filnam <- here::here("data-raw/meta_data/icos_warmwinter2020_meta_data.rds")
+if (!file.exists(filnam)){
 
-icos_list <- icoscp::icos_stations() |>
-  filter(
-    theme == "ES"
-  )
+  dirs <- list.files(path = path_icos_warm_winter_2020, pattern = "_FLUXNET2015_FULLSET_")
 
-icos_sites <- unique(substring(list.files(icos_path,"*"),5,10))
+  # interpret directory names
+  sites_icos_warm_winter_2020 <- tibble(
+    site = str_sub(dirs, start = 5, end = 10),
+    year_start = as.integer(str_sub(dirs, start = 32, end = 35)),
+    year_end = as.integer(str_sub(dirs, start = 37, end = 40))) |>
+    mutate(nyears = year_end - year_start + 1) |>
+    left_join(
+      icoscp::icos_stations() |>
+        filter(
+          theme == "ES"
+        ) |>
+        rename(site = id),
+      by = "site"
+    )
 
-icos_list <- icos_list |>
- filter(id %in% icos_sites)
-
-icos_files <- list.files(
-		icos_path,
-		glob2rx("*FULLSET_HH*"),
-	 	recursive = TRUE,
-		full.names = TRUE
-		)
-
-years <- lapply(icos_sites, function(site){
-
-	df <- read.table(
-		icos_files[grep(site, icos_files)],
-		header = TRUE,
-		sep = ",")
-
-	year_end <- max(as.numeric(substr(df$TIMESTAMP_START,1,4)))
-	year_start <- min(as.numeric(substr(df$TIMESTAMP_START,1,4)))
-
-	return(
-	data.frame(
-	sitename = site,
-	year_start,
-	year_end
-	))
-})
-
-years <- bind_rows(years)
-icos_list <- icos_list |>
-	rename(
-	'sitename' = 'id'
-	) |>
-	left_join(years)
-
-saveRDS(icos_list, file = "data-raw/meta_data/icos_meta-data.rds", compress = "xz")
+  saveRDS(sites_icos_warm_winter_2020, file = filnam, compress = "xz")
 }
 
-#---- fluxnet2015 meta_data ----
-
-if(!file.exists("data-raw/meta_data/fluxnet_meta_data.rds")){
-
-fluxnet_list <- read_csv("data-raw/meta_data/fluxnet2015_site_list.csv") |>
-  filter(
-    license == "CC-BY-4.0"
-  ) |>
-  select(-product)
-
-fluxnet_sites <- unique(substring(list.files(fluxnet_path,"*"),5,10))
-
-fluxnet_list <- fluxnet_list |>
-  filter(id %in% fluxnet_sites)
-
-fluxnet_files <- list.files(
-  fluxnet_path,
-  glob2rx("*FULLSET_DD*"),
-  recursive = TRUE,
-  full.names = TRUE
-)
-
-years <- lapply(fluxnet_sites, function(site){
-
-  df <- read.table(
-    fluxnet_files[grep(site, fluxnet_files)],
-    header = TRUE,
-    sep = ",")
-
-  year_end <- max(as.numeric(substr(df$TIMESTAMP,1,4)))
-  year_start <- min(as.numeric(substr(df$TIMESTAMP,1,4)))
-
-  return(
-    data.frame(
-      sitename = site,
-      year_start,
-      year_end
-    ))
-})
-
-years <- bind_rows(years)
-
-fluxnet_list <- fluxnet_list |>
-  rename(
-    'sitename' = 'id'
-  ) |>
-  left_join(years)
-
-saveRDS(fluxnet_list, file = "data-raw/meta_data/fluxnet-meta_data.rds", compress = "xz")
-
-}
-
+# # FLUXNET2015-------------------------------------------------------------------
+# filnam <- here::here("data-raw/meta_data/fluxnet_meta_data.rds")
+# if (!file.exists(filnam)){
+#
+#   fluxnet_list <- read_csv("data-raw/meta_data/fluxnet2015_site_list.csv") |>
+#     filter(
+#       license == "CC-BY-4.0"
+#     )
+#
+#   fluxnet_sites <- unique(substring(list.files(fluxnet_path,"*"),5,10))
+#
+#   fluxnet_list <- fluxnet_list |>
+#     filter(id %in% fluxnet_sites)
+#
+#   fluxnet_files <- list.files(
+#     fluxnet_path,
+#     glob2rx("*FULLSET_DD*"),
+#     recursive = TRUE,
+#     full.names = TRUE
+#   )
+#
+#   years <- lapply(fluxnet_sites, function(site){
+#
+#     df <- read.table(
+#       fluxnet_files[grep(site, fluxnet_files)],
+#       header = TRUE,
+#       sep = ",")
+#
+#     year_end <- max(as.numeric(substr(df$TIMESTAMP,1,4)))
+#     year_start <- min(as.numeric(substr(df$TIMESTAMP,1,4)))
+#
+#     return(
+#       data.frame(
+#         sitename = site,
+#         year_start,
+#         year_end
+#       ))
+#   })
+#
+#   years <- bind_rows(years)
+#
+#   fluxnet_list <- fluxnet_list |>
+#     rename(
+#       'sitename' = 'id'
+#     ) |>
+#     left_join(years)
+#
+#   saveRDS(fluxnet_list, file = filnam, compress = "xz")
+#
+# }
