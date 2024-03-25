@@ -61,6 +61,9 @@
     <loc>/reference/fdk_format_drivers.html</loc>
   </url>
   <url>
+    <loc>/reference/fdk_get_sequence.html</loc>
+  </url>
+  <url>
     <loc>/reference/fdk_match_modis.html</loc>
   </url>
   <url>
@@ -86,6 +89,9 @@
   </url>
   <url>
     <loc>/reference/fdk_smooth_ts.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fill_netrad.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
