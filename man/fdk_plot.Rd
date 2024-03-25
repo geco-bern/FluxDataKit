@@ -4,7 +4,13 @@
 \alias{fdk_plot}
 \title{Plot FluxDataKit output}
 \usage{
-fdk_plot(df, site = "sitename", out_path = "data/tmp", overwrite = FALSE)
+fdk_plot(
+  df,
+  site = "sitename",
+  out_path = "data/tmp",
+  overwrite = FALSE,
+  daily = FALSE
+)
 }
 \arguments{
 \item{df}{data frame with FLUXNET based data}
@@ -15,6 +21,8 @@ fdk_plot(df, site = "sitename", out_path = "data/tmp", overwrite = FALSE)
 
 \item{overwrite}{overwrite existing files (TRUE or FALSE)
 stored}
+
+\item{daily}{whether daily or hourly data is to be plotted, defaults to FALSE.}
 }
 \value{
 A plot with FLUXNET variables for rapid visual data inspection

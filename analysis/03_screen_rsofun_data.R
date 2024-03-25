@@ -1,6 +1,6 @@
 library(tidyverse)
 
-df <- readRDS("data/rsofun_driver_data.rds")
+df <- readRDS("~/data/FluxDataKit/v3/rsofun_driver_data_v3.rds")
 
 # screen for missing gpp data
 screening <- df |>

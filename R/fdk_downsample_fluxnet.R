@@ -34,11 +34,9 @@ fdk_downsample_fluxnet <- function(
   # https://fluxnet.org/data/fluxnet2015-dataset/fullset-data-product/
 
   df <- df |>
-    as_tibble() |>
     dplyr::mutate(
-      TIMESTAMP = as.Date(TIMESTAMP_START, "%Y%m%d%H%M"),
-      datetime = lubridate::ymd_hm(TIMESTAMP_START)
-    )
+      TIMESTAMP = as.Date(TIMESTAMP_START, "%Y%m%d%H%M")
+      )
 
   start_year <- format(min(df$TIMESTAMP), "%Y")
   end_year <- format(max(df$TIMESTAMP), "%Y")
@@ -118,10 +116,11 @@ fdk_downsample_fluxnet <- function(
   )
 
   # detect missing columns to fill in required data
-  missing_columns <- output_columns[,which(!(colnames(output_columns) %in% colnames(df)))]
+  missing_columns <- output_columns |>
+    dplyr::select(which(!(colnames(output_columns) %in% colnames(df))))
 
   # if the columns are missing bind them to the current data frame
-  if(ncol(missing_columns) > 0){
+  if (ncol(missing_columns) > 0){
       df <- dplyr::bind_cols(df, missing_columns)
   }
 

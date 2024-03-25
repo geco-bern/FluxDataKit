@@ -71,7 +71,7 @@ fdk_release <- function(
     fdk_process_lsm(
       sites,
       out_path = file.path(output_path, "lsm"),
-      modis_path = file.path(input_path,"modis"),
+      modis_path = file.path(input_path, "modis"),
       overwrite = overwrite_lsm,
       save_tmp_files = FALSE
     )

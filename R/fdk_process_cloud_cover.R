@@ -19,27 +19,37 @@ fdk_process_cloud_cover <- function(
  # find all files
  era_files <-  list.files(path, glob2rx(paste0(site, "*.nc")), full.names = TRUE)
 
- # load in the data using terra
- r <- suppressWarnings(
-   terra::rast(era_files)
- )
+ if (length(era_files) > 0){
 
- # split out time, convert
- # time to dates
- time <- terra::time(r)
+   # load in the data using terra
+   r <- suppressWarnings(
+     terra::rast(era_files)
+   )
 
- # take the mean value by day
- r <- terra::tapp(r, "days", fun = "mean")
+   # split out time, convert
+   # time to dates
+   time <- terra::time(r)
 
- # put into data frame
- df <- terra::values(r, dataframe = TRUE)
- date <- as.Date(names(df), "d_%Y.%m.%d")
+   # take the mean value by day
+   r <- terra::tapp(r, "days", fun = "mean")
 
- df <- data.frame(
-   date = date,
-   ccov = as.vector(unlist(df)),
-   sitename = site
- )
+   # put into data frame
+   df <- terra::values(r, dataframe = TRUE)
+   date <- as.Date(names(df), "d_%Y.%m.%d")
+
+   df <- data.frame(
+     date = date,
+     ccov = as.vector(unlist(df)),
+     sitename = site
+   )
+
+ } else {
+   # read CRU cloud cover data
+   df <- readRDS("~/data/FluxDataKit/FDK_inputs/cloud_cover/df_cru.rds") |>
+     filter(sitename == site) |>
+     unnest(data) |>
+     select(date, ccov, sitename)
+ }
 
  # return
  return(df)
