@@ -29,7 +29,8 @@ Imports:
     lubridate,
     recipes,
     readr,
-    here
+    here,
+    cowplot
 Suggests:
     knitr,
     rmarkdown,

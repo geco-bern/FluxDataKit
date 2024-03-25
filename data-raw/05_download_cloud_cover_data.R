@@ -12,7 +12,8 @@ library(ecmwfr)
 source("R/fdk_download_cloud_cover.R")
 
 # load site meta-data
-sites <- readRDS("data/flux_data_kit_site-info.rds")
+sites <- FluxDataKit::fdk_site_info |>
+  filter(sitename == "FI-Qvd")
 
 # download the ERA4 cloud cover data from ecmwf from CDS
 # Make sure to register for CDS before running this, following
