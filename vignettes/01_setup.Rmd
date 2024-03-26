@@ -1,6 +1,6 @@
 ---
 title: "Setup and data provenance"
-author: "Koen Hufkens"
+author: "Koen Hufkens and Benjamin Stocker"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Setup and data provenance}
@@ -8,7 +8,7 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-# Setup
+## Setup
 
 Install all critical packages required in gathering and processing the data by
 installing the `FluxDataKit` package.
@@ -29,7 +29,7 @@ only available in the source code of the project (see data provenance below).
 With all tools installed we need to download the required input data for
 aggregation.
 
-# data provenance (downloads)
+## Data provenance (downloads)
 
 A list of numbered scripts is provided in the `data-raw` directory of the cloned
 project, and which govern the downloading and compiling of intermediate data. 
@@ -50,9 +50,9 @@ When you want to alter the storage location you may use soft links.
 ## Meta data
 
 Meta-data is compiled on a site by site basis using the
-`01_collect_meta-data.R` script. This will compile all easily available
+`01_collect_meta-data.R` script. This compiles all easily available
 meta-data through either API calls or scraping the data downloaded in the
-previous step (setup / data collection). In the current scirpt paths are set
+previous step (setup / data collection). In the current script, paths are set
 for data stored in `data-raw`. However, you are free to move the data anywhere
 you like as long as you adjust the paths in the meta-data script.
 
@@ -60,12 +60,11 @@ you like as long as you adjust the paths in the meta-data script.
 source("data-raw/01_collect_meta-data.R")
 ```
 
-Given the various datasets, and at times overlap between the datasets a priority
-in processing is given to more recent (hopefully) and more complete datasets. In
-order of processing this means that OneFlux has priority over FLUXNET2015, and 
-Plumber2. ICOS data has priority over FLUXNET2015 for European sites. Overall, 
-Plumber2 mostly fills in the remaining sites in Asia and Australia. The final
-picking order is specified and processed by calling the below script.
+The flux data source (PLUMBER-2, Ameriflux, ICOS WarmWinter2020, or ICOS 
+Drought2018) is determined for each site based on which source provides the 
+longest data time series. Site meta information is sourced from multiple sources 
+to maximise available information. This is done in scripts 
+`data-raw/01_collect_meta-data.R` and `data-raw/02_compile_final_site_list.R`.
 
 ```r
 source("data-raw/02_compile_final_site_list.R")
@@ -74,44 +73,17 @@ source("data-raw/02_compile_final_site_list.R")
 ## Flux data
 
 All ecosystem flux sources should be downloaded at half-hourly (HH) rates. Data 
-sources and final paths are listed below. Top level paths for flux data are 
+sources and final paths are listed below. Top-level paths for flux data are 
 considered to be sufficient for further processing.
 
 Estimated data sizes are provided to indicate network load, although for most
 these downloads should be easily manageable from a download and storage perspective.
-Below you find a summary table of data volumes, nr. of sites and the local storage
-paths for all flux data products considered.
 
-| product   |      data volume      |  nr. sites |  data path |
-|----------|:-------------:|:------:|:------|
-| FLUXNET2015 |  ~35GB | 166 | `data-raw/flux_data/fluxnet2015/`
-| ICOS | ~12GB   |  67  | `data-raw/flux_data/icos/`
-| Ameriflux OneFlux | ~12GB | 74 | `data-raw/flux_data/oneflux/`
-| Plumber2 | ~4GB | 112 | `data-raw/flux_data/plumber_fluxnet/`
-
-### FLUXNET2015
-
-FLUXNET2015 data is downloaded from the dedicated 
-[download page](https://fluxnet.org/data/fluxnet2015-dataset/). A login is 
-required to access the data. We only considered the legacy **FULLSET** data, 
-which is covered by a CC-BY 4.0 license. This limits the site count. Expanding 
-this list is possible, but only with permission from the PI sharing the data. 
-We refer to the [data policy](https://fluxnet.org/data/data-policy/) for more
-details.
-
-### ICOS
-
-As of writing ICOS data was provided as a pre-release to our group and is therefore not
-yet available for a wider public. However, this data should be released shortly through
-the [ICOS carbon portal](https://www.icos-cp.eu/data-services/about-data-portal).
-
-### Ameriflux OneFlux
-
-A limited set of sites has been reprocessed using the Ameriflux OneFlux processing chain.
-The data should be downloaded manually from the [website data portal](https://ameriflux.lbl.gov/login/?redirect_to=/data/download-data/). A
-login is required.
+We sourced data from openly available ecosystem flux data products:
 
 ### Plumber2
+
+Reference: https://dx.doi.org/10.25914/5fdb0902607e1.
 
 "PLUMBER2 is a model inter-comparison project for land surface models. Multiple 
 leading land surface and ecosystem models are evaluated for water and carbon fluxes
@@ -121,39 +93,31 @@ the full description of the dataset can be found in the publication by
 FLUXNET2015, La Thuile and OzFlux collections.
 
 The downloading and conversion is facilitated using a script 
-`00_download_convert_flux_data.R` included in the `data-raw` directory.
+`00_download_plumber_data.R` included in the `data-raw` directory.
 
-## Gridded products
+### Ameriflux OneFlux
 
-Other gridded data products are required to complement the flux data for modelling
-purposes. Products required, data volumes and storage paths are listed below.
-Detailed links to original publications and data are provided below.
+This is the latest Ameriflux release, downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/. 
+The data should be downloaded manually from the [website data portal](https://ameriflux.lbl.gov/login/?redirect_to=/data/download-data/). A
+login is required.
 
-| product   |      data volume      |  data path |
-|-----------|:---------------------:|:-----------|
-| rooting zone water storage |  ~80MB | `data-raw/ancillary_data/rooting_zone_water_storage/`
-| Koeppen-Geiger |  ~22MB | `data-raw/ancillary_data/koeppen_geiger/`
-| field capacity |  ~4MB | `data-raw/ancillary_data/field_capacity/`
+### ICOS Drought2018
 
-### Rooting zone water storage capacity
+Reference: https://doi.org/10.18160/YVR0-4898.
 
-Global rooting zone water storage capacity can be
-[downloaded here](https://zenodo.org/record/5515246) (Stocket et al. 2020).
+### ICOS WarmWinter2020 
 
-### Koeppen-Geiger (included in repo)
+Reference: https://doi.org/10.18160/2G60-ZHAK.
 
-Koeppen-Geiger climate classifications are downloaded from the recent
-work by [Beck et al. 2018](https://www.nature.com/articles/sdata2018214). Data
-can be downloaded from the [project website](http://www.gloh2o.org/koppen/) but
-is also included in the repository due to its small size.
+## Additional site meta info sources
 
-### Field capacity (included in repo)
+Additional data sources are used for compiling site meta information in script `data-raw/02_compile_final_site_list.R`.
 
-Global Gridded Surfaces of Selected Soil Characteristics on the [ORNL DAAC](
-https://daac.ornl.gov/SOILS/guides/IGBP-SurfaceProducts.html) provides field
-capacity values. Data needs to be manually downloaded from the [visualization
-tools](https://webmap.ornl.gov/ogc/dataset.jsp?ds_id=569) for easy export into
-a geotiff format. A ORNL login is required!
+- Falge et al.: https://doi.org/10.3334/ORNLDAAC/1530
+- ICOS site list, downloaded from http://www.europe-fluxdata.eu/home/sites-list. Contained in this repo (`data-raw/meta_data/sites_list_icos.csv`)
+- Koeppen-Geiger climate zone classification. File (22 MB) contained in this repo (`data-raw/ancillary_data/koeppen_geiger/`).
+- Root zone water storage capacity based on [Stocker et al., 2023](https://www.nature.com/articles/s41561-023-01125-2). File not contained in this repo, but available on [Zenodo](https://doi.org/10.5281/zenodo.5515246). 
+- ETOPO1 digital elevation model (doi:10.7289/V5C8276M). File not contained in this repo. Obtainable from https://www.ngdc.noaa.gov/mgg/global/. 
 
 ## Remote sensing data
 
@@ -167,10 +131,8 @@ With the site list generated or manually populated you can download the data
 stored in the `data-raw/modis/` directory as:
 
 ```r
-sites <- readRDS("data/flux_data_kit_site-info.rds")
-
 fdk_download_modis(
-  df = sites,
+  df = fdk_site_info,
   path = "data-raw/modis/"
 )
 ```
@@ -182,7 +144,7 @@ For batch processing we refer tot the `04_download_modis_data.R` script in the
 
 ### FluxnetEO
 
-To supplement the land surface model driver data, and the derived p-model (rsofun)
+To supplement the land surface model driver data, and the derived rsofun
 input, we used the `FluxnetEO` product (Walther et al. 2022) and similarly named 
 [package](https://geco-bern.github.io/FluxnetEO/).
 

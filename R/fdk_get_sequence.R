@@ -53,17 +53,17 @@ fdk_get_sequence <- function(
 
     # truncate to entire years (1. Jan - 31. Dec)
     mutate(
-      year_start_fullyearsequence = ifelse(
+      year_start_fullyearsgpp = ifelse(
         lubridate::yday(start) == 1,
         lubridate::year(start),
         lubridate::year(start) + 1),
-      year_end_fullyearsequence = ifelse(
+      year_end_fullyearsgpp = ifelse(
         lubridate::yday(end) >= 365,
         lubridate::year(end),
         lubridate::year(end) - 1
       )) |>
     mutate(
-      nyears = year_end_fullyearsequence - year_start_fullyearsequence + 1
+      nyears = year_end_fullyearsgpp - year_start_fullyearsgpp + 1
     ) |>
     mutate(
       drop = ifelse(nyears < 1, TRUE, FALSE)
@@ -128,8 +128,8 @@ fdk_get_sequence <- function(
       ggplot2::geom_rect(
         data = out,
         ggplot2::aes(
-          xmin = lubridate::ymd(paste0(year_start_fullyearsequence, "-01-01")),
-          xmax = lubridate::ymd(paste0(year_end_fullyearsequence,   "-12-31")),
+          xmin = lubridate::ymd(paste0(year_start_fullyearsgpp, "-01-01")),
+          xmax = lubridate::ymd(paste0(year_end_fullyearsgpp,   "-12-31")),
           ymin = min(df$GPP_NT_VUT_REF, na.rm = TRUE),
           ymax = max(df$GPP_NT_VUT_REF, na.rm = TRUE)
         ),

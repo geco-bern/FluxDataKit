@@ -2,7 +2,7 @@
 library(tidyverse)
 library(FluxDataKit)
 
-path <- "~/data/FluxDataKit/v3"  #  "/data/scratch/beta-v4"
+path <- "~/data/FluxDataKit/v3"
 
 sites <- FluxDataKit::fdk_site_info |>
   filter(!(sitename %in% c("MX-Tes", "US-KS3")))
