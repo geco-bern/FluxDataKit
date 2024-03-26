@@ -28,45 +28,36 @@ fdk_get_sequence <- function(
 
   df <- df |>
     mutate(good_gpp = ifelse(NEE_VUT_REF_QC > qc_threshold, TRUE, FALSE),
-           good_le = ifelse(LE_F_MDS_QC > qc_threshold, TRUE, FALSE))
+           good_le = ifelse(LE_F_MDS_QC > qc_threshold, TRUE, FALSE),
+           good_lecorr = ifelse(LE_F_MDS_QC > qc_threshold & !is.na(LE_CORR), TRUE, FALSE)
+           )
 
-  # determine sequences of consecutive TRUE and merge if gap between them is short
-  instances_merged <- get_consecutive(
-    df$good_gpp,
-    merge_threshold = leng_threshold,
-    do_merge = TRUE
-  )
-
-  df_sequences_merged <- tibble(
-    start = lubridate::as_date(df$TIMESTAMP[instances_merged$idx_start]),
-    end = lubridate::as_date(df$TIMESTAMP[instances_merged$idx_start + instances_merged$len - 1])
-  )
-
-  # determine longest sequence of good quality data
-  longest_sequence <- instances_merged |>
-    filter(len == max(instances_merged$len))
-
-  out <- tibble(
-    sitename = site,
-    start = lubridate::as_date(df$TIMESTAMP[longest_sequence$idx_start]),
-    end = lubridate::as_date(df$TIMESTAMP[longest_sequence$idx_start + longest_sequence$len - 1])) |>
-
-    # truncate to entire years (1. Jan - 31. Dec)
-    mutate(
-      year_start_fullyearsgpp = ifelse(
-        lubridate::yday(start) == 1,
-        lubridate::year(start),
-        lubridate::year(start) + 1),
-      year_end_fullyearsgpp = ifelse(
-        lubridate::yday(end) >= 365,
-        lubridate::year(end),
-        lubridate::year(end) - 1
-      )) |>
-    mutate(
-      nyears = year_end_fullyearsgpp - year_start_fullyearsgpp + 1
+  out <- get_sequence_byvar(site, df, df$good_gpp, leng_threshold, TRUE) |>
+    rename(start_gpp = start,
+           end_gpp = end,
+           year_start_gpp = year_start,
+           year_end_gpp = year_end,
+           nyears_gpp = nyears,
+           drop_gpp = drop) |>
+    left_join(
+      get_sequence_byvar(site, df, df$good_le, leng_threshold, TRUE) |>
+        rename(start_le = start,
+               end_le = end,
+               year_start_le = year_start,
+               year_end_le = year_end,
+               nyears_le = nyears,
+               drop_le = drop),
+      by = join_by(sitename)
     ) |>
-    mutate(
-      drop = ifelse(nyears < 1, TRUE, FALSE)
+    left_join(
+      get_sequence_byvar(site, df, df$good_lecorr, leng_threshold, TRUE) |>
+        rename(start_lecorr = start,
+               end_lecorr = end,
+               year_start_lecorr = year_start,
+               year_end_lecorr = year_end,
+               nyears_lecorr = nyears,
+               drop_lecorr = drop),
+      by = join_by(sitename)
     )
 
   if (do_plot){
@@ -128,8 +119,8 @@ fdk_get_sequence <- function(
       ggplot2::geom_rect(
         data = out,
         ggplot2::aes(
-          xmin = lubridate::ymd(paste0(year_start_fullyearsgpp, "-01-01")),
-          xmax = lubridate::ymd(paste0(year_end_fullyearsgpp,   "-12-31")),
+          xmin = lubridate::ymd(paste0(year_start_gpp, "-01-01")),
+          xmax = lubridate::ymd(paste0(year_end_gpp,   "-12-31")),
           ymin = min(df$GPP_NT_VUT_REF, na.rm = TRUE),
           ymax = max(df$GPP_NT_VUT_REF, na.rm = TRUE)
         ),
@@ -167,6 +158,58 @@ fdk_get_sequence <- function(
   }
 
   return(out)
+}
+
+get_sequence_byvar <- function(site, df, good, leng_threshold, do_merge){
+
+  if (any(good)){
+    # determine sequences of consecutive TRUE and merge if gap between them is short
+    inst_merged <- get_consecutive(
+      good,
+      merge_threshold = leng_threshold,
+      do_merge = do_merge
+    )
+
+    # determine longest sequence of good quality data
+    longest_seq <- inst_merged |>
+      filter(len == max(inst_merged$len))
+
+    # get start and end date of longest sequences
+    out <- tibble(
+      sitename = site,
+      start = lubridate::as_date(df$TIMESTAMP[longest_seq$idx_start]),
+      end = lubridate::as_date(df$TIMESTAMP[longest_seq$idx_start + longest_seq$len - 1])) |>
+
+      # truncate to entire years (1. Jan - 31. Dec)
+      mutate(
+        year_start = ifelse(
+          lubridate::yday(start) == 1,
+          lubridate::year(start),
+          lubridate::year(start) + 1),
+        year_end = ifelse(
+          lubridate::yday(end) >= 365,
+          lubridate::year(end),
+          lubridate::year(end) - 1
+        )) |>
+      mutate(
+        nyears = year_end - year_start + 1
+      ) |>
+      mutate(
+        drop = ifelse(nyears < 1, TRUE, FALSE)
+      )
+  } else {
+    out <- tibble(
+      sitename = site,
+      start = NA,
+      end = NA,
+      year_start = NA,
+      year_end = NA,
+      nyears = 0,
+      drop = TRUE
+    )
+  }
+
+
 }
 
 get_consecutive <- function(

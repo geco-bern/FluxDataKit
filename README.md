@@ -56,7 +56,7 @@ A final data product derived from the initial gap-filled LSM data are driver dat
 
 ### Additional data cleaning
 
-Information about the longest sequence of full years (365 days) of good-quality gapfilled daily data for each site is provided by package data `fdk_site_fullyearsequence`. 
+Information about the longest sequence of full years (365 days) of good-quality gapfilled daily GPP, LE, and LE_CORR data for each site is provided by package data `fdk_site_fullyearsequence`. This is created by `analysis/03_screen_rsofun_data.R`. It provides information about the start and end date and the full years for which sequences are available.
 
 ### Ancillary remote sensing data
 
