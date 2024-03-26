@@ -21,10 +21,10 @@ for them to function.
 
 Data was sourced from different locations:
 
-- ICOS data was provided through the ICOS carbon portal, this is a pre-release currently *not publicly available*
-- FLUXNET2015 data can be retrieved from the [FLUXNET data porta](https://fluxnet.org/data/fluxnet2015-dataset/)
-- OneFlux data can be retrieved from the [Ameriflux data portal](https://ameriflux.lbl.gov/data/download-data/)
-- PLUMBER data can be downloaded using [an included script](https://github.com/geco-bern/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R)
+- PLUMBER-2: https://dx.doi.org/10.25914/5fdb0902607e1. Can be downloaded using [an included script](https://github.com/geco-bern/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R)
+- The latest Ameriflux release, downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
+- ICOS Drought2018 release from https://doi.org/10.18160/YVR0-4898.
+- ICOS WarmWinter2020 release from https://doi.org/10.18160/2G60-ZHAK.
 - MODIS LAI/FPAR data is downloaded by an included script
 
 ## Data structure

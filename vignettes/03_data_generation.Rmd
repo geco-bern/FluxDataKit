@@ -151,7 +151,7 @@ fdk_downsample_fluxnet(
 )
 ```
 
-## p-model (rsofun) and Machine Learning formatting
+## rsofun formatting
 
 In addition, MODIS data can be merged from the FluxnetEO dataset using
 the R package [with the same name](https://github.com/geco-bern/FluxnetEO). 

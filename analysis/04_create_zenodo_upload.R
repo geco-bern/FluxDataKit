@@ -11,33 +11,33 @@
 # the Zenodo repository:
 # https://zenodo.org/record/7258291
 
-input_path <- "/data/scratch/beta-v4/"
-tmp_path <- "/data/scratch/upload"
+input_path <- "~/data/FluxDataKit/v3/"
+tmp_path <- "~/data/FluxDataKit/v3/zenodo_upload/"
 
 #---- purge old data -----
 
-# remove temporary path
-system(sprintf("rm -rf %s", tmp_path))
-
-# recreate temporary path
-dir.create(tmp_path)
-
-#---- copy new data over ----
-system(
-  sprintf(
-    "cp -R %s/lsm %s/lsm",
-  input_path,
-  tmp_path
-  )
-)
-
-system(
-  sprintf(
-    "cp -R %s/fluxnet %s/fluxnet",
-    input_path,
-    tmp_path
-  )
-)
+# # remove temporary path
+# system(sprintf("rm -rf %s", tmp_path))
+#
+# # recreate temporary path
+# dir.create(tmp_path)
+#
+# #---- copy new data over ----
+# system(
+#   sprintf(
+#     "cp -R %s/lsm %s/lsm",
+#   input_path,
+#   tmp_path
+#   )
+# )
+#
+# system(
+#   sprintf(
+#     "cp -R %s/fluxnet %s/fluxnet",
+#     input_path,
+#     tmp_path
+#   )
+# )
 
 #---- rename all files in place ----
 
