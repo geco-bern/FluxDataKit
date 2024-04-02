@@ -220,10 +220,11 @@ data portal</a>. A login is required.</p>
 <div class="section level2">
 <h2 id="remote-sensing-data">Remote sensing data<a class="anchor" aria-label="anchor" href="#remote-sensing-data"></a>
 </h2>
-<p>MODIS LAI/FPAR data (<a href="https://lpdaac.usgs.gov/products/mcd15a2hv006/" class="external-link">MCD15A2H
-Collection 6.1</a>) is downloaded by an included script, relying on the
-<code>MODISTools</code> package. Additional data processing steps to
-match the temporal resolution and coverage of the flux data include:</p>
+<p>MODIS LAI/FPAR data (<a href="https://lpdaac.usgs.gov/products/mcd15a2hv061/" class="external-link">MCD15A2H
+Collection 6.1</a>, <a href="doi:10.5067/MODIS/MCD15A2H.061" class="uri">doi:10.5067/MODIS/MCD15A2H.061</a>) is downloaded by an
+included script, relying on the <code>MODISTools</code> package.
+Additional data processing steps to match the temporal resolution and
+coverage of the flux data include:</p>
 <ul>
 <li>Bad quality data removal (<code>R/fdk_match_modis.R</code>)</li>
 <li>Aggregation across nine pixels (encompassing a circle with radius of
@@ -235,7 +236,7 @@ match the temporal resolution and coverage of the flux data include:</p>
 <li>Smooth and interpolate to time step of flux data using LOESS
 (<code>fdk_smooth_ts.R</code>)</li>
 </ul>
-<p><em>WARNING: The MODIS product MCD15A2H v006 is available only from
+<p><em>WARNING: The MODIS product MCD15A2H v061 is available only from
 2002-07-04 to 2023-02-17. In FluxDataKit, MODIS FPAR/LAI data is
 extended by a mean seasonal cycle to match the flux data coverage. To
 retain only original MODIS data from the period covered by the data
