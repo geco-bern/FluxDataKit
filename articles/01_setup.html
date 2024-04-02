@@ -98,9 +98,9 @@ and Benjamin Stocker</h4>
 
     
     
-<div class="section level3">
-<h3 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
-</h3>
+<div class="section level2">
+<h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
+</h2>
 <p>Install all critical packages required in gathering and processing
 the data by installing the <code>FluxDataKit</code> package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -114,9 +114,9 @@ provenance below).</p>
 <p>With all tools installed we need to download the required input data
 for aggregation.</p>
 </div>
-<div class="section level3">
-<h3 id="data-provenance-downloads">Data provenance (downloads)<a class="anchor" aria-label="anchor" href="#data-provenance-downloads"></a>
-</h3>
+<div class="section level2">
+<h2 id="data-provenance">Data provenance<a class="anchor" aria-label="anchor" href="#data-provenance"></a>
+</h2>
 <p>A list of numbered scripts is provided in the <code>data-raw</code>
 directory of the cloned project, and which govern the downloading and
 compiling of intermediate data. The numbered scripts should be run in
@@ -132,9 +132,8 @@ fixes will be provided to facilitate this process further.</p>
 <code>data-raw/</code> base path. Before running any scripts, check if
 data is written to this directory. When you want to alter the storage
 location you may use soft links.</p>
-</div>
 <div class="section level3">
-<h3 id="meta-data">Meta data<a class="anchor" aria-label="anchor" href="#meta-data"></a>
+<h3 id="site-meta-data">Site meta data<a class="anchor" aria-label="anchor" href="#site-meta-data"></a>
 </h3>
 <p>Meta-data is compiled on a site by site basis using the
 <code>01_collect_meta-data.R</code> script. This compiles all easily
@@ -153,14 +152,32 @@ scripts <code>data-raw/01_collect_meta-data.R</code> and
 <code>data-raw/02_compile_final_site_list.R</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"data-raw/02_compile_final_site_list.R"</span><span class="op">)</span></span></code></pre></div>
+<div class="section level4">
+<h4 id="additional-site-meta-info-sources">Additional site meta info sources<a class="anchor" aria-label="anchor" href="#additional-site-meta-info-sources"></a>
+</h4>
+<p>Additional data sources are used for compiling site meta information
+in script <code>data-raw/02_compile_final_site_list.R</code>.</p>
+<ul>
+<li>Falge et al.: <a href="https://doi.org/10.3334/ORNLDAAC/1530" class="external-link uri">https://doi.org/10.3334/ORNLDAAC/1530</a>
+</li>
+<li>ICOS site list, downloaded from <a href="http://www.europe-fluxdata.eu/home/sites-list" class="external-link uri">http://www.europe-fluxdata.eu/home/sites-list</a>. Contained
+in this repo (<code>data-raw/meta_data/sites_list_icos.csv</code>)</li>
+<li>Koeppen-Geiger climate zone classification. File (22 MB) contained
+in this repo
+(<code>data-raw/ancillary_data/koeppen_geiger/</code>).</li>
+<li>Root zone water storage capacity based on <a href="https://www.nature.com/articles/s41561-023-01125-2" class="external-link">Stocker et
+al., 2023</a>. File not contained in this repo, but available on <a href="https://doi.org/10.5281/zenodo.5515246" class="external-link">Zenodo</a>.</li>
+<li>ETOPO1 digital elevation model (<a href="doi:10.7289/V5C8276M" class="uri">doi:10.7289/V5C8276M</a>). File not contained in this repo.
+Obtainable from <a href="https://www.ngdc.noaa.gov/mgg/global/" class="external-link uri">https://www.ngdc.noaa.gov/mgg/global/</a>.</li>
+</ul>
+</div>
 </div>
 <div class="section level3">
 <h3 id="flux-data">Flux data<a class="anchor" aria-label="anchor" href="#flux-data"></a>
 </h3>
-<p>All ecosystem flux sources should be downloaded at half-hourly (HH)
-rates. Data sources and final paths are listed below. Top-level paths
-for flux data are considered to be sufficient for further
-processing.</p>
+<p>All ecosystem flux sources are downloaded at half-hourly (HH) rates.
+Data sources and final paths are listed below. Top-level paths for flux
+data are considered to be sufficient for further processing.</p>
 <p>Estimated data sizes are provided to indicate network load, although
 for most these downloads should be easily manageable from a download and
 storage perspective.</p>
@@ -199,34 +216,36 @@ data portal</a>. A login is required.</p>
 <p>Reference: <a href="https://doi.org/10.18160/2G60-ZHAK" class="external-link uri">https://doi.org/10.18160/2G60-ZHAK</a>.</p>
 </div>
 </div>
-<div class="section level3">
-<h3 id="additional-site-meta-info-sources">Additional site meta info sources<a class="anchor" aria-label="anchor" href="#additional-site-meta-info-sources"></a>
-</h3>
-<p>Additional data sources are used for compiling site meta information
-in script <code>data-raw/02_compile_final_site_list.R</code>.</p>
-<ul>
-<li>Falge et al.: <a href="https://doi.org/10.3334/ORNLDAAC/1530" class="external-link uri">https://doi.org/10.3334/ORNLDAAC/1530</a>
-</li>
-<li>ICOS site list, downloaded from <a href="http://www.europe-fluxdata.eu/home/sites-list" class="external-link uri">http://www.europe-fluxdata.eu/home/sites-list</a>. Contained
-in this repo (<code>data-raw/meta_data/sites_list_icos.csv</code>)</li>
-<li>Koeppen-Geiger climate zone classification. File (22 MB) contained
-in this repo
-(<code>data-raw/ancillary_data/koeppen_geiger/</code>).</li>
-<li>Root zone water storage capacity based on <a href="https://www.nature.com/articles/s41561-023-01125-2" class="external-link">Stocker et
-al., 2023</a>. File not contained in this repo, but available on <a href="https://doi.org/10.5281/zenodo.5515246" class="external-link">Zenodo</a>.</li>
-<li>ETOPO1 digital elevation model (<a href="doi:10.7289/V5C8276M" class="uri">doi:10.7289/V5C8276M</a>). File not contained in this repo.
-Obtainable from <a href="https://www.ngdc.noaa.gov/mgg/global/" class="external-link uri">https://www.ngdc.noaa.gov/mgg/global/</a>.</li>
-</ul>
 </div>
+<div class="section level2">
+<h2 id="remote-sensing-data">Remote sensing data<a class="anchor" aria-label="anchor" href="#remote-sensing-data"></a>
+</h2>
+<p>MODIS LAI/FPAR data (<a href="https://lpdaac.usgs.gov/products/mcd15a2hv006/" class="external-link">MCD15A2H v006</a>)
+is downloaded by an included script, relying on the
+<code>MODISTools</code> package. Additional data processing steps to
+match the temporal resolution and coverage of the flux data include:</p>
+<ul>
+<li>Bad quality data removal (<code>R/fdk_match_modis.R</code>)</li>
+<li>Aggregation across nine pixels (encompassing a circle with radius of
+~750 m around tower location) (<code>R/fdk_match_modis.R</code>)</li>
+<li>Outlier removal (<code>fdk_smooth_ts.R</code> and
+<code>R/fdk_detect_outliers.R</code>)</li>
+<li>Fill missing values by mean seasonal cycle
+(<code>fdk_smooth_ts.R</code>)</li>
+<li>Smooth and interpolate to time step of flux data using LOESS
+(<code>fdk_smooth_ts.R</code>)</li>
+</ul>
+<p><em>WARNING: The MODIS product MCD15A2H v006 is available only from
+2002-07-04 to 2023-02-17. In FluxDataKit, MODIS FPAR/LAI data is
+extended by a mean seasonal cycle to match the flux data coverage. To
+retain only original MODIS data from the period covered by the data
+product, remove data based on the dates on your own.</em></p>
 <div class="section level3">
-<h3 id="remote-sensing-data">Remote sensing data<a class="anchor" aria-label="anchor" href="#remote-sensing-data"></a>
+<h3 id="modistools">MODISTools<a class="anchor" aria-label="anchor" href="#modistools"></a>
 </h3>
-<div class="section level4">
-<h4 id="modistools">MODISTools<a class="anchor" aria-label="anchor" href="#modistools"></a>
-</h4>
-<p>MODIS data can be gathered for offline processing (recommended) using
-the <code><a href="../reference/fdk_download_modis.html">fdk_download_modis()</a></code> function. This function takes a
-list of sites and meta-data to download the required data using the
+<p>MODIS data is gathered for FluxDataKit using the
+<code><a href="../reference/fdk_download_modis.html">fdk_download_modis()</a></code> function. This function takes a list
+of sites and meta-data to download the required data using the
 <code>MODISTools</code> package.</p>
 <p>With the site list generated or manually populated you can download
 the data stored in the <code>data-raw/modis/</code> directory as:</p>
@@ -241,9 +260,9 @@ method is valid. For batch processing we refer tot the
 <code>04_download_modis_data.R</code> script in the
 <code>data-raw</code> directory.</p>
 </div>
-<div class="section level4">
-<h4 id="fluxneteo">FluxnetEO<a class="anchor" aria-label="anchor" href="#fluxneteo"></a>
-</h4>
+<div class="section level3">
+<h3 id="fluxneteo">FluxnetEO<a class="anchor" aria-label="anchor" href="#fluxneteo"></a>
+</h3>
 <p>To supplement the land surface model driver data, and the derived
 rsofun input, we used the <code>FluxnetEO</code> product (Walther et
 al. 2022) and similarly named <a href="https://geco-bern.github.io/FluxnetEO/" class="external-link">package</a>.</p>
