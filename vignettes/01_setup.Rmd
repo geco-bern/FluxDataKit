@@ -121,7 +121,7 @@ Reference: https://doi.org/10.18160/2G60-ZHAK.
 
 ## Remote sensing data
 
-MODIS LAI/FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/mcd15a2hv006/)) is downloaded by an included script, relying on the `MODISTools` package. Additional data processing steps to match the temporal resolution and coverage of the flux data include:
+MODIS LAI/FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/mcd15a2hv006/)) is downloaded by an included script, relying on the `MODISTools` package. Additional data processing steps to match the temporal resolution and coverage of the flux data include: 
 
 - Bad quality data removal (`R/fdk_match_modis.R`)
 - Aggregation across nine pixels (encompassing a circle with radius of ~750 m around tower location)  (`R/fdk_match_modis.R`)
