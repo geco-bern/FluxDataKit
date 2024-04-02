@@ -6,7 +6,7 @@ The data is generated using [set workflow]() and new releases generated using th
 
 *DISCLAIMER: Although the this workflow is presented as a functional R package we warn users not to create data themselves. If your required data use the proper released version as deposited on Zenodo. If you do opt to generate data yourselves the authors do not accept any responsibility with respect to the generated results (mistakes and misuse of the package are your own).*
 
-## Ecosystem flux data sources
+## Data sources
 
 We sourced data from openly available ecosystem flux data products:
 
@@ -14,7 +14,7 @@ We sourced data from openly available ecosystem flux data products:
 - The latest Ameriflux release, downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
 - ICOS Drought2018 release from https://doi.org/10.18160/YVR0-4898.
 - ICOS WarmWinter2020 release from https://doi.org/10.18160/2G60-ZHAK.
-- MODIS LAI/FPAR data ([MCD15A2H v006](https://lpdaac.usgs.gov/products/mcd15a2hv006/)) is downloaded by an included script.
+- MODIS LAI and FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/mcd15a2hv061/), doi:10.5067/MODIS/MCD15A2H.061) 
 
 Data should be structured in the following directory structure and referenced
 to as such in the data generation workflow:
@@ -30,13 +30,15 @@ data/
       ├─ ameriflux/
 ```
 
-## Ecosystem flux data selection
+*DISCLAIMER: The MODIS product MCD15A2H v061 is available only from 2002-07-04 to 2023-02-17. In FluxDataKit, MODIS FPAR/LAI data is extended by a mean seasonal cycle to match the flux data coverage. To retain only original MODIS data from the period covered by the data product, remove data based on the dates on your own.*
+
+## Ecosystem flux data
 
 The flux data source (PLUMBER-2, Ameriflux, ICOS WarmWinter2020, or ICOS Drought2018) is determined for each site based on which source provides the longest data time series. Site meta information is sourced from multiple sources to maximise available information. This is done in scripts `data-raw/01_collect_meta-data.R` and `data-raw/02_compile_final_site_list.R`.
 
 ## Data products
 
-### Land Surface Modelling (LSM) data (netCDF)
+### Land Surface Modelling (LSM) data (NetCDF)
 
 We deliver gap filled ecosystem flux data in line with the PLUMBER dataset. We refer to the original publication ([Ukkola et al. 2022](https://essd.copernicus.org/articles/14/449/2022/essd-14-449-2022.pdf)) for data details. Data is provided as two netCDF files per site, one file `*Flux.nc` contains all ecosystem fluxes while a `*Met.nc` file contains the matching meteorological values.
 
