@@ -155,7 +155,7 @@ fdk_downsample_fluxnet(
 
 In addition, MODIS data can be merged from the FluxnetEO dataset using
 the R package [with the same name](https://github.com/geco-bern/FluxnetEO). 
-The latter ensures that rsofun driver (and target) data are ammended with MODIS
+The latter ensures that rsofun driver (and target) data are amended with MODIS
 data for, among others, machine learning projects.
 
 ```{r eval = evaluate, warning=FALSE}

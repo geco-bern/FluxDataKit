@@ -17,7 +17,7 @@ for them to function.
 - 03_convert_plumber.R - converts PLUMBER-2 data to a FLUXNET format to ensure parity with other final data outputs
 - 04_download_modis_data.R - collect required MODIS products (FPAR/LAI)
 
-## Data requirements
+## Data provenance
 
 Data was sourced from different locations:
 
@@ -25,7 +25,7 @@ Data was sourced from different locations:
 - The latest Ameriflux release, downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
 - ICOS Drought2018 release from https://doi.org/10.18160/YVR0-4898.
 - ICOS WarmWinter2020 release from https://doi.org/10.18160/2G60-ZHAK.
-- MODIS LAI/FPAR data is downloaded by an included script
+- MODIS LAI and FPAR data ([MCD15A2H v006](https://lpdaac.usgs.gov/products/mcd15a2hv006/), doi:10.5067/MODIS/MCD15A2H.006)
 
 ## Data structure
 

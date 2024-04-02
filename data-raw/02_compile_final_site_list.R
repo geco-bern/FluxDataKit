@@ -228,7 +228,7 @@ df <- df |>
 
 ## root zone water storage capacity---------------------------------------------
 # using the map from Stocker et al., 2023, obtainable from Zenodo at https://doi.org/10.5281/zenodo.5515246
-whc <- raster("data-raw/ancillary_data/root_zone_water_capacity/cwdx80.nc")
+whc <- raster("~/mct/data/cwdx80_forcing.nc")
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
