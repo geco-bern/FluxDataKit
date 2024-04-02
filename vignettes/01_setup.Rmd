@@ -121,7 +121,7 @@ Reference: https://doi.org/10.18160/2G60-ZHAK.
 
 ## Remote sensing data
 
-MODIS LAI/FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/mcd15a2hv006/)) is downloaded by an included script, relying on the `MODISTools` package. Additional data processing steps to match the temporal resolution and coverage of the flux data include:
+MODIS LAI/FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/mcd15a2hv061/), doi:10.5067/MODIS/MCD15A2H.061) is downloaded by an included script, relying on the `MODISTools` package. Additional data processing steps to match the temporal resolution and coverage of the flux data include: 
 
 - Bad quality data removal (`R/fdk_match_modis.R`)
 - Aggregation across nine pixels (encompassing a circle with radius of ~750 m around tower location)  (`R/fdk_match_modis.R`)
@@ -129,7 +129,7 @@ MODIS LAI/FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/
 - Fill missing values by mean seasonal cycle (`fdk_smooth_ts.R`)
 - Smooth and interpolate to time step of flux data using LOESS (`fdk_smooth_ts.R`)
 
-*WARNING: The MODIS product MCD15A2H v006 is available only from 2002-07-04 to 2023-02-17. In FluxDataKit, MODIS FPAR/LAI data is extended by a mean seasonal cycle to match the flux data coverage. To retain only original MODIS data from the period covered by the data product, remove data based on the dates on your own.*
+*WARNING: The MODIS product MCD15A2H v061 is available only from 2002-07-04 to 2023-02-17. In FluxDataKit, MODIS FPAR/LAI data is extended by a mean seasonal cycle to match the flux data coverage. To retain only original MODIS data from the period covered by the data product, remove data based on the dates on your own.*
 
 ### MODISTools
 

@@ -25,7 +25,7 @@ Data was sourced from different locations:
 - The latest Ameriflux release, downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
 - ICOS Drought2018 release from https://doi.org/10.18160/YVR0-4898.
 - ICOS WarmWinter2020 release from https://doi.org/10.18160/2G60-ZHAK.
-- MODIS LAI and FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/mcd15a2hv006/), doi:10.5067/MODIS/MCD15A2H.006)
+- MODIS LAI and FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/mcd15a2hv061/), doi:10.5067/MODIS/MCD15A2H.061) 
 
 ## Data structure
 
