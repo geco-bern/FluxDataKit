@@ -4,7 +4,7 @@ This project is the framework used to create the LEMONTREE "flux data kit", a da
 
 The data is generated using [set workflow]() and new releases generated using this workflow when considerable data additions are made to the source (flux) data. Final data will be incrementally deposited in a static [Zenodo repository](https://zenodo.org/record/7258291). Contrary to PLUMBER-2 we do not execute post-hoc data screening. Unless not enough data is available for consistent processing all sites are processed and data is generated. We provide summary statistics on data coverage so users can make an informed decision on how to use the data for their particular use cases.
 
-> DISCLAIMER: Although the this workflow is presented as a functional R package we warn users not to create data themselves. If your required data use the proper released version as deposited on Zenodo. If you do opt to generate data yourselves the authors do not accept any responsibility with respect to the generated results (mistakes and misuse of the package are your own).
+*DISCLAIMER: Although the this workflow is presented as a functional R package we warn users not to create data themselves. If your required data use the proper released version as deposited on Zenodo. If you do opt to generate data yourselves the authors do not accept any responsibility with respect to the generated results (mistakes and misuse of the package are your own).*
 
 ## Ecosystem flux data sources
 
@@ -14,7 +14,7 @@ We sourced data from openly available ecosystem flux data products:
 - The latest Ameriflux release, downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
 - ICOS Drought2018 release from https://doi.org/10.18160/YVR0-4898.
 - ICOS WarmWinter2020 release from https://doi.org/10.18160/2G60-ZHAK.
-- MODIS LAI/FPAR data is downloaded by an included script
+- MODIS LAI/FPAR data ([MCD15A2H v006](https://lpdaac.usgs.gov/products/mcd15a2hv006/)) is downloaded by an included script.
 
 Data should be structured in the following directory structure and referenced
 to as such in the data generation workflow:
@@ -48,7 +48,7 @@ Contrary to the original PLUMBER data, we report both data for a closed energy b
 
 To provide easily readable data as requested by some data users we convert the NetCDF data to a human-readable CSV file adhering to FLUXNET column- and file-naming conventions. These half-hourly files are further downsampled to a daily time step for modelling efforts which require daily data. The daily data should be easily merged on a day by day basis with remote sensing data as provided by the FluxnetEO data product (Walther et al. 2022).
 
-> Downsampled daily data is an aggregation of the half-hourly data and not, as would be the case when downloading daily data from an ecosystem flux processing chain, a completely separate product. Some discrepancies therefore exist between the downsampled data and the equivalent daily ecosystem flux product.
+*Downsampled daily data is an aggregation of the half-hourly data and not, as would be the case when downloading daily data from an ecosystem flux processing chain, a completely separate product. Some discrepancies therefore exist between the downsampled data and the equivalent daily ecosystem flux product.*
 
 ### rsofun drivers (structured R data)
 
