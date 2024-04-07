@@ -187,7 +187,7 @@ get_sequence_byvar <- function(site, df, good, leng_threshold, do_merge){
           lubridate::year(start),
           lubridate::year(start) + 1),
         year_end = ifelse(
-          lubridate::yday(end) >= 365,
+          lubridate::month(end) == 12 & lubridate::day(end) >= 30,
           lubridate::year(end),
           lubridate::year(end) - 1
         )) |>
