@@ -1,0 +1,130 @@
+---
+title: "Data use"
+author: "Benjamin Stocker"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data use}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+```{r include=FALSE}
+evaluate <- ifelse(
+  Sys.info()['nodename'] == "balder" | 
+  Sys.info()['nodename'] == "dash" |
+  Sys.info()['nodename'] == "pop-os",
+  TRUE,
+  FALSE
+  )
+```
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(rsofun)
+library(here)
+library(lubridate)
+library(FluxDataKit)
+library(readr)
+```
+
+*Note this routine will only run with the appropriate files in the correct
+place. Given the file sizes involved no demo data can be integrated into
+the package.*
+
+## Time series
+
+For time series modelling and analysing long-term trends, we want complete sequences of good-quality data. Data gaps are not an option as they would break sequences. We have to allow for the reduced quality of gap-filled data. But we have to set limits. FluxDataKit contains information about sequences of good-quality gap-free time series for each site for variables gross primary production, the  latent heat flux, and the energy-balance corrected latent heat flux.
+
+This vignette demonstrates the use of this information for obtaining good-quality GPP sequences for which the following criteria apply:
+
+- At least 25% of the half-hourly data used for creating daily aggregates is measured or good-quality gap-filled data (QC flag > 0.5).
+- The maximum gap of data after applying the above QC flag is 90 days.
+- Retain only data for full years (starting 1 Jan and ending 31 Dec).
+- Exclude croplands and wetlands.
+- Each site should provide a full sequence (after applying above criteria) with at least three full years' data. 
+
+Information considering points 1-3 are contained in the data frame `fdk_site_fullyearsequence` which is provided as part of the FluxDataKit package.
+
+### Determine sites
+
+Apply criteria listed above.
+
+```{r}
+sites <- FluxDataKit::fdk_site_info |>
+  dplyr::filter(!(sitename %in% c("MX-Tes", "US-KS3"))) |>  # failed sites
+  dplyr::filter(!(igbp_land_use %in% c("CRO", "WET"))) |> 
+  left_join(
+    fdk_site_fullyearsequence,
+    by = "sitename"
+  ) |> 
+  filter(!drop_gpp) |>  # where no full year sequence was found
+  filter(nyears_gpp >= 3)
+```
+
+Ths yields 142 sites with a total of 1208 years' data, corresponding to 399,310 data points of daily data.
+```{r}
+sum(sites$nyears_gpp)
+```
+
+### Load data
+
+```{r message=FALSE, warning=FALSE, eval=FALSE}
+path <- "~/data/FluxDataKit/FLUXDATAKIT_FLUXNET/"  # adjust for your own local use
+
+read_onesite <- function(site, path){
+  filename <- list.files(path = path, 
+                        pattern = paste0("FLX_", site, "_FLUXDATAKIT_FULLSET_DD"), 
+                        full.names = TRUE
+                        )
+  out <- read_csv(filename) |> 
+    mutate(sitename = site)
+  return(out)
+}
+
+# read all daily data for the selected sites
+ddf <- purrr::map_dfr(
+  sites$sitename,
+  ~read_onesite(., path)
+)
+```
+
+## Select data sequences
+
+Cut to full-year sequences of good-quality data based on FluxDataKit data object `fdk_site_fullyearsequence`. 
+```{r, eval=FALSE}
+ddf <- ddf |>
+  left_join(
+    sites |> 
+      select(
+        sitename, 
+        year_start = year_start_gpp, 
+        year_end = year_end_gpp),
+    by = join_by(sitename)
+  ) |> 
+  mutate(year = lubridate::year(TIMESTAMP)) |> 
+  filter(year >= year_start & year <= year_end) |> 
+  dplyr::select(-year_start, -year_end, -year)
+```
+
+
+## Plot
+
+Visualise data availability and quality
+```{r, fig.height=25}
+sites |> 
+  select(
+    sitename, 
+    year_start = year_start_gpp, 
+    year_end = year_end_gpp) |> 
+  ggplot(aes(y = sitename, 
+             xmin = year_start, 
+             xmax = year_end)) +
+  geom_linerange() +
+  theme(legend.title = element_blank(),
+        legend.position="top") +
+  labs(title = "Good data sequences",
+       y = "Site")
+```
+
