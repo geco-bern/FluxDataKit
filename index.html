@@ -93,7 +93,13 @@
 <div class="page-header"><h1 id="multi-network-ecosystem-flux-data-compilation">Multi-network ecosystem flux data compilation<a class="anchor" aria-label="anchor" href="#multi-network-ecosystem-flux-data-compilation"></a>
 </h1></div>
 <p>This project is the framework used to create the LEMONTREE “flux data kit”, a dataset with consistent model data for use and re-use. In the interest of consistency across the community we re-use the PLUMBER-2 framework, with a few exceptions. The PLUMBER-2 framework generated consistent gap filled data for land surface modelling. We use the same methods (from the underlying FluxnetLSM package), to provide an expanded dataset covering more sites and site years.</p>
-<p>The data is generated using <a href="">set workflow</a> and new releases generated using this workflow when considerable data additions are made to the source (flux) data. Final data will be incrementally deposited in a static <a href="https://zenodo.org/record/7258291" class="external-link">Zenodo repository</a>. Contrary to PLUMBER-2 we do not execute post-hoc data screening. Unless not enough data is available for consistent processing all sites are processed and data is generated. We provide summary statistics on data coverage so users can make an informed decision on how to use the data for their particular use cases.</p>
+<p>The data is generated using a set workflow and new releases are generated using this workflow when considerable data additions are made available. <strong>The final data products are deposited on <a href="https://doi.org/10.5281/zenodo.10885934" class="external-link">Zenodo</a>.</strong></p>
+<ul>
+<li>See <a href="https://geco-bern.github.io/FluxDataKit/articles/01_setup.html" class="external-link">here</a> for references to original data sources used for creating the FluxDataKit data product.</li>
+<li>See <a href="https://geco-bern.github.io/FluxDataKit/articles/02_data_coverage.html" class="external-link">here</a> for an overview of data coverage.</li>
+<li>See <a href="https://geco-bern.github.io/FluxDataKit/articles/03_data_generation.html" class="external-link">here</a> for an overview of steps for creating the data product.</li>
+<li>See <a href="https://geco-bern.github.io/FluxDataKit/articles/04_data_use.html" class="external-link">here</a> for an example workflow compiling a dataset with complete good-quality data sequences for time series modelling and analysis.</li>
+</ul>
 <p><em>DISCLAIMER: Although the this workflow is presented as a functional R package we warn users not to create data themselves. If your required data use the proper released version as deposited on Zenodo. If you do opt to generate data yourselves the authors do not accept any responsibility with respect to the generated results (mistakes and misuse of the package are your own).</em></p>
 <div class="section level2">
 <h2 id="data-sources">Data sources<a class="anchor" aria-label="anchor" href="#data-sources"></a>
@@ -107,7 +113,7 @@
 <li>ICOS WarmWinter2020 release from <a href="https://doi.org/10.18160/2G60-ZHAK" class="external-link uri">https://doi.org/10.18160/2G60-ZHAK</a>.</li>
 <li>MODIS LAI and FPAR data (<a href="https://lpdaac.usgs.gov/products/mcd15a2hv061/" class="external-link">MCD15A2H Collection 6.1</a>, <a href="doi:10.5067/MODIS/MCD15A2H.061" class="uri">doi:10.5067/MODIS/MCD15A2H.061</a>)</li>
 </ul>
-<p>Data should be structured in the following directory structure and referenced to as such in the data generation workflow:</p>
+<p>For generating the data product locally, data from original sources should be structured in the following directory structure and referenced to as such in the data generation workflow:</p>
 <pre><code>data/
    ├─ modis/
    ├─ cloud_cover/
