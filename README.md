@@ -2,7 +2,12 @@
 
 This project is the framework used to create the LEMONTREE "flux data kit", a dataset with consistent model data for use and re-use. In the interest of consistency across the community we re-use the PLUMBER-2 framework, with a few exceptions. The PLUMBER-2 framework generated consistent gap filled data for land surface modelling. We use the same methods (from the underlying FluxnetLSM package), to provide an expanded dataset covering more sites and site years.
 
-The data is generated using [set workflow]() and new releases generated using this workflow when considerable data additions are made to the source (flux) data. Final data will be incrementally deposited in a static [Zenodo repository](https://zenodo.org/record/7258291). Contrary to PLUMBER-2 we do not execute post-hoc data screening. Unless not enough data is available for consistent processing all sites are processed and data is generated. We provide summary statistics on data coverage so users can make an informed decision on how to use the data for their particular use cases.
+The data is generated using a set workflow and new releases are generated using this workflow when considerable data additions are made available. **The final data products are deposited on [Zenodo](https://doi.org/10.5281/zenodo.10885934).** 
+
+- See [here](https://geco-bern.github.io/FluxDataKit/articles/01_setup.html) for references to original data sources used for creating the FluxDataKit data product.
+- See [here](https://geco-bern.github.io/FluxDataKit/articles/02_data_coverage.html) for an overview of data coverage.
+- See [here](https://geco-bern.github.io/FluxDataKit/articles/03_data_generation.html) for an overview of steps for creating the data product.
+- See [here](https://geco-bern.github.io/FluxDataKit/articles/04_data_use.html) for an example workflow compiling a dataset with complete good-quality data sequences for time series modelling and analysis.
 
 *DISCLAIMER: Although the this workflow is presented as a functional R package we warn users not to create data themselves. If your required data use the proper released version as deposited on Zenodo. If you do opt to generate data yourselves the authors do not accept any responsibility with respect to the generated results (mistakes and misuse of the package are your own).*
 
@@ -16,8 +21,7 @@ We sourced data from openly available ecosystem flux data products:
 - ICOS WarmWinter2020 release from https://doi.org/10.18160/2G60-ZHAK.
 - MODIS LAI and FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/mcd15a2hv061/), doi:10.5067/MODIS/MCD15A2H.061) 
 
-Data should be structured in the following directory structure and referenced
-to as such in the data generation workflow:
+For generating the data product locally, data from original sources should be structured in the following directory structure and referenced to as such in the data generation workflow:
 
 ```
 data/
