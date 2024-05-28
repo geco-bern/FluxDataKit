@@ -34,7 +34,7 @@ fdk_plot <- function(
 
   # exclude non necessary values
   df <- df |>
-    select(
+    dplyr::select(
       -ends_with("se"),
       -ends_with("uc"),
       -contains("longitude"),
@@ -115,9 +115,9 @@ fdk_plot <- function(
           color = NEE_VUT_REF_QC
         ),
         size = 0.5) +
-      labs(x = "Time",
+      ggplot2::labs(x = "Time",
            y = expression(paste("GPP (", mu,"mol CO"[2], " m"^-2, "s"^-1, ")"))) +
-      scale_color_viridis_c(direction = -1) +
+      ggplot2::scale_color_viridis_c(direction = -1) +
       ggplot2::theme_bw()
 
     # LE
@@ -137,9 +137,9 @@ fdk_plot <- function(
           color = LE_F_MDS_QC
         ),
         size = 0.5) +
-      labs(x = "Time",
+      ggplot2::labs(x = "Time",
            y = expression(paste("LE (W m"^-2, ")"))) +
-      scale_color_viridis_c(direction = -1) +
+      ggplot2::scale_color_viridis_c(direction = -1) +
       ggplot2::theme_bw()
 
     # LE - energy-balance corrected
@@ -159,9 +159,9 @@ fdk_plot <- function(
           color = LE_F_MDS_QC
         ),
         size = 0.5) +
-      labs(x = "Time",
+      ggplot2::labs(x = "Time",
            y = expression(paste("EBC-LE (W m"^-2, ")"))) +
-      scale_color_viridis_c(direction = -1) +
+      ggplot2::scale_color_viridis_c(direction = -1) +
       ggplot2::theme_bw()
 
     cowplot::plot_grid(gg1, gg2, gg3, ncol = 1)

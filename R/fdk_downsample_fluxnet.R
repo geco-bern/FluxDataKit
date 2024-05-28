@@ -206,8 +206,12 @@ fdk_downsample_fluxnet <- function(
       #   NA
       # ),
 
+      # CARBON FLUXES
+      NEE_VUT_REF = mean(NEE_VUT_REF, na.rm = FALSE),
       GPP_NT_VUT_REF = mean(GPP_NT_VUT_REF, na.rm = FALSE),
       GPP_DT_VUT_REF = mean(GPP_DT_VUT_REF, na.rm = FALSE),
+      RECO_NT_VUT_REF = mean(RECO_NT_VUT_REF, na.rm = FALSE),
+      # RECO_DT_VUT_REF = mean(RECO_DT_VUT_REF, na.rm = FALSE),  # not available
       NEE_VUT_REF_QC = mean(NEE_VUT_REF_QC < 2, na.rm = FALSE),
 
       # NETRAD/USTAR/SW_out is average from HH data
