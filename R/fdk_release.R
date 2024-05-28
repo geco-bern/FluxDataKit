@@ -90,12 +90,13 @@ fdk_release <- function(
     message(sprintf("- converting to FLUXNET format %s", site))
 
     status <- suppressWarnings(
-      try(fdk_convert_lsm(
-        site = site,
-        fluxnet_format = TRUE,
-        path = file.path(output_path, "lsm"),
-        out_path = file.path(output_path, "fluxnet"),
-        overwrite = overwrite_fluxnet
+      try(
+        fdk_convert_lsm(
+          site = site,
+          fluxnet_format = TRUE,
+          path = file.path(output_path, "lsm"),
+          out_path = file.path(output_path, "fluxnet"),
+          overwrite = overwrite_fluxnet
         )
       )
     )

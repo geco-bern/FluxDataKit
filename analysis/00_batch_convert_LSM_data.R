@@ -9,23 +9,35 @@ library(dplyr)
 library(ingestr)
 library(rsofun)
 
-input_path <- "~/data/FluxDataKit/FDK_inputs"  # "/data/scratch/FDK_inputs"
-output_path <- "~/data/FluxDataKit/v3"  #  "/data/scratch/beta-v4"
+input_path <- "~/data/FluxDataKit/FDK_inputs"
+output_path <- "~/data/FluxDataKit/v3.1"
 
 sites <- FluxDataKit::fdk_site_info |>
   mutate(
     data_path = file.path(input_path, "flux_data/")
   )
-  # filter(sitename %in% failed_sites)
 
+# site subset------------------
+# # xxx debug
+# # chose representative sites for LES book
+# use_sites <- c(
+#   # "FI-Hyy", # Boreal Forests/Taiga
+#   # "US-SRM", # Deserts & Xeric Shrublands
+#   # "FR-Pue", # Mediterranean Forests, Woodlands & Scrub
+#   # "DE-Hai", # Temperate Broadleaf & Mixed Forests
+#   "DE-Gri",
+#   "DE-Tha"
+#   # "US-Tw1", # Temperate Grasslands, Savannas & Shrublands
+#   # "AU-How", # Tropical & Subtropical Grasslands, Savannas & Shrubland
+#   # "BR-Sa3", # Tropical
+#   # "ZM-Mon", # Tropical deciduous forest (xeric woodland)
+#   # "US-ICh"  # Tundra
+# )
 # sites <- sites |>
-#   filter(sitename == "CH-Lae")
-# df <- readr::read_csv("~/data/FluxDataKit/FDK_inputs/flux_data/ameriflux/AMF_US-Ha1_FLUXNET_FULLSET_HR_1991-2020_3-5.csv")
-# df <- readr::read_csv("~/data/FluxDataKit/FDK_inputs/flux_data/icos_warmwinter2020/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2020_beta-3.csv")
-# plot(df$LE_F_MDS_QC)
+#   filter(sitename %in% use_sites)
+#----------------------------
 
 #---- create a new release ----
-
 fdk_release(
   df = sites,
   input_path = input_path,
@@ -35,19 +47,21 @@ fdk_release(
 )
 
 #---- create matching plots ----
-
 # loop over all sites and plot all time series
 failed_sites <- lapply(sites$sitename, function(site){
   message(sprintf("Processing %s ----", site))
 
   message("- converting to FLUXNET format")
-  df <- suppressWarnings(try(fdk_convert_lsm(
-    site = site,
-    fluxnet_format = TRUE,
-    path = file.path(output_path, "lsm"),
-    overwrite = FALSE
-  )
-  ))
+  df <- suppressWarnings(
+    try(
+      fdk_convert_lsm(
+        site = site,
+        fluxnet_format = TRUE,
+        path = file.path(output_path, "lsm"),
+        overwrite = FALSE
+        )
+      )
+    )
 
   if(inherits(df, "try-error")){
     message("!!! conversion to FLUXNET failed  !!!")
@@ -57,12 +71,13 @@ failed_sites <- lapply(sites$sitename, function(site){
   message("- plotting HH FLUXNET data")
   filename <- suppressMessages(
     suppressWarnings(
-      try(fdk_plot(
-        df,
-        site = site,
-        out_path = file.path(output_path, "plots"),
-        overwrite = FALSE
-      )
+      try(
+        fdk_plot(
+          df,
+          site = site,
+          out_path = file.path(output_path, "plots"),
+          overwrite = FALSE
+        )
       )
     )
   )
@@ -79,13 +94,14 @@ failed_sites <- lapply(sites$sitename, function(site){
 
   filename <- suppressMessages(
     suppressWarnings(
-      try(fdk_plot(
-        df,
-        site = site,
-        out_path = file.path(output_path, "plots"),
-        overwrite = TRUE,
-        daily = TRUE
-      )
+      try(
+        fdk_plot(
+          df,
+          site = site,
+          out_path = file.path(output_path, "plots"),
+          overwrite = FALSE,
+          daily = TRUE
+        )
       )
     )
   )

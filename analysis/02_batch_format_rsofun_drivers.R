@@ -9,10 +9,32 @@ library(ingestr)
 library(rsofun)
 # lapply(list.files("R/","*.R", full.names = TRUE), source)
 
-input_path <- "~/data/FluxDataKit/v3/fluxnet/"
+input_path <- "~/data/FluxDataKit/v3.1/fluxnet/"
+failed_sites <- readRDS(here::here("data/failed_sites.rds"))
 
 # read in sites to process
-sites <- FluxDataKit::fdk_site_info
+sites <- FluxDataKit::fdk_site_info |>
+  filter(!sitename %in% failed_sites)
+
+# site subset------------------
+# # xxx debug
+# # chose representative sites for LES book
+# use_sites <- c(
+#   # "FI-Hyy", # Boreal Forests/Taiga
+#   # "US-SRM", # Deserts & Xeric Shrublands
+#   # "FR-Pue", # Mediterranean Forests, Woodlands & Scrub
+#   # "DE-Hai", # Temperate Broadleaf & Mixed Forests
+#   "DE-Gri",
+#   "DE-Tha"
+#   # "US-Tw1", # Temperate Grasslands, Savannas & Shrublands
+#   # "AU-How", # Tropical & Subtropical Grasslands, Savannas & Shrubland
+#   # "BR-Sa3", # Tropical
+#   # "ZM-Mon", # Tropical deciduous forest (xeric woodland)
+#   # "US-ICh"  # Tundra
+# )
+# sites <- sites |>
+#   filter(sitename %in% use_sites)
+#----------------------------
 
 # loop over all sites and process them to format
 # them into the correct rsofun format
@@ -51,7 +73,7 @@ driver_data <- dplyr::bind_rows(driver_data)
 # apply compression to minimize space
 saveRDS(
   driver_data,
-  "~/data/FluxDataKit/v3/rsofun_driver_data_v3.rds",
+  "~/data/FluxDataKit/v3.1/rsofun_driver_data_v3.1.rds",
   compress = "xz"
   )
 

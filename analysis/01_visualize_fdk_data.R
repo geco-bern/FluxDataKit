@@ -12,23 +12,47 @@
 library(tidyverse)
 library(FluxDataKit)
 
+failed_sites <- readRDS(here::here("data/failed_sites.rds"))
+
 # load sites
 sites <- FluxDataKit::fdk_site_info |>
-    filter(
-      sitename %in% c("FR-Fon")
-    )
+  filter(!sitename %in% failed_sites)
+
+# site subset------------------
+# # xxx debug
+# # chose representative sites for LES book
+# use_sites <- c(
+#   # "FI-Hyy", # Boreal Forests/Taiga
+#   # "US-SRM", # Deserts & Xeric Shrublands
+#   # "FR-Pue", # Mediterranean Forests, Woodlands & Scrub
+#   # "DE-Hai", # Temperate Broadleaf & Mixed Forests
+#   "DE-Gri",
+#   "DE-Tha"
+#   # "US-Tw1", # Temperate Grasslands, Savannas & Shrublands
+#   # "AU-How", # Tropical & Subtropical Grasslands, Savannas & Shrubland
+#   # "BR-Sa3", # Tropical
+#   # "ZM-Mon", # Tropical deciduous forest (xeric woodland)
+#   # "US-ICh"  # Tundra
+# )
+# sites <- sites |>
+#   filter(sitename %in% use_sites)
+#----------------------------
+
 
 # loop over all sites and plot all time series
 failed_sites <- lapply(sites$sitename, function(site){
   message(sprintf("Processing %s ----", site))
 
   message("- converting to FLUXNET format")
-  df <- suppressWarnings(try(fdk_convert_lsm(
-    site = site,
-    fluxnet_format = FALSE,
-    path = "~/data/FluxDataKit/v3"
-  )
-  ))
+  df <- suppressWarnings(
+    try(
+      fdk_convert_lsm(
+        site = site,
+        fluxnet_format = FALSE,
+        path = "~/data/FluxDataKit/v3.1"
+      )
+      )
+    )
 
   print(head(df))
 
