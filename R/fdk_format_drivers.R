@@ -121,7 +121,7 @@ fdk_format_drivers <- function(
     df_flux <- df_flux |>
       dplyr::group_by(sitename) |>
       tidyr::nest() |>
-      mutate(
+      dplyr::mutate(
         data = purrr::map(data, ~fill_netrad(.))
       )
 
@@ -133,10 +133,10 @@ fdk_format_drivers <- function(
 
     df_flux <- df_flux |>
       tidyr::unnest(data) |>
-      left_join(
+      dplyr::left_join(
         ccov, by = c("sitename", "date")
       ) |>
-      group_by(sitename) |>
+      dplyr::group_by(sitename) |>
       tidyr::nest()
 
     # if (geco_system){
@@ -252,10 +252,10 @@ fdk_format_drivers <- function(
   # join in the parameter settings
   df_drivers <- df_drivers |>
     dplyr::left_join(
-      tibble(
+      dplyr::tibble(
         sitename = site_info$sitename
         ) |>
-        bind_cols(
+        dplyr::bind_cols(
           params_siml |>
             dplyr::slice(rep(1:n(), each = nrow(site_info)))
         ) |>
@@ -273,7 +273,7 @@ fdk_format_drivers <- function(
       site_info,
       forcing
     ) |>
-    ungroup()
+    dplyr::ungroup()
 
   return(df_drivers)
 }

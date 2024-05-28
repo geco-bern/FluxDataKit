@@ -1,7 +1,10 @@
 # load libraries
 library(dplyr)
 library(raster)
+library(stringr)
 # library(MODISTools)
+
+output_path <- "~/data/FluxDataKit/v3.1"
 
 # read site data RDS files
 # append site types (ICOS, PLUMBER etc)
@@ -228,7 +231,7 @@ df <- df |>
 
 ## root zone water storage capacity---------------------------------------------
 # using the map from Stocker et al., 2023, obtainable from Zenodo at https://doi.org/10.5281/zenodo.5515246
-whc <- raster("data-raw/ancillary_data/root_zone_water_capacity/cwdx80.nc")
+whc <- raster("~/mct/data/cwdx80_forcing.nc")
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
@@ -318,10 +321,14 @@ fdk_site_info <- df |>
 # # quick check for missing data
 # visdat::vis_miss(df)
 
-# saveRDS(df, file = here::here("data/fdk_site_info.rds"), compress = "xz")
+# write binary file to be included to package (.rds not possible)
 save(fdk_site_info,
      file = here::here("data/fdk_site_info.rda"), compress = "xz"
      )
-# readr::write_csv(df, file = here::here("data/fdk_site_info.csv"))
 
+# write CSV file for upload to Zenodo
+readr::write_csv(
+  fdk_site_info,
+  file = "~/data/FluxDataKit/v3.1/fdk_site_info.csv"
+)
 

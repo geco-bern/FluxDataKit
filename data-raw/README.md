@@ -17,15 +17,15 @@ for them to function.
 - 03_convert_plumber.R - converts PLUMBER-2 data to a FLUXNET format to ensure parity with other final data outputs
 - 04_download_modis_data.R - collect required MODIS products (FPAR/LAI)
 
-## Data requirements
+## Data provenance
 
 Data was sourced from different locations:
 
-- ICOS data was provided through the ICOS carbon portal, this is a pre-release currently *not publicly available*
-- FLUXNET2015 data can be retrieved from the [FLUXNET data porta](https://fluxnet.org/data/fluxnet2015-dataset/)
-- OneFlux data can be retrieved from the [Ameriflux data portal](https://ameriflux.lbl.gov/data/download-data/)
-- PLUMBER data can be downloaded using [an included script](https://github.com/geco-bern/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R)
-- MODIS LAI/FPAR data is downloaded by an included script
+- PLUMBER-2: https://dx.doi.org/10.25914/5fdb0902607e1. Can be downloaded using [an included script](https://github.com/geco-bern/FluxDataKit/blob/main/data-raw/00_download_plumber_data.R)
+- The latest Ameriflux release, downloaded data on 14 Oct 2023 from https://ameriflux.lbl.gov/.
+- ICOS Drought2018 release from https://doi.org/10.18160/YVR0-4898.
+- ICOS WarmWinter2020 release from https://doi.org/10.18160/2G60-ZHAK.
+- MODIS LAI and FPAR data ([MCD15A2H Collection 6.1](https://lpdaac.usgs.gov/products/mcd15a2hv061/), doi:10.5067/MODIS/MCD15A2H.061) 
 
 ## Data structure
 

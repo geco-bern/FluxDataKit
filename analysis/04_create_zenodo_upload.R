@@ -11,26 +11,51 @@
 # the Zenodo repository:
 # https://zenodo.org/record/7258291
 
-input_path <- "/data/scratch/beta-v4/"
-tmp_path <- "/data/scratch/upload"
+input_path <- "~/data/FluxDataKit/v3.1/"
+tmp_path <- "~/data/FluxDataKit/v3.1/zenodo_upload/"
+drivers_filnam <- "rsofun_driver_data_v3.1.rds"
+siteinfo_filnam <- "~/data/FluxDataKit/v3.1/fdk_site_info.csv"
+fullyearseq_filnam <- "~/data/FluxDataKit/v3.1/fdk_site_fullyearsequence.csv"
 
 #---- purge old data -----
 
 # remove temporary path
-system(sprintf("rm -rf %s", tmp_path))
+# system(sprintf("rm -rf %s", tmp_path))
 
 # recreate temporary path
 dir.create(tmp_path)
 
 #---- copy new data over ----
+# rsofun driver data object
 system(
   sprintf(
-    "cp -R %s/lsm %s/lsm",
-  input_path,
-  tmp_path
+    "cp -R %s/%s %s/%s",
+    input_path,
+    drivers_filnam,
+    tmp_path,
+    drivers_filnam
   )
 )
 
+# site meta info CSV file
+system(
+  sprintf(
+    "cp %s %s/",
+    siteinfo_filnam,
+    tmp_path
+  )
+)
+
+# full-year sequence meta info CSV file
+system(
+  sprintf(
+    "cp %s %s/",
+    fullyearseq_filnam,
+    tmp_path
+  )
+)
+
+# CSV files
 system(
   sprintf(
     "cp -R %s/fluxnet %s/fluxnet",
@@ -39,10 +64,19 @@ system(
   )
 )
 
+# NetCDF files
+system(
+  sprintf(
+    "cp -R %s/lsm %s/lsm",
+    input_path,
+    tmp_path
+  )
+)
+
+
 #---- rename all files in place ----
 
-# rename LSM data
-
+# rename LSM data (NetCDF files)
 system(
   sprintf(
     "rename 's/FLUXNET2015/FLUXDATAKIT/g' %s/lsm/*.nc",
@@ -64,8 +98,7 @@ system(
   )
 )
 
-# rename FLUXNET data
-
+# rename FLUXNET data (CSV files)
 system(
   sprintf(
     "rename 's/PLUMBER/FLUXDATAKIT/g' %s/fluxnet/*.csv",

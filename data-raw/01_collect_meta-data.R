@@ -35,21 +35,35 @@ path_icos_warm_winter_2020 <- "~/data/FluxDataKit/FDK_inputs/flux_data/icos_warm
 filnam <- here::here("data-raw/meta_data/plumber_meta-data.rds")
 if (!file.exists(filnam)){
 
-  # list files
+  # get list of sites
   files <- list.files(
     plumber_path,
     utils::glob2rx(paste0("*Flux.nc")),
     full.names = TRUE,
     recursive = TRUE
   )
+  sites <- str_sub(basename(sites), start = 1, end = 6)
 
   # collect meta data
-  df <- do.call("rbind",
-          lapply(files, function(file){
-            fdk_convert_lsm(file, meta_data = TRUE)
-          }
-      )
+  # df <- do.call("rbind",
+  #         lapply(sites, function(site){
+  #           # fdk_convert_lsm(file, meta_data = TRUE)
+  #           fdk_convert_lsm(
+  #             site,
+  #             path = plumber_path,
+  #             meta_data = TRUE
+  #             )
+  #         }
+  #     )
+  #   )
+  df <- purrr::map_dfr(
+    sites,
+    ~fdk_convert_lsm(
+      .,
+      path = plumber_path,
+      meta_data = TRUE
     )
+  )
 
   # save output to file
   saveRDS(df, file = filnam, compress = "xz")

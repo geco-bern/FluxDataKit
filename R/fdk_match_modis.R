@@ -71,14 +71,14 @@ fdk_match_modis <- function(
     )
 
   # Extracting pixels in the center and immediately around it (*)
-  # These correspond to a radius of 500m around site coordinates
+  # These correspond to a radius of 500 m around site coordinates
   pixel_no <- c(7, 8, 9,
                 12, 13, 14,
                 17, 18, 19)
 
   # Use only good quality data
   # Random bit integer format, ask Martin if need to work these out again...
-  qc_flags <- c(0, 2, 24 ,26, 32, 34, 56, 58)
+  qc_flags <- c(0, 2, 24, 26, 32, 34, 56, 58)
 
   df_modis <- df_modis |>
     filter(
