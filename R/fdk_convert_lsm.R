@@ -1,4 +1,4 @@
-#' Converts LSM netcdf data to FLUXNET
+#' Converts LSM NetCDF data to FLUXNET
 #'
 #' Reads LSM data (as a netcdf) in a given directory
 #' by (fluxnet) site name, optionally only returns the meta-data of the
@@ -347,9 +347,7 @@ fdk_convert_lsm <- function(
       )
     )
 
-  } else {
-    # return the merged file
-    return(all)
   }
+  return(all)
 }
 

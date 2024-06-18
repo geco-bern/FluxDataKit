@@ -4,7 +4,7 @@ library(raster)
 library(stringr)
 # library(MODISTools)
 
-output_path <- "~/data/FluxDataKit/v3.1"
+output_path <- "~/data/FluxDataKit/v3.2"
 
 # read site data RDS files
 # append site types (ICOS, PLUMBER etc)
@@ -329,6 +329,6 @@ save(fdk_site_info,
 # write CSV file for upload to Zenodo
 readr::write_csv(
   fdk_site_info,
-  file = "~/data/FluxDataKit/v3.1/fdk_site_info.csv"
+  file = "~/data/FluxDataKit/v3.2/fdk_site_info.csv"
 )
 

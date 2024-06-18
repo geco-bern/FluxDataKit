@@ -34,25 +34,25 @@ fdk_release <- function(
 
   # create remaining output directories
   dir.create(
-    file.path(output_path,"lsm"),
+    file.path(output_path, "lsm"),
     recursive = TRUE,
     showWarnings = FALSE
     )
 
   dir.create(
-    file.path(output_path,"fluxnet"),
+    file.path(output_path, "fluxnet"),
     recursive = TRUE,
     showWarnings = FALSE
     )
 
   dir.create(
-    file.path(output_path,"pmodel"),
+    file.path(output_path, "pmodel"),
     recursive = TRUE,
     showWarnings = FALSE
     )
 
   dir.create(
-    file.path(output_path,"plots"),
+    file.path(output_path, "plots"),
     recursive = TRUE,
     showWarnings = FALSE
     )
@@ -60,7 +60,7 @@ fdk_release <- function(
   # amend path to the set input path
   sites <- df |>
     mutate(
-      data_path = file.path(input_path,"flux_data/")
+      data_path = file.path(input_path, "flux_data/")
     )
 
   #---- FluxnetLSM reprocessing routine ----

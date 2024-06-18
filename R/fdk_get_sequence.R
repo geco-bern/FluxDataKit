@@ -212,23 +212,21 @@ get_sequence_byvar <- function(site, df, good, leng_threshold, do_merge){
 
 }
 
+## Returns a dataframe that contains information about events (starting index and length)
+## of consecutive conditions (TRUE) in a boolean vector ('good' - naming is a legacy).
 get_consecutive <- function(
     good,
     merge_threshold = 5,
     leng_threshold = 5,
     do_merge = FALSE
     ){
-  ##------------------------------------
-  ## Returns a dataframe that contains information about events (starting index and length)
-  ## of consecutive conditions (TRUE) in a boolean vector ('good' - naming is a legacy).
-  ##------------------------------------
 
   ## replace NAs with FALSE (no drought). This is needed because of NAs at head or tail
   good[ which(is.na(good)) ] <- FALSE
 
   ## identifies periods where 'good' true for consecutive days of length>leng_threshold and
   ## creates data frame holding each instance's info: start of drought by index in 'good' and length (number of days thereafter)
-  instances <- data.frame( idx_start=c(), len=c() )
+  instances <- data.frame( idx_start = c(), len = c() )
   consecutive_good <- rep( NA, length( good ) )
   ngood  <- 0
   ninst <- 0
@@ -249,7 +247,7 @@ get_consecutive <- function(
   if (ngood > leng_threshold){
     ## create a last instance if the last good period extends to the end of the time series
     ninst <- ninst + 1
-    addrow <- data.frame( idx_start=idx-(ngood), len=ngood )
+    addrow <- data.frame( idx_start = idx-(ngood), len = ngood )
     instances <- rbind( instances, addrow )
   }
 
@@ -278,7 +276,7 @@ get_consecutive <- function(
       }
 
       # if all is merged until the end
-      instances_merged$len[idx_merged] <- instances$idx_start[idx] + instances$len[idx] - instances_merged$idx_start[idx_merged]
+      instances_merged$len[idx_merged] <- instances$idx_start[idx] + instances$len[idx] - instances_merged$idx_start[idx_merged] + 1
 
       instances <- instances_merged[,c("idx_start", "len")]
     } else {

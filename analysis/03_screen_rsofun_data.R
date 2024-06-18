@@ -2,12 +2,14 @@
 library(tidyverse)
 library(FluxDataKit)
 
-path <- "~/data/FluxDataKit/v3.1"
+path <- "~/data/FluxDataKit/v3.2"
+
+failed_sites <- readRDS(here::here("data/failed_sites.rds"))
 
 sites <- FluxDataKit::fdk_site_info |>
   filter(!(sitename %in% c("MX-Tes", "US-KS3")))
 
-# site subset------------------
+# # site subset------------------
 # # xxx debug
 # # chose representative sites for LES book
 # use_sites <- c(
@@ -15,8 +17,7 @@ sites <- FluxDataKit::fdk_site_info |>
 #   # "US-SRM", # Deserts & Xeric Shrublands
 #   # "FR-Pue", # Mediterranean Forests, Woodlands & Scrub
 #   # "DE-Hai", # Temperate Broadleaf & Mixed Forests
-#   "DE-Gri",
-#   "DE-Tha"
+#   "IT-Ro1"
 #   # "US-Tw1", # Temperate Grasslands, Savannas & Shrublands
 #   # "AU-How", # Tropical & Subtropical Grasslands, Savannas & Shrubland
 #   # "BR-Sa3", # Tropical
@@ -25,7 +26,7 @@ sites <- FluxDataKit::fdk_site_info |>
 # )
 # sites <- sites |>
 #   filter(sitename %in% use_sites)
-#----------------------------
+# #----------------------------
 
 # determine longest sequence of good-quality data for each site
 list_seq <- lapply(sites$sitename, function(site){
@@ -65,7 +66,7 @@ list_seq <- lapply(sites$sitename, function(site){
 
 fdk_site_fullyearsequence <- bind_rows(list_seq)
 
-# write CSV file for upload to Zenodo
+# write CSV file
 save(fdk_site_fullyearsequence,
      file = here::here("data/fdk_site_fullyearsequence.rda"),
      compress = "xz"
@@ -74,7 +75,7 @@ save(fdk_site_fullyearsequence,
 # write CSV file for upload to Zenodo
 readr::write_csv(
   fdk_site_fullyearsequence,
-  file = "~/data/FluxDataKit/v3.1/fdk_site_fullyearsequence.csv"
+  file = "~/data/FluxDataKit/v3.2/fdk_site_fullyearsequence.csv"
 )
 
 

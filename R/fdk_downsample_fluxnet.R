@@ -158,39 +158,39 @@ fdk_downsample_fluxnet <- function(
       # add fraction of daily "missing values"
 
       # precipitation is the sum of HH values
-      P_F = sum(P_F, na.rm = FALSE),
-      P_F_QC = mean(P_F_QC < 2, na.rm = FALSE),
+      P_F = sum(P_F, na.rm = TRUE),
+      P_F_QC = mean(P_F_QC < 2, na.rm = TRUE),
 
       # temperature is the mean of the HH values
-      TA_F_MDS = mean(TA_F_MDS, na.rm = FALSE),
-      TA_F_MDS_QC = mean(TA_F_MDS_QC < 2, na.rm = FALSE),
+      TA_F_MDS = mean(TA_F_MDS, na.rm = TRUE),
+      TA_F_MDS_QC = mean(TA_F_MDS_QC < 2, na.rm = TRUE),
 
-      TMIN_F_MDS = min(TA_F_MDS, na.rm = FALSE),
-      TMAX_F_MDS = max(TA_F_MDS, na.rm = FALSE),
+      TMIN_F_MDS = min(TA_F_MDS, na.rm = TRUE),
+      TMAX_F_MDS = max(TA_F_MDS, na.rm = TRUE),
 
       # shortwave radiation is the mean of the HH values
-      SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = FALSE),
-      SW_IN_F_MDS_QC = mean(SW_IN_F_MDS_QC < 2, na.rm = FALSE),
+      SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = TRUE),
+      SW_IN_F_MDS_QC = mean(SW_IN_F_MDS_QC < 2, na.rm = TRUE),
 
       # long wave radiation is the mean of the HH values
-      LW_IN_F_MDS = mean(LW_IN_F_MDS, na.rm = FALSE),
-      LW_IN_F_MDS_QC = mean(LW_IN_F_MDS_QC < 2, na.rm = FALSE),
+      LW_IN_F_MDS = mean(LW_IN_F_MDS, na.rm = TRUE),
+      LW_IN_F_MDS_QC = mean(LW_IN_F_MDS_QC < 2, na.rm = TRUE),
 
       # VPD is the mean of the HH values
-      VPD_F_MDS = mean(VPD_F_MDS, na.rm = FALSE),
-      VPD_F_MDS_QC = mean(VPD_F_MDS_QC < 2, na.rm = FALSE),
+      VPD_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
+      VPD_F_MDS_QC = mean(VPD_F_MDS_QC < 2, na.rm = TRUE),
 
       # wind speed is the mean of the HH values
-      WS_F = mean(WS_F, na.rm = FALSE),
-      WS_F_QC = mean(WS_F_QC < 2, na.rm = FALSE),
+      WS_F = mean(WS_F, na.rm = TRUE),
+      WS_F_QC = mean(WS_F_QC < 2, na.rm = TRUE),
 
       # atmospheric pressure is the mean of the HH values
-      PA_F = mean(PA_F, na.rm = FALSE),
-      PA_F_QC = mean(PA_F_QC < 2, na.rm = FALSE),
+      PA_F = mean(PA_F, na.rm = TRUE),
+      PA_F_QC = mean(PA_F_QC < 2, na.rm = TRUE),
 
       # CO2 is the mean of the HH values
-      CO2_F_MDS = mean(CO2_F_MDS, na.rm = FALSE),
-      CO2_F_MDS_QC = mean(CO2_F_MDS_QC < 2, na.rm = FALSE),
+      CO2_F_MDS = mean(CO2_F_MDS, na.rm = TRUE),
+      CO2_F_MDS_QC = mean(CO2_F_MDS_QC < 2, na.rm = TRUE),
 
       # FLUXES
       # add fraction of daily "missing values"
@@ -217,14 +217,14 @@ fdk_downsample_fluxnet <- function(
       # NETRAD/USTAR/SW_out is average from HH data
       # (only days with more than 50% records available)
       # add fraction of daily "missing values"
-      NETRAD = mean(NETRAD, na.rm = FALSE),
-      NETRAD_QC = mean(NETRAD_QC < 2, na.rm = FALSE),
+      NETRAD = mean(NETRAD, na.rm = TRUE),
+      NETRAD_QC = mean(NETRAD_QC < 2, na.rm = TRUE),
 
-      USTAR = mean(USTAR, na.rm = FALSE),
-      USTAR_QC = mean(USTAR_QC < 2, na.rm = FALSE),
+      USTAR = mean(USTAR, na.rm = TRUE),
+      USTAR_QC = mean(USTAR_QC < 2, na.rm = TRUE),
 
-      SW_OUT = mean(SW_OUT, na.rm = FALSE),
-      # SW_OUT_QC = mean(SW_OUT_QC < 2, na.rm = FALSE),
+      SW_OUT = mean(SW_OUT, na.rm = TRUE),
+      # SW_OUT_QC = mean(SW_OUT_QC < 2, na.rm = TRUE),
 
       # Latent heat is the mean of the HH values
       # add fraction of daily "missing values"
@@ -260,6 +260,158 @@ fdk_downsample_fluxnet <- function(
   # combine daytime averages and whole-day averages
   df <- df |>
     dplyr::left_join(df_day, by = "TIMESTAMP")
+
+  # clean data - remove if less than 80% is good-quality gap-filled
+  df <- df |>
+    mutate(
+      # P_F           = ifelse(P_F_QC < 0.5, NA, P_F), # no better approach
+      # TA_F_MDS      = ifelse(TA_F_MDS_QC < 0.5, NA, TA_F_MDS), # no better approach
+      TA_DAY_F_MDS  = ifelse(TA_F_MDS_QC < 0.5, NA, TA_DAY_F_MDS),
+      VPD_DAY_F_MDS = ifelse(VPD_F_MDS_QC < 0.5, NA, VPD_DAY_F_MDS),
+      TMIN_F_MDS    = ifelse(TA_F_MDS_QC < 0.5, NA, TMIN_F_MDS),
+      TMAX_F_MDS    = ifelse(TA_F_MDS_QC < 0.5, NA, TMAX_F_MDS),
+      SW_IN_F_MDS   = ifelse(SW_IN_F_MDS_QC < 0.5, NA, SW_IN_F_MDS),
+      LW_IN_F_MDS   = ifelse(LW_IN_F_MDS_QC < 0.5, NA, LW_IN_F_MDS),
+      VPD_F_MDS     = ifelse(VPD_F_MDS_QC < 0.5, NA, VPD_F_MDS),
+      # WS_F          = ifelse(WS_F_QC < 0.5, NA, WS_F), # no better approach
+      # PA_F          = ifelse(PA_F_QC < 0.5, NA, PA_F), # no better approach
+      # CO2_F_MDS     = ifelse(CO2_F_MDS_QC < 0.5, NA, CO2_F_MDS) # no better approach
+    )
+
+  # test for missing forcing data and impute
+  vars <- c(
+    "P_F",
+    "TA_F_MDS",
+    "TA_DAY_F_MDS",
+    "VPD_DAY_F_MDS",
+    "TMIN_F_MDS",
+    "TMAX_F_MDS",
+    "SW_IN_F_MDS",
+    "LW_IN_F_MDS",
+    "VPD_F_MDS",
+    "WS_F",
+    "PA_F",
+    "CO2_F_MDS",
+    "LAI",
+    "FPAR"
+  )
+
+  missing <- df |>
+    dplyr::summarise(
+      dplyr::across(
+        dplyr::all_of(vars),
+        ~sum(is.na(.))
+        )) |>
+    tidyr::pivot_longer(everything()) |>
+    dplyr::filter(value > 0) |>
+    dplyr::pull(name)
+
+  # Shortwave radiation: impute with KNN
+  if ("SW_IN_F_MDS" %in% missing){
+    df <- fdk_impute_knn(
+      df,
+      target = "SW_IN_F_MDS",
+      pred1 = "TA_F_MDS",
+      k = 5
+    )
+  }
+
+  # Longwave radiation: impute with KNN
+  if ("LW_IN_F_MDS" %in% missing){
+    df <- fdk_impute_knn(
+      df,
+      target = "LW_IN_F_MDS",
+      pred1 = "TA_F_MDS",
+      k = 5
+    )
+  }
+
+  # Daytime temperature: impute with KNN
+  if ("TA_DAY_F_MDS" %in% missing){
+    df <- fdk_impute_knn(
+      df,
+      target = "TA_DAY_F_MDS",
+      pred1 = "TA_F_MDS",
+      k = 5
+      )
+  }
+
+  # Daily minimum temperature: impute with KNN
+  if ("TMIN_F_MDS" %in% missing){
+    df <- fdk_impute_knn(
+      df,
+      target = "TMIN_F_MDS",
+      pred1 = "TA_F_MDS",
+      k = 5
+    )
+  }
+
+  # Daily maximum temperature: impute with KNN
+  if ("TMAX_F_MDS" %in% missing){
+    df <- fdk_impute_knn(
+      df,
+      target = "TMAX_F_MDS",
+      pred1 = "TA_F_MDS",
+      k = 5
+    )
+  }
+
+  # VPD: impute with KNN
+  if ("VPD_F_MDS" %in% missing){
+    df <- fdk_impute_knn(
+      df,
+      target = "VPD_F_MDS",
+      pred1 = "TA_F_MDS",
+      k = 5
+    )
+  }
+
+  # Daytime VPD: impute with KNN
+  if ("VPD_DAY_F_MDS" %in% missing){
+    df <- fdk_impute_knn(
+      df,
+      target = "VPD_DAY_F_MDS",
+      pred1 = "VPD_F_MDS",
+      pred2 = "TMAX_F_MDS",
+      k = 5
+    )
+  }
+
+  # CO2: interpolate
+  if ("CO2_F_MDS" %in% missing){
+    df <- interpolate2daily_CO2_F_MDS(df)
+  }
+
+  # Atmospheric pressure: interpolate
+  if ("PA_F" %in% missing){
+    df <- interpolate2daily_PA_F(df)
+  }
+
+  # fAPAR: interpolate
+  if ("FPAR" %in% missing){
+    df <- interpolate2daily_fpar(df)
+  }
+
+  # Wind speed: interpolate
+  if ("WS_F" %in% missing){
+    df <- interpolate2daily_WS_F(df)
+  }
+
+  # still missing?
+  missing <- df |>
+    dplyr::summarise(
+      dplyr::across(
+        dplyr::all_of(vars),
+        ~sum(is.na(.))
+      )) |>
+    tidyr::pivot_longer(everything()) |>
+    dplyr::filter(value > 0) |>
+    dplyr::pull(name)
+
+  if (length(missing) > 0){
+    message(paste("!!! still missing values:"))
+    message(paste(missing, collapse = ","))
+  }
 
   # save data to file, using FLUXNET formatting
   if (!missing(out_path)) {
