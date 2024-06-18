@@ -2,7 +2,7 @@
 % Please edit documentation in R/fdk_convert_lsm.R
 \name{fdk_convert_lsm}
 \alias{fdk_convert_lsm}
-\title{Converts LSM netcdf data to FLUXNET}
+\title{Converts LSM NetCDF data to FLUXNET}
 \usage{
 fdk_convert_lsm(
   site,
