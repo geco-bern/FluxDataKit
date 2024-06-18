@@ -118,6 +118,7 @@ fdk_format_drivers <- function(
          le_qc = LE_F_MDS_QC
       )
 
+    # fill missing net radiation data
     df_flux <- df_flux |>
       dplyr::group_by(sitename) |>
       tidyr::nest() |>

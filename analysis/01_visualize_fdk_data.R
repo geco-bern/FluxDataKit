@@ -49,7 +49,7 @@ failed_sites <- lapply(sites$sitename, function(site){
       fdk_convert_lsm(
         site = site,
         fluxnet_format = FALSE,
-        path = "~/data/FluxDataKit/v3.1"
+        path = "~/data/FluxDataKit/v3.2"
       )
       )
     )

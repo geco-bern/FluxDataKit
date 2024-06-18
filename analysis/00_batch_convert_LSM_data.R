@@ -9,33 +9,35 @@ library(dplyr)
 library(ingestr)
 library(rsofun)
 
-input_path <- "~/data/FluxDataKit/FDK_inputs"
-output_path <- "~/data/FluxDataKit/v3.1"
+input_path <- "~/data/FluxDataKit/FDK_inputs/"
+output_path <- "~/data/FluxDataKit/v3.2/"
 
 sites <- FluxDataKit::fdk_site_info |>
   mutate(
     data_path = file.path(input_path, "flux_data/")
   )
 
-# site subset------------------
+# # site subset------------------
 # # xxx debug
 # # chose representative sites for LES book
 # use_sites <- c(
+#   "CN-HaM"
 #   # "FI-Hyy", # Boreal Forests/Taiga
 #   # "US-SRM", # Deserts & Xeric Shrublands
 #   # "FR-Pue", # Mediterranean Forests, Woodlands & Scrub
 #   # "DE-Hai", # Temperate Broadleaf & Mixed Forests
-#   "DE-Gri",
-#   "DE-Tha"
+#   # "DE-Gri",
+#   # "DE-Tha"
 #   # "US-Tw1", # Temperate Grasslands, Savannas & Shrublands
 #   # "AU-How", # Tropical & Subtropical Grasslands, Savannas & Shrubland
 #   # "BR-Sa3", # Tropical
 #   # "ZM-Mon", # Tropical deciduous forest (xeric woodland)
 #   # "US-ICh"  # Tundra
 # )
+# # use_sites <- readRDS(here::here("data/failed_sites.rds"))
 # sites <- sites |>
 #   filter(sitename %in% use_sites)
-#----------------------------
+# # ----------------------------
 
 #---- create a new release ----
 fdk_release(
@@ -43,7 +45,7 @@ fdk_release(
   input_path = input_path,
   output_path = output_path,
   overwrite_lsm = FALSE,
-  overwrite_fluxnet = FALSE
+  overwrite_fluxnet = TRUE
 )
 
 #---- create matching plots ----
@@ -51,6 +53,7 @@ fdk_release(
 failed_sites <- lapply(sites$sitename, function(site){
   message(sprintf("Processing %s ----", site))
 
+  # This is done already in fdk_release()
   message("- converting to FLUXNET format")
   df <- suppressWarnings(
     try(
@@ -58,29 +61,31 @@ failed_sites <- lapply(sites$sitename, function(site){
         site = site,
         fluxnet_format = TRUE,
         path = file.path(output_path, "lsm"),
+        out_path = file.path(output_path, "fluxnet"),
         overwrite = FALSE
         )
       )
     )
 
-  if(inherits(df, "try-error")){
+  if (inherits(df, "try-error")){
     message("!!! conversion to FLUXNET failed  !!!")
     return(site)
   }
 
-  message("- plotting HH FLUXNET data")
-  filename <- suppressMessages(
-    suppressWarnings(
-      try(
-        fdk_plot(
-          df,
-          site = site,
-          out_path = file.path(output_path, "plots"),
-          overwrite = FALSE
-        )
-      )
-    )
-  )
+  # not plotting these anymore - too slow and too large and too obscure
+  # message("- plotting HH FLUXNET data")
+  # filename <- suppressMessages(
+  #   suppressWarnings(
+  #     try(
+  #       fdk_plot(
+  #         df,
+  #         site = site,
+  #         out_path = file.path(output_path, "plots"),
+  #         overwrite = FALSE
+  #       )
+  #     )
+  #   )
+  # )
 
   message("- plotting DD FLUXNET data")
   # get file name path
@@ -90,25 +95,30 @@ failed_sites <- lapply(sites$sitename, function(site){
     recursive = TRUE
     )
 
-  df <- read.csv(file.path(file.path(output_path, "fluxnet"), filn))
+  if (length(filn) > 0){
+    df <- read.csv(file.path(file.path(output_path, "fluxnet"), filn))
 
-  filename <- suppressMessages(
-    suppressWarnings(
-      try(
-        fdk_plot(
-          df,
-          site = site,
-          out_path = file.path(output_path, "plots"),
-          overwrite = FALSE,
-          daily = TRUE
+    filename <- suppressMessages(
+      suppressWarnings(
+        try(
+          fdk_plot(
+            df,
+            site = site,
+            out_path = file.path(output_path, "plots"),
+            overwrite = FALSE,
+            daily = TRUE
+          )
         )
       )
     )
-  )
 
-  if(inherits(filename, "try-error")){
-    message("!!! plotting failed !!!")
-    return(site)
+    if(inherits(filename, "try-error")){
+      message("!!! plotting failed !!!")
+      return(site)
+    }
+
+  } else {
+    message("Warning: No daily plot created for this site.")
   }
 
   return(NULL)
