@@ -336,6 +336,7 @@ fdk_downsample_fluxnet <- function(
       )
   }
 
+  # JAIDEEP NOTE: Why not compute from HH values??
   # Daily minimum temperature: impute with KNN
   if ("TMIN_F_MDS" %in% missing){
     df <- fdk_impute_knn(
