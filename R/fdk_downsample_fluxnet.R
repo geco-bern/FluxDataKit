@@ -263,7 +263,7 @@ fdk_downsample_fluxnet <- function(
 
   # clean data - remove if less than 80% is good-quality gap-filled
   df <- df |>
-    mutate(
+    dplyr::mutate(
       # P_F           = ifelse(P_F_QC < 0.5, NA, P_F), # no better approach
       # TA_F_MDS      = ifelse(TA_F_MDS_QC < 0.5, NA, TA_F_MDS), # no better approach
       TA_DAY_F_MDS  = ifelse(TA_F_MDS_QC < 0.5, NA, TA_DAY_F_MDS),

@@ -40,7 +40,8 @@ fdk_format_drivers_phydro <- function(
       use_pml                   = FALSE
     ),
     path,
-    verbose = TRUE
+    verbose = TRUE,
+    fdk_inputs_dir = "/data_2/FDK_inputs/"
 ){
 
   #---- start-up checks ----
@@ -54,7 +55,7 @@ fdk_format_drivers_phydro <- function(
   # check format of the site_info
   list_flux <- lapply(site_info$sitename, function(site){
 
-    df_combined <- tibble(sitename = site)
+    df_combined <- tidyr::tibble(sitename = site)
 
     # get file name path
     filn <- list.files(path,
@@ -133,15 +134,15 @@ fdk_format_drivers_phydro <- function(
         tidyr::nest()
 
       #---- Processing CRU data (for cloud cover CCOV) ----
-      # ccov <- fdk_process_cloud_cover(
-      #   path = "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
-      #   site = site
-      # )
-      ccov <- df_flux |>
-        tidyr::unnest(data) |>
-        mutate(date = as.Date(TIMESTAMP)) |>
-        select(sitename, date) |>
-        mutate(ccov = 0)
+      ccov <- fdk_process_cloud_cover(
+        path = file.path(fdk_inputs_dir, "cloud_cover"), # "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
+        site = site
+      )
+      # ccov <- df_flux |>
+      #   tidyr::unnest(data) |>
+      #   dplyr::mutate(date = as.Date(TIMESTAMP)) |>
+      #   dplyr::select(sitename, date) |>
+      #   dplyr::mutate(ccov = 0)
 
       df_flux <- df_flux |>
         tidyr::unnest(data) |>
@@ -166,7 +167,7 @@ fdk_format_drivers_phydro <- function(
       #   # required data
       #
       #   ccov <- fdk_process_cloud_cover(
-      #     path = "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
+      #     path = file.path(fdk_inputs_dir, "cloud_cover"), # "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
       #     site = site
       #   )
       #
@@ -232,7 +233,7 @@ fdk_format_drivers_phydro <- function(
       gc()
 
       df_flux <- df_flux |>
-        set_names(c("sitename", paste0("forcing.", agg)))
+        set_names(c("sitename", paste0("forcing_", agg)))
 
       df_combined <- df_combined |>
         left_join(df_flux)
@@ -284,9 +285,9 @@ fdk_format_drivers_phydro <- function(
       sitename,
       params_siml,
       site_info,
-      forcing.24h,
-      forcing.daytime,
-      forcing.3hrmax
+      forcing_24h,
+      forcing_daytime,
+      forcing_3hrmax
     ) |>
     dplyr::ungroup()
 

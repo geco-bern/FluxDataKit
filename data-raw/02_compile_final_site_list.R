@@ -4,6 +4,8 @@ library(raster)
 library(stringr)
 # library(MODISTools)
 
+data_path <- "/data/archive/"
+
 output_path <- "~/data/FluxDataKit/v3.2"
 
 # read site data RDS files
@@ -231,7 +233,7 @@ df <- df |>
 
 ## root zone water storage capacity---------------------------------------------
 # using the map from Stocker et al., 2023, obtainable from Zenodo at https://doi.org/10.5281/zenodo.5515246
-whc <- raster("~/mct/data/cwdx80_forcing.nc")
+whc <- raster("/data/archive/whc_stocker_2023/data/cwdx80_forcing.nc")
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
@@ -251,7 +253,7 @@ df <- df |>
 
 ## Get still missing elevation data from ETOPO1---------------------------------
 # file is too large to add it to this repo.
-etopo <- raster("~/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")
+etopo <- raster("/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")
 etopo_v <- raster::extract(etopo, loc)
 
 # add etopo1 column
@@ -311,6 +313,8 @@ fdk_site_info <- df |>
     elv,
     year_start,
     year_end,
+    canopy_height,
+    reference_height,
     koeppen_code,
     igbp_land_use = classid,
     whc,

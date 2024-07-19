@@ -1,8 +1,5 @@
 #' Down samples half-hourly FLUXNET data to daily values
 #'
-#' Down sampling of GPP values is done at-hoc using a simple
-#' mean or similar per FLUXNET data specifics.
-#'
 #' Normally the flux data is generated using a dedicated flux processing
 #' workflow. Therefore the data are not 100% identical but correspondence
 #' should have an R2 > 0.95, with only auto-correlated errors in the NT product.
@@ -16,6 +13,8 @@
 #' @param out_path the path where to store the converted data
 #' @param overwrite overwrite existing output file
 #' @param save_plots Whether plots of downsampled variables before and after gapfilling should be saved to files (in the output_folder OR to default device)
+#' @param method What method should be used for averaging (should be one of "24hr", "daytime", "3hrmax")
+#' @param midday_criterion How should midday time points be identified? Should be one of "quantile", "time"
 #'
 #' @return data frame with daily (DD) down sampled values or file in the
 #'  FLUXNET format
@@ -44,9 +43,9 @@ fdk_downsample_fluxnet_phydro <- function(
 
   df =
     df |>
-    mutate(time = lubridate::as_datetime(as.character(TIMESTAMP_START), tz = "GMT", format="%Y%m%d%H%M")) |>
-    mutate(date = lubridate::as_date(time)) |>
-    mutate(TIMESTAMP = date)
+    dplyr::mutate(time = lubridate::as_datetime(as.character(TIMESTAMP_START), tz = "GMT", format="%Y%m%d%H%M")) |>
+    dplyr::mutate(date = lubridate::as_date(time)) |>
+    dplyr::mutate(TIMESTAMP = date)
 
   start_year <- format(min(df$TIMESTAMP), "%Y")
   end_year <- format(max(df$TIMESTAMP), "%Y")
@@ -143,6 +142,7 @@ fdk_downsample_fluxnet_phydro <- function(
   df <- df |>
     dplyr::mutate(DAY = ifelse(SW_IN_F_MDS > daytime_thresh, TRUE, FALSE))
 
+  # FIXME: Dont use dots
   # Separate QC variables as aggregation works differently for them:
   # using FLUXNET naming conventions
   # Aggregate QC flags as the daily fraction of measured or good-quality (value < 2) gap-filled half-hourly values.
@@ -155,85 +155,104 @@ fdk_downsample_fluxnet_phydro <- function(
 
   if (method == "24hr"){
     df_day_QC <- df |>
-      select(TIMESTAMP, all_of(is_QC)) |>
-      group_by(TIMESTAMP) |>
-      summarize_all(.funs = function(x){
-        mean(x < 2, na.rm = TRUE)
-      })
+      dplyr::select(TIMESTAMP, all_of(is_QC)) |>
+      dplyr::group_by(TIMESTAMP) |>
+      dplyr::summarize(
+        dplyr::across(
+          tidyr::everything(),
+          ~mean(.x < 2, na.rm = TRUE)
+        )
+      )
 
     # Aggregate variables as the daily mean over 24 hours (except P_F)
     df_day_vars <- df |>
-      select(-any_of(is_QC)) |>
-      select(-P_F) |>
-      select(-TIMESTAMP_START, -TIMESTAMP_END, -date) |>
-      group_by(TIMESTAMP) |>
-      summarize_all(.funs = function(x){
-        mean(x, na.rm = TRUE)
-      })
+      dplyr::select(-any_of(is_QC)) |>
+      dplyr::select(-P_F) |>
+      dplyr::select(-TIMESTAMP_START, -TIMESTAMP_END, -date) |>
+      dplyr::group_by(TIMESTAMP) |>
+      dplyr::summarize(
+        dplyr::across(
+          tidyr::everything(),
+          ~mean(.x, na.rm = TRUE)
+        )
+      )
   }
 
   if (method == "daytime"){
     df_day_QC <- df |>
-      select(TIMESTAMP, DAY, all_of(is_QC)) |>
-      filter(DAY) |>
-      group_by(TIMESTAMP) |>
-      summarize_all(.funs = function(x){
-        mean(x < 2, na.rm = TRUE)
-      })
+      dplyr::select(TIMESTAMP, DAY, all_of(is_QC)) |>
+      dplyr::filter(DAY) |>
+      dplyr::group_by(TIMESTAMP) |>
+      dplyr::summarize(
+        dplyr::across(
+          tidyr::everything(),
+          ~mean(.x < 2, na.rm = TRUE)
+        )
+      )
+
+
 
     # Aggregate variables as the daily mean over DAY hours (except P_F)
     df_day_vars <- df |>
-      select(-any_of(is_QC)) |>
-      select(-P_F) |>
-      select(-TIMESTAMP_START, -TIMESTAMP_END, -date) |>
-      filter(DAY) |>
-      group_by(TIMESTAMP) |>
-      summarize_all(.funs = function(x){
-        mean(x, na.rm = TRUE)
-      })
+      dplyr::select(-any_of(is_QC)) |>
+      dplyr::select(-P_F) |>
+      dplyr::select(-TIMESTAMP_START, -TIMESTAMP_END, -date) |>
+      dplyr::filter(DAY) |>
+      dplyr::group_by(TIMESTAMP) |>
+      dplyr::summarize(
+        dplyr::across(
+          tidyr::everything(),
+          ~mean(.x, na.rm = TRUE)
+        )
+      )
   }
 
   if (method == "3hrmax"){
     if (midday_criterion == "quantile"){
       # determine acclimation times based on Shortwave quantiles (SW > 90%ile)
       sw_thresh <- df |>
-        select(TIMESTAMP, SW_IN_F_MDS) |>
-        group_by(TIMESTAMP) |>
-        summarize(SW_thresh = stats::quantile(SW_IN_F_MDS, probs = 0.90)) |>
+        dplyr::select(TIMESTAMP, SW_IN_F_MDS) |>
+        dplyr::group_by(TIMESTAMP) |>
+        dplyr::summarize(SW_thresh = stats::quantile(SW_IN_F_MDS, probs = 0.90)) |>
         ungroup()
 
       df_3hr <- df |>
-        left_join(sw_thresh) |>
-        filter(SW_IN_F_MDS > SW_thresh) |>
-        mutate(SW_acclim = SW_IN_F_MDS)
+        dplyr::left_join(sw_thresh) |>
+        dplyr::filter(SW_IN_F_MDS > SW_thresh) |>
+        dplyr::mutate(SW_acclim = SW_IN_F_MDS)
     }
     if (midday_criterion == "time"){
       # determine acclimation times based on max Shortwave time (maxSW_time +/- 1.5 hrs)
       sw_max <- df |>
-        select(TIMESTAMP, time, SW_IN_F_MDS) |>
-        group_by(TIMESTAMP) |>
-        filter(SW_IN_F_MDS == max(SW_IN_F_MDS)) |>
-        mutate(time_maxsw = time) |>
-        select(-time, -SW_IN_F_MDS) |>
-        summarize_all(mean)
+        dplyr::select(TIMESTAMP, time, SW_IN_F_MDS) |>
+        dplyr::group_by(TIMESTAMP) |>
+        dplyr::filter(SW_IN_F_MDS == max(SW_IN_F_MDS)) |>
+        dplyr::mutate(time_maxsw = time) |>
+        dplyr::select(-time, -SW_IN_F_MDS) |>
+        dplyr::summarize(
+          dplyr::across(
+            tidyr::everything(),
+            mean
+          )
+        )
 
       df_3hr <- df |>
-        left_join(sw_max) |>
-        filter(time >= time_maxsw - 1.5*3600 &
+        dplyr::left_join(sw_max) |>
+        dplyr::filter(time >= time_maxsw - 1.5*3600 &
                  time < time_maxsw + 1.5*3600) |>
-        mutate(SW_acclim = SW_IN_F_MDS)
+        dplyr::mutate(SW_acclim = SW_IN_F_MDS)
     }
 
     if (save_plots){
-      data_mid_day = df |> pull(TIMESTAMP) |> mean()
+      data_mid_day = df |> dplyr::pull(TIMESTAMP) |> mean()
       p1 = df |>
-        filter(date >= data_mid_day & date < data_mid_day+3) |>
-        select(time, date, SW_IN_F_MDS) |>
-        left_join(df_3hr |> select(time, SW_acclim),
+        dplyr::filter(date >= data_mid_day & date < data_mid_day+3) |>
+        dplyr::select(time, date, SW_IN_F_MDS) |>
+        dplyr::left_join(df_3hr |> dplyr::select(time, SW_acclim),
                   by = "time") |>
-        ggplot(aes(x=time)) +
-        geom_line(aes(y=SW_IN_F_MDS), col="black")+
-        geom_point(aes(y=SW_acclim), col="orange")
+        ggplot2::ggplot(ggplot2::aes(x=time)) +
+        ggplot2::geom_line(ggplot2::aes(y=SW_IN_F_MDS), col="black")+
+        ggplot2::geom_point(ggplot2::aes(y=SW_acclim), col="orange")
 
       if (missing(out_path)){
         print(p1)
@@ -245,44 +264,55 @@ fdk_downsample_fluxnet_phydro <- function(
     }
 
     df_day_QC <- df_3hr |>
-      select(TIMESTAMP, all_of(is_QC)) |>
-      group_by(TIMESTAMP) |>
-      summarize_all(.funs = function(x){
-        mean(x < 2, na.rm = TRUE)
-      })
+      dplyr::select(TIMESTAMP, all_of(is_QC)) |>
+      dplyr::group_by(TIMESTAMP) |>
+      dplyr::summarize(
+        dplyr::across(
+          tidyr::everything(),
+          ~mean(.x < 2, na.rm = TRUE)
+        )
+      )
+
 
     # Aggregate variables as the daily mean over DAY hours
     df_day_vars <- df_3hr |>
-      select(-any_of(is_QC)) |>
-      select(-TIMESTAMP_START, -TIMESTAMP_END, -date) |>
-      group_by(TIMESTAMP) |>
-      summarize_all(.funs = function(x){
-        mean(x, na.rm = TRUE)
-      })
+      dplyr::select(-any_of(is_QC)) |>
+      dplyr::select(-P_F) |>
+      dplyr::select(-TIMESTAMP_START, -TIMESTAMP_END, -date) |>
+      dplyr::group_by(TIMESTAMP) |>
+      dplyr::summarize(
+        dplyr::across(
+          tidyr::everything(),
+          ~mean(.x, na.rm = TRUE)
+        )
+      )
   }
 
   # Aggregate P_F always as sum over 24 hrs
   df_day_vars_pf <- df |>
-    select(P_F, TIMESTAMP) |>
-    group_by(TIMESTAMP) |>
-    summarise_all(.funs = function(x){
-      sum(x, na.rm = TRUE)
-    })
+    dplyr::select(P_F, TIMESTAMP) |>
+    dplyr::group_by(TIMESTAMP) |>
+    dplyr::summarize(
+      dplyr::across(
+        tidyr::everything(),
+        ~sum(.x, na.rm = TRUE)
+      )
+    )
 
   # Aggregate Tmax and Tmin always as max and min over 24 hrs
   # (used for gapfilling the actual FLUXNET variables)
   df_tmaxmin <- df |>
-    group_by(TIMESTAMP) |>
-    summarize(
+    dplyr::group_by(TIMESTAMP) |>
+    dplyr::summarize(
       tmax = max(TA_F_MDS),
       tmin = min(TA_F_MDS)
     )
 
   # Calculate day length
   df_daylen <- df |>
-    filter(DAY) |>
-    group_by(TIMESTAMP) |>
-    summarize(DAYLENGTH = difftime(max(time), min(time), units="hours") |> as.numeric())
+    dplyr::filter(DAY) |>
+    dplyr::group_by(TIMESTAMP) |>
+    dplyr::summarize(DAYLENGTH = difftime(max(time), min(time), units="hours") |> as.numeric())
 
   # combine variables, P_F, quality flags, and computed tmax/min
   # This step replaces df from half-hourly to aggregated daily
@@ -294,7 +324,7 @@ fdk_downsample_fluxnet_phydro <- function(
 
   # clean data - remove if less than 80% is good-quality gap-filled
   df <- df |>
-    mutate(
+    dplyr::mutate(
       P_F           = ifelse(P_F_QC < 0.5, NA, P_F), # no better approach
       TA_F_MDS      = ifelse(TA_F_MDS_QC < 0.5, NA, TA_F_MDS), # no better approach
       # TA_DAY_F_MDS  = ifelse(TA_F_MDS_QC < 0.5, NA, TA_DAY_F_MDS),
@@ -341,11 +371,11 @@ fdk_downsample_fluxnet_phydro <- function(
 
   # Plot variables before gapfilling
   if (save_plots){
-    p <- df |> select(TIMESTAMP, DAYLENGTH, any_of(vars)) |>
-      pivot_longer(-TIMESTAMP) |>
-      ggplot(aes(x=TIMESTAMP, y=value)) +
-      geom_line() +
-      facet_wrap(~name, scales="free")
+    p <- df |> dplyr::select(TIMESTAMP, DAYLENGTH, any_of(vars)) |>
+      tidyr::pivot_longer(-TIMESTAMP) |>
+      ggplot2::ggplot(ggplot2::aes(x=TIMESTAMP, y=value)) +
+      ggplot2::geom_line() +
+      ggplot2::facet_wrap(~name, scales="free")
     if (missing(out_path)){
       print(p)
     } else {
@@ -369,7 +399,7 @@ fdk_downsample_fluxnet_phydro <- function(
 
   # Gapfill TMAX and TMIN from hh data
   df <- df |>
-    mutate(TMAX_F_MDS = ifelse(is.na(TMAX_F_MDS), yes=tmax, no=TMAX_F_MDS),
+    dplyr::mutate(TMAX_F_MDS = ifelse(is.na(TMAX_F_MDS), yes=tmax, no=TMAX_F_MDS),
            TMIN_F_MDS = ifelse(is.na(TMIN_F_MDS), yes=tmin, no=TMIN_F_MDS))
 
   # Shortwave radiation: impute with KNN
@@ -435,11 +465,12 @@ fdk_downsample_fluxnet_phydro <- function(
 
   # Plot variables after gapfilling
   if (save_plots){
-    p <- df |> select(TIMESTAMP, DAYLENGTH, any_of(vars)) |>
-      pivot_longer(-TIMESTAMP) |>
-      ggplot(aes(x=TIMESTAMP, y=value)) +
-      geom_line(col="brown") +
-      facet_wrap(~name, scales="free")
+    p <- df |>
+      dplyr::select(TIMESTAMP, DAYLENGTH, any_of(vars)) |>
+      tidyr::pivot_longer(-TIMESTAMP) |>
+      ggplot2::ggplot(ggplot2::aes(x=TIMESTAMP, y=value)) +
+      ggplot2::geom_line(col="brown") +
+      ggplot2::facet_wrap(~name, scales="free")
     if (missing(out_path)){
       print(p)
     } else {
