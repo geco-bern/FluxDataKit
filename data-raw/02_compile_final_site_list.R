@@ -6,7 +6,9 @@ library(stringr)
 
 data_path <- "/data/archive/"
 
-output_path <- "~/data/FluxDataKit/v3.2"
+output_path <- "/data/scratch/jaideep/fdk_v4.0"
+
+dir.create(output_path, recursive = T)
 
 # read site data RDS files
 # append site types (ICOS, PLUMBER etc)
@@ -303,6 +305,64 @@ df <- df |>
 #   )
 
 
+## Jaideep note:
+# 22 sites have conflicting IGBP types as compared with EU fluxdata and Fluxnet2015
+# Set IGBP class from the following sources, in order of priority:
+# (1) EU Fluxdata: https://www.europe-fluxdata.eu/home/sites-list (newly included in data-raw)
+# (2) Fluxnet 2015: already available as data-raw/meta_data/fluxnet2015_site_list.csv
+siteinfo_eu_fluxnet = read.csv("data-raw/meta_data/siteinfo_europe-fluxdata.eu.csv")
+siteinfo_fluxnet2015 = read.csv("data-raw/meta_data/fluxnet2015_site_list.csv")
+
+igbp_by_source = df |>
+  dplyr::select(sitename, classid) |>
+  rename(IGBP_fdk = classid) |>
+  left_join(siteinfo_eu_fluxnet |>
+              dplyr::select(Site.Code, IGBP.Code) |>
+              rename(sitename = Site.Code,
+                     IGBP_eu = IGBP.Code)
+  ) |>
+  left_join(siteinfo_fluxnet2015 |>
+              dplyr::select(id, IGBP) |>
+              rename(sitename = id,
+                     IGBP_flx2015 = IGBP)
+  ) |>
+  mutate(IGBP_synth = ifelse(!is.na(IGBP_eu),
+                             yes = IGBP_eu,
+                             no = ifelse(!is.na(IGBP_flx2015),
+                                         yes = IGBP_flx2015,
+                                         no = IGBP_fdk
+                             )
+  )
+  )
+
+message("IGBP correction: found ",
+  igbp_by_source |>
+    dplyr::filter(IGBP_fdk != IGBP_eu | IGBP_fdk != IGBP_flx2015) |>
+    nrow(),
+  " conficted entries")
+
+df <- df |>
+  left_join(igbp_by_source)
+
+# df |>
+#   dplyr::select(starts_with("IGBP"), classid) |>
+#   dplyr::filter(IGBP_synth != classid)
+
+
+# Get C3/C4 classification and C4-% from data shared by Yanghui Kang (Trevor's group)
+site_summary_YK = read.csv("data-raw/meta_data/site_summary_yanghui_kang.csv")
+
+df <- df |>
+  left_join(
+    site_summary_YK |>
+      dplyr::select(SITE_ID, C3.C4, C4_percent) |>
+      rename(sitename = SITE_ID)
+  ) |>
+  mutate(C3.C4 = dplyr::case_match(C3.C4,
+                                   "unknown"~NA,
+                                   .default = C3.C4)
+  )
+
 # save the data, retaining only key columns (note: valuable information also in
 # other columns!)
 fdk_site_info <- df |>
@@ -316,11 +376,15 @@ fdk_site_info <- df |>
     canopy_height,
     reference_height,
     koeppen_code,
-    igbp_land_use = classid,
+    igbp_land_use = IGBP_synth,
     whc,
-    product
+    product,
+    photosynthesis_pathway = C3.C4,
+    C4_percent
   ) |>
   ungroup()
+
+
 
 # # quick check for missing data
 # visdat::vis_miss(df)
@@ -333,6 +397,11 @@ save(fdk_site_info,
 # write CSV file for upload to Zenodo
 readr::write_csv(
   fdk_site_info,
-  file = "~/data/FluxDataKit/v3.2/fdk_site_info.csv"
+  file = here::here("data/fdk_site_info.csv")
 )
 
+# write CSV file for upload to Zenodo
+readr::write_csv(
+  fdk_site_info,
+  file = file.path(output_path, "fdk_site_info.csv")
+)
