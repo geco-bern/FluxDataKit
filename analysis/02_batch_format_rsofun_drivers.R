@@ -13,10 +13,10 @@ input_path <- "~/data/FluxDataKit/v3.2/fluxnet/"
 failed_sites <- readRDS(here::here("data/failed_sites.rds"))
 
 # read in sites to process
-sites <- FluxDataKit::fdk_site_info |>
-  filter(!sitename %in% failed_sites)
+sites <- FluxDataKit::fdk_site_info
+  # filter(!sitename %in% failed_sites)
 
-# site subset------------------
+# # site subset------------------
 # # xxx debug
 # # chose representative sites for LES book
 # use_sites <- c(
@@ -24,8 +24,7 @@ sites <- FluxDataKit::fdk_site_info |>
 #   # "US-SRM", # Deserts & Xeric Shrublands
 #   # "FR-Pue", # Mediterranean Forests, Woodlands & Scrub
 #   # "DE-Hai", # Temperate Broadleaf & Mixed Forests
-#   "DE-Gri",
-#   "DE-Tha"
+#   "CH-Oe2"
 #   # "US-Tw1", # Temperate Grasslands, Savannas & Shrublands
 #   # "AU-How", # Tropical & Subtropical Grasslands, Savannas & Shrubland
 #   # "BR-Sa3", # Tropical
@@ -34,7 +33,7 @@ sites <- FluxDataKit::fdk_site_info |>
 # )
 # sites <- sites |>
 #   filter(sitename %in% use_sites)
-#----------------------------
+# #----------------------------
 
 # loop over all sites and process them to format
 # them into the correct rsofun format

@@ -205,9 +205,6 @@ fdk_format_drivers <- function(
         le,
         le_qc
       ) |>
-      dplyr::mutate(
-        patm = ifelse(patm <= 300, NA, patm)
-      ) |>
       dplyr::group_by(sitename) |>
       tidyr::nest()
 
