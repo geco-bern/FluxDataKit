@@ -29,7 +29,7 @@ dir.create(tmp_path)
 # rsofun driver data object
 system(
   sprintf(
-    "cp -R %s/%s %s/%s",
+    "cp %s/%s %s/%s",
     input_path,
     drivers_filnam,
     tmp_path,

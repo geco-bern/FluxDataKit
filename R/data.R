@@ -20,3 +20,22 @@
 #'
 
 "fdk_site_info"
+
+
+
+#' FDK good quality sequences
+#'
+#' Information on sequences of good quality data for different variables
+#'
+#' @format DataFrame
+#' \describe{
+#'   \item{sitename}{Site name}
+#'   \item{start_gpp}{Start date of the good quality data sequence for GPP}
+#'   \item{year_start_gpp}{Start year of the good quality data sequence for GPP}
+#'   \item{year_end_gpp}{End year of the good quality data sequence for GPP}
+#'   \item{nyears_gpp}{Number of complete good quality data years for GPP}
+#'   \item{drop_gpp}{Whether to drop this site - TRUE if less than one year good-quality data is available}
+#' }
+#'
+
+"fdk_site_fullyearsequence"
