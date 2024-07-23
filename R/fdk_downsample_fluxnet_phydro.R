@@ -26,7 +26,7 @@ fdk_downsample_fluxnet_phydro <- function(
     out_path,
     overwrite = FALSE,
     save_plots = TRUE,
-    method = c("24hr", "daytime", "3hrmax")[1],
+    method = c("legacy", "24hr", "daytime", "3hrmax")[1],
     midday_criterion = c("quantile", "time")[2]
 ){
 
@@ -37,7 +37,7 @@ fdk_downsample_fluxnet_phydro <- function(
   # https://fluxnet.org/data/fluxnet2015-dataset/fullset-data-product/
 
   # Check parameters
-  if (!(method %in% c("24hr", "daytime", "3hrmax"))){
+  if (!(method %in% c("legacy", "24hr", "daytime", "3hrmax"))){
     stop("method should be one of 24hr, daytime, 3hrmax")
   }
 
@@ -64,9 +64,9 @@ fdk_downsample_fluxnet_phydro <- function(
     )
   }
 
-  # if(file.exists(filename) & !overwrite){
-  #   return(invisible())
-  # }
+  if(file.exists(filename) & !overwrite){
+    return(invisible())
+  }
 
   # check required columns fill with NA
   # if any are missing
@@ -152,6 +152,145 @@ fdk_downsample_fluxnet_phydro <- function(
   # _F_MDS_QC = 3 (filled with low confidence)
   colnames_df <- names(df)
   is_QC = colnames_df[grepl("_QC", colnames_df)]
+
+  if (method == "legacy"){
+
+    # Aggregation of quality checks is taken as-is from legacy code. 
+    # JAIDEEP: Why do some variables use na.rm=F ?
+    df_day_QC <- df |>
+      dplyr::group_by(TIMESTAMP) |>
+      dplyr::summarize(
+        P_F_QC = mean(P_F_QC < 2, na.rm = TRUE),
+        TA_F_MDS_QC = mean(TA_F_MDS_QC < 2, na.rm = TRUE),
+        SW_IN_F_MDS_QC = mean(SW_IN_F_MDS_QC < 2, na.rm = TRUE),
+        LW_IN_F_MDS_QC = mean(LW_IN_F_MDS_QC < 2, na.rm = TRUE),
+        VPD_F_MDS_QC = mean(VPD_F_MDS_QC < 2, na.rm = TRUE),
+        WS_F_QC = mean(WS_F_QC < 2, na.rm = TRUE),
+        PA_F_QC = mean(PA_F_QC < 2, na.rm = TRUE),
+        CO2_F_MDS_QC = mean(CO2_F_MDS_QC < 2, na.rm = TRUE),
+        NEE_VUT_REF_QC = mean(NEE_VUT_REF_QC < 2, na.rm = FALSE),
+        NETRAD_QC = mean(NETRAD_QC < 2, na.rm = TRUE),
+        USTAR_QC = mean(USTAR_QC < 2, na.rm = TRUE),
+        LE_F_MDS_QC = mean(LE_F_MDS_QC < 2, na.rm = FALSE),
+        LE_CORR_QC = mean(LE_CORR_QC < 2, na.rm = FALSE),
+        H_F_MDS_QC = mean(H_F_MDS_QC < 2, na.rm = FALSE),
+        H_CORR_QC = mean(H_CORR_QC < 2, na.rm = FALSE),
+      )
+
+    # VPD and TA are aggregated as daytime averages
+    # JAIDEEP: I am simplifying the logic here: variables should be named 
+    #    uniformly in this driver object, and their aggregation logic is
+    #    entirely specified here (rather that across multiple files). 
+    #    Hence, I am calling these variables as XX_MDS instead of XX_DAY_MDS,
+    #    and am removing theie 24-hr mean versions further below. If the 24-hr 
+    #    means are needed, they should be retrived from the 24 hr forcing.
+    df_day_vars_ta_vpd <- df |>
+      dplyr::filter(DAY) |>
+      dplyr::group_by(TIMESTAMP) |>
+      dplyr::summarize(
+        TA_F_MDS = mean(TA_F_MDS, na.rm = TRUE),
+        VPD_F_MDS = mean(VPD_F_MDS, na.rm = TRUE),
+      )
+
+    # Rest of the variables are aggregated as daily averages
+    # P_F is removed from this list as it is aggregated separately later.
+    df_day_vars <- df |>
+      dplyr::group_by(TIMESTAMP) |>
+      dplyr::summarize(
+
+        # METEO
+        # precipitation is the sum of HH values
+        # P_F = sum(P_F, na.rm = TRUE),  # removing, aggregated separately later 
+
+        # JAIDEEP: MAJOR BUG ALERT: DO NOT replace TA_F_MDS here, as it is needed for TMIN/TMAX calculations below. 
+        # temperature is the mean of the HH values
+        # TA_F_MDS = mean(TA_F_MDS, na.rm = TRUE), # removing, see comment above
+
+        TMIN_F_MDS = min(TA_F_MDS, na.rm = TRUE),
+        TMAX_F_MDS = max(TA_F_MDS, na.rm = TRUE),
+
+        # shortwave radiation is the mean of the HH values
+        SW_IN_F_MDS = mean(SW_IN_F_MDS, na.rm = TRUE),
+
+        # long wave radiation is the mean of the HH values
+        LW_IN_F_MDS = mean(LW_IN_F_MDS, na.rm = TRUE),
+
+        # VPD is the mean of the HH values
+        # VPD_F_MDS = mean(VPD_F_MDS, na.rm = TRUE), #  removing, see comment above
+
+        # wind speed is the mean of the HH values
+        WS_F = mean(WS_F, na.rm = TRUE),
+
+        # atmospheric pressure is the mean of the HH values
+        PA_F = mean(PA_F, na.rm = TRUE),
+
+        # CO2 is the mean of the HH values
+        CO2_F_MDS = mean(CO2_F_MDS, na.rm = TRUE),
+
+        # FLUXES
+        # add fraction of daily "missing values"
+        # GPP_NT_VUT_SE = ifelse(
+        #   length(which(!is.na(GPP_NT_VUT_SE)) >= length(GPP_NT_VUT_SE) * 0.5 ),
+        #   sd(GPP_NT_VUT_REF, na.rm = FALSE)/sqrt(length(which(!is.na(GPP_NT_VUT_REF)))),
+        #   NA
+        # ),
+        #
+        # GPP_DT_VUT_SE = ifelse(
+        #   length(which(!is.na(GPP_DT_VUT_SE)) >= length(GPP_DT_VUT_SE) * 0.5 ),
+        #   sd(GPP_DT_VUT_REF, na.rm = FALSE)/sqrt(length(which(!is.na(GPP_DT_VUT_REF)))),
+        #   NA
+        # ),
+
+        # CARBON FLUXES
+        NEE_VUT_REF = mean(NEE_VUT_REF, na.rm = FALSE),
+        GPP_NT_VUT_REF = mean(GPP_NT_VUT_REF, na.rm = FALSE),
+        GPP_DT_VUT_REF = mean(GPP_DT_VUT_REF, na.rm = FALSE),
+        RECO_NT_VUT_REF = mean(RECO_NT_VUT_REF, na.rm = FALSE),
+        # RECO_DT_VUT_REF = mean(RECO_DT_VUT_REF, na.rm = FALSE),  # not available
+
+        # NETRAD/USTAR/SW_out is average from HH data
+        # (only days with more than 50% records available)
+        # add fraction of daily "missing values"
+        NETRAD = mean(NETRAD, na.rm = TRUE),
+
+        USTAR = mean(USTAR, na.rm = TRUE),
+
+        SW_OUT = mean(SW_OUT, na.rm = TRUE),
+        # SW_OUT_QC = mean(SW_OUT_QC < 2, na.rm = TRUE),
+
+        # Latent heat is the mean of the HH values
+        # add fraction of daily "missing values"
+        LE_F_MDS = mean(LE_F_MDS, na.rm = FALSE),
+
+        LE_CORR = mean(LE_CORR, na.rm = FALSE),
+
+        # sensible heat is the mean of the HH values
+        # add fraction of daily "missing values"
+        H_F_MDS = mean(H_F_MDS, na.rm = FALSE),
+
+        H_CORR = mean(H_CORR, na.rm = FALSE),
+
+        # Joint uncertainty (can't be produced from)
+        # available data in a similar manner as described
+        # in fluxnet docs
+        LE_CORR_JOINTUNC = NA,
+        H_CORR_JOINTUNC = NA,
+
+        # All carbon fluxes follow complex reprocessing
+        # as Model Efficiency is repeated for each time
+        # aggregation
+
+        # MODIS RS data
+        LAI = mean(LAI, na.rm = TRUE),
+        FPAR = mean(FPAR, na.rm = TRUE)
+      ) |>
+
+      # Add TA and VPD to the aggregated data
+      dplyr::left_join(
+        df_day_vars_ta_vpd
+      )
+
+  }
 
   if (method == "24hr"){
     df_day_QC <- df |>
@@ -304,8 +443,8 @@ fdk_downsample_fluxnet_phydro <- function(
   df_tmaxmin <- df |>
     dplyr::group_by(TIMESTAMP) |>
     dplyr::summarize(
-      tmax = max(TA_F_MDS),
-      tmin = min(TA_F_MDS)
+      tmax = max(TA_F_MDS, na.rm=TRUE),
+      tmin = min(TA_F_MDS, na.rm=TRUE)
     )
 
   # Calculate day length

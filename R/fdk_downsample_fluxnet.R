@@ -161,6 +161,9 @@ fdk_downsample_fluxnet <- function(
       P_F = sum(P_F, na.rm = TRUE),
       P_F_QC = mean(P_F_QC < 2, na.rm = TRUE),
 
+      # JAIDEEP: MAJOR BUG ALERT: DO NOT replace TA_F_MDS here, 
+      # as it is needed for TMIN/TMAX calculations below. 
+      # FIXME: Move it to after those calcs.
       # temperature is the mean of the HH values
       TA_F_MDS = mean(TA_F_MDS, na.rm = TRUE),
       TA_F_MDS_QC = mean(TA_F_MDS_QC < 2, na.rm = TRUE),
