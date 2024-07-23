@@ -179,23 +179,43 @@ df <- df |>
     koeppen_code = ifelse(is.na(koeppen_code), koeppen_code_falge, koeppen_code)
   )
 
-## Get missing data from ICOS site list file -----------------------------------
+## Get missing data from ICOS and Fluxnet2015 site list files -----------------------------------
 siteinfo_icos <- readr::read_csv(
   here::here(
     "data-raw/meta_data/sites_list_icos.csv"
   )
 )
 
+siteinfo_fluxnet2015 <- readr::read_csv(
+  here::here(
+    "data-raw/meta_data/fluxnet2015_site_list.csv"
+  )
+)
+
+# Correct IGBP types 
+# Priority: ICOS, Fluxnet2015, plumber
+#   i.e, Fluxnet2015 overwrites plumber, then ICOS overwrites the reuslt
 df <- df |>
   left_join(
+    siteinfo_fluxnet2015 |>
+      dplyr::select(id, IGBP) |>
+      rename(sitename = id,
+             classid_flx2015 = IGBP),
+    by = "sitename"
+  ) |>
+  mutate(
+    classid = ifelse(!is.na(classid_flx2015), classid_flx2015, classid)
+  ) |>
+  left_join(
     siteinfo_icos |>
+      dplyr::select(site, lat_icos, lon_icos, classid_icos) |>
       rename(sitename = site),
     by = "sitename"
   ) |>
   mutate(
     lon = ifelse(is.na(lon), lon_icos, lon),
     lat = ifelse(is.na(lat), lat_icos, lat),
-    classid = ifelse(is.na(classid), classid_icos, classid)
+    classid = ifelse(!is.na(classid_icos), classid_icos, classid)
   )
 
 ## Get still missing koeppen-geiger info from global map------------------------
@@ -305,11 +325,10 @@ df <- df |>
 #   )
 
 
+## --------- IGBP types: check for inconsistencies -----------
 ## Jaideep note:
-# 22 sites have conflicting IGBP types as compared with EU fluxdata and Fluxnet2015
-# Set IGBP class from the following sources, in order of priority:
-# (1) EU Fluxdata: https://www.europe-fluxdata.eu/home/sites-list (newly included in data-raw)
-# (2) Fluxnet 2015: already available as data-raw/meta_data/fluxnet2015_site_list.csv
+# 22 sites in plumber have conflicting IGBP types as compared with ICOS and Fluxnet2015
+# This code just checks how many still have inconsistent types are reassigning the codes by priority
 siteinfo_eu_fluxnet = read.csv("data-raw/meta_data/siteinfo_europe-fluxdata.eu.csv")
 siteinfo_fluxnet2015 = read.csv("data-raw/meta_data/fluxnet2015_site_list.csv")
 
@@ -335,18 +354,13 @@ igbp_by_source = df |>
   )
   )
 
-message("IGBP correction: found ",
+message("IGBP: found ",
   igbp_by_source |>
     dplyr::filter(IGBP_fdk != IGBP_eu | IGBP_fdk != IGBP_flx2015) |>
     nrow(),
-  " conficted entries")
-
-df <- df |>
-  left_join(igbp_by_source)
-
-# df |>
-#   dplyr::select(starts_with("IGBP"), classid) |>
-#   dplyr::filter(IGBP_synth != classid)
+  " conficted entries:")
+print(igbp_by_source |>
+          dplyr::filter(IGBP_fdk != IGBP_eu | IGBP_fdk != IGBP_flx2015))
 
 
 # Get C3/C4 classification and C4-% from data shared by Yanghui Kang (Trevor's group)
@@ -376,7 +390,7 @@ fdk_site_info <- df |>
     canopy_height,
     reference_height,
     koeppen_code,
-    igbp_land_use = IGBP_synth,
+    igbp_land_use = classid,
     whc,
     product,
     photosynthesis_pathway = C3.C4,
