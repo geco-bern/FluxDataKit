@@ -9,12 +9,12 @@ library(ingestr)
 library(rsofun)
 # lapply(list.files("R/","*.R", full.names = TRUE), source)
 
-input_path <- "~/data/FluxDataKit/v3.2/fluxnet/"
+input_path <- "/data_2/FluxDataKit/v3.2/"
 failed_sites <- readRDS(here::here("data/failed_sites.rds"))
 
 # read in sites to process
-sites <- FluxDataKit::fdk_site_info
-  # filter(!sitename %in% failed_sites)
+sites <- FluxDataKit::fdk_site_info %>%
+  filter(!sitename %in% failed_sites)
 
 # # site subset------------------
 # # xxx debug
@@ -72,7 +72,7 @@ driver_data <- dplyr::bind_rows(driver_data)
 # apply compression to minimize space
 saveRDS(
   driver_data,
-  "~/data/FluxDataKit/v3.2/rsofun_driver_data_v3.2.rds",
+  "/data_2/FluxDataKit/v3.2/rsofun_driver_data_v3.2.rds",
   compress = "xz"
   )
 
