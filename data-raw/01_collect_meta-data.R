@@ -5,6 +5,7 @@
 # below)
 
 library(ingestr)
+# remotes::install_github("bluegreen-labs/icoscp")
 library(icoscp)
 library(RCurl)
 library(XML)

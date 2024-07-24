@@ -175,7 +175,7 @@ df <- df |>
     koeppen_code = ifelse(is.na(koeppen_code), koeppen_code_falge, koeppen_code)
   )
 
-## Get missing data from ICOS site list file -----------------------------------
+## Overwrite classid using info from ICOS site list file -----------------------
 siteinfo_icos <- readr::read_csv(
   here::here(
     "data-raw/meta_data/sites_list_icos.csv"
@@ -191,7 +191,7 @@ df <- df |>
   mutate(
     lon = ifelse(is.na(lon), lon_icos, lon),
     lat = ifelse(is.na(lat), lat_icos, lat),
-    classid = ifelse(is.na(classid), classid_icos, classid)
+    classid = ifelse(is.na(classid_icos), classid, classid_icos)
   )
 
 ## Get still missing koeppen-geiger info from global map------------------------
