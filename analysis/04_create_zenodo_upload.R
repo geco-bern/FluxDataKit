@@ -11,11 +11,11 @@
 # the Zenodo repository:
 # https://zenodo.org/record/7258291
 
-input_path <- "/data_2/FluxDataKit/v3.2/"
-tmp_path <- "/data_2/FluxDataKit/v3.2/zenodo_upload/"
-drivers_filnam <- "rsofun_driver_data_v3.2.rds"
-siteinfo_filnam <- "/data_2/FluxDataKit/v3.2/fdk_site_info.csv"
-fullyearseq_filnam <- "/data_2/FluxDataKit/v3.2/fdk_site_fullyearsequence.csv"
+input_path <- "/data_2/FluxDataKit/v3.3/"
+tmp_path <- "/data_2/FluxDataKit/v3.3/zenodo_upload/"
+drivers_filnam <- "rsofun_driver_data_v3.3.rds"
+siteinfo_filnam <- "/data_2/FluxDataKit/v3.3/fdk_site_info.csv"
+fullyearseq_filnam <- "/data_2/FluxDataKit/v3.3/fdk_site_fullyearsequence.csv"
 
 #---- purge old data -----
 

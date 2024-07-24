@@ -11,7 +11,7 @@ library(ingestr)
 library(rsofun)
 
 input_path <- "/data_2/FluxDataKit/FDK_inputs/"
-output_path <- "/data_2/FluxDataKit/v3.2/"
+output_path <- "/data_2/FluxDataKit/v3.3/"
 
 sites <- FluxDataKit::fdk_site_info |>
   mutate(
