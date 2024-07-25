@@ -4,7 +4,7 @@ library(raster)
 library(stringr)
 # library(MODISTools)
 
-output_path <- "~/data/FluxDataKit/v3.2"
+output_path <- "/data_2/FluxDataKit/v3.3"
 
 # read site data RDS files
 # append site types (ICOS, PLUMBER etc)
@@ -175,23 +175,43 @@ df <- df |>
     koeppen_code = ifelse(is.na(koeppen_code), koeppen_code_falge, koeppen_code)
   )
 
-## Overwrite classid using info from ICOS site list file -----------------------
+## Get missing data from ICOS and Fluxnet2015 site list files -----------------------------------
 siteinfo_icos <- readr::read_csv(
   here::here(
     "data-raw/meta_data/sites_list_icos.csv"
   )
 )
 
+siteinfo_fluxnet2015 <- readr::read_csv(
+  here::here(
+    "data-raw/meta_data/fluxnet2015_site_list.csv"
+  )
+)
+
+# Correct IGBP types
+# Priority: ICOS, Fluxnet2015, plumber
+#   i.e, Fluxnet2015 overwrites plumber, then ICOS overwrites the reuslt
 df <- df |>
   left_join(
+    siteinfo_fluxnet2015 |>
+      dplyr::select(id, IGBP) |>
+      rename(sitename = id,
+             classid_flx2015 = IGBP),
+    by = "sitename"
+  ) |>
+  mutate(
+    classid = ifelse(!is.na(classid_flx2015), classid_flx2015, classid)
+  ) |>
+  left_join(
     siteinfo_icos |>
+      dplyr::select(site, lat_icos, lon_icos, classid_icos) |>
       rename(sitename = site),
     by = "sitename"
   ) |>
   mutate(
     lon = ifelse(is.na(lon), lon_icos, lon),
     lat = ifelse(is.na(lat), lat_icos, lat),
-    classid = ifelse(is.na(classid_icos), classid, classid_icos)
+    classid = ifelse(!is.na(classid_icos), classid_icos, classid)
   )
 
 ## Get still missing koeppen-geiger info from global map------------------------
@@ -301,6 +321,62 @@ df <- df |>
 #   )
 
 
+## --------- IGBP types: check for inconsistencies -----------
+## Jaideep note:
+# 22 sites in plumber have conflicting IGBP types as compared with ICOS and Fluxnet2015
+# This code just checks how many still have inconsistent types are reassigning the codes by priority
+# siteinfo_eu_fluxnet = read.csv("data-raw/meta_data/siteinfo_europe-fluxdata.eu.csv")
+# siteinfo_fluxnet2015 = read.csv("data-raw/meta_data/fluxnet2015_site_list.csv")
+
+igbp_by_source = df |>
+  dplyr::select(sitename, classid) |>
+  rename(IGBP_fdk = classid) |>
+  left_join(siteinfo_icos |>
+              dplyr::select(site, classid_icos) |>
+              rename(sitename = site,
+                     IGBP_eu = classid_icos),
+            by = join_by(sitename)
+  ) |>
+  left_join(siteinfo_fluxnet2015 |>
+              dplyr::select(id, IGBP) |>
+              rename(sitename = id,
+                     IGBP_flx2015 = IGBP),
+            by = join_by(sitename)
+  ) |>
+  mutate(IGBP_synth = ifelse(!is.na(IGBP_eu),
+                             yes = IGBP_eu,
+                             no = ifelse(!is.na(IGBP_flx2015),
+                                         yes = IGBP_flx2015,
+                                         no = IGBP_fdk
+                             )
+  )
+  )
+
+message("IGBP: found ",
+  igbp_by_source |>
+    dplyr::filter(IGBP_fdk != IGBP_eu | IGBP_fdk != IGBP_flx2015) |>
+    nrow(),
+  " conficted entries:")
+print(igbp_by_source |>
+          dplyr::filter(IGBP_fdk != IGBP_eu | IGBP_fdk != IGBP_flx2015))
+
+# Get C3/C4 classification and C4-% from data shared by Yanghui Kang (Trevor's group)
+site_summary_YK = read.csv("data-raw/meta_data/site_summary_yanghui_kang.csv")
+
+df <- df |>
+  left_join(
+    site_summary_YK |>
+      dplyr::select(SITE_ID, c3c4 = C3.C4) |>
+      rename(sitename = SITE_ID),
+    by = join_by(sitename)
+  ) |>
+  mutate(c3c4 = dplyr::case_match(
+    c3c4,
+    "unknown" ~ NA,
+    .default = c3c4
+    )
+  )
+
 # save the data, retaining only key columns (note: valuable information also in
 # other columns!)
 fdk_site_info <- df |>
@@ -311,10 +387,13 @@ fdk_site_info <- df |>
     elv,
     year_start,
     year_end,
+    canopy_height,
+    reference_height,
     koeppen_code,
     igbp_land_use = classid,
     whc,
-    product
+    product,
+    c3c4
   ) |>
   ungroup()
 
@@ -329,6 +408,6 @@ save(fdk_site_info,
 # write CSV file for upload to Zenodo
 readr::write_csv(
   fdk_site_info,
-  file = "~/data/FluxDataKit/v3.2/fdk_site_info.csv"
+  file = paste0(output_path, "/fdk_site_info.csv")
 )
 
