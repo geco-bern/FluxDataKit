@@ -251,7 +251,7 @@ df <- df |>
 
 ## root zone water storage capacity---------------------------------------------
 # using the map from Stocker et al., 2023, obtainable from Zenodo at https://doi.org/10.5281/zenodo.5515246
-whc <- raster("~/mct/data/cwdx80_forcing.nc")
+whc <- raster("/data/archive/whc_stocker_2023/data/zroot_cwdx80_forcing.nc")
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
@@ -271,7 +271,7 @@ df <- df |>
 
 ## Get still missing elevation data from ETOPO1---------------------------------
 # file is too large to add it to this repo.
-etopo <- raster("~/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")
+etopo <- raster("/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")
 etopo_v <- raster::extract(etopo, loc)
 
 # add etopo1 column
@@ -361,12 +361,12 @@ print(igbp_by_source |>
           dplyr::filter(IGBP_fdk != IGBP_eu | IGBP_fdk != IGBP_flx2015))
 
 # Get C3/C4 classification and C4-% from data shared by Yanghui Kang (Trevor's group)
-site_summary_YK = read.csv("data-raw/meta_data/site_summary_yanghui_kang.csv")
+site_summary_YK = readr::read_csv("data-raw/meta_data/site_summary_yanghui_kang.csv")
 
 df <- df |>
   left_join(
     site_summary_YK |>
-      dplyr::select(SITE_ID, c3c4 = C3.C4) |>
+      dplyr::select(SITE_ID, c3c4 = `C3/C4`) |>
       rename(sitename = SITE_ID),
     by = join_by(sitename)
   ) |>
