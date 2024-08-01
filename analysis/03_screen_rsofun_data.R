@@ -2,7 +2,7 @@
 library(tidyverse)
 library(FluxDataKit)
 
-path <- "~/data/FluxDataKit/v3.2"
+path <- "/data_2/FluxDataKit/v3.3"
 
 failed_sites <- readRDS(here::here("data/failed_sites.rds"))
 
@@ -75,7 +75,7 @@ save(fdk_site_fullyearsequence,
 # write CSV file for upload to Zenodo
 readr::write_csv(
   fdk_site_fullyearsequence,
-  file = "~/data/FluxDataKit/v3.2/fdk_site_fullyearsequence.csv"
+  file = "/data_2/FluxDataKit/v3.3/fdk_site_fullyearsequence.csv"
 )
 
 

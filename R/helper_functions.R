@@ -362,7 +362,8 @@ interpolate2daily_PA_F <- function(df){
 
   } else {
 
-    message("Fraction of missing PA_F data too large (>0.25). Not interpolating.")
+    message("Fraction of missing PA_F data too large (>0.25).")
+
 
   }
 

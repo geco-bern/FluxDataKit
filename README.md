@@ -2,7 +2,7 @@
 
 This project is the framework used to create the LEMONTREE "flux data kit", a dataset with consistent model data for use and re-use. In the interest of consistency across the community we re-use the PLUMBER-2 framework, with a few exceptions. The PLUMBER-2 framework generated consistent gap filled data for land surface modelling. We use the same methods (from the underlying FluxnetLSM package), to provide an expanded dataset covering more sites and site years.
 
-The data is generated using a set workflow and new releases are generated using this workflow when considerable data additions are made available. **The final data products are deposited on [Zenodo](https://doi.org/10.5281/zenodo.10885934).** 
+The data is generated using a set workflow and new releases are generated using this workflow when considerable data additions are made available. **The final data products are deposited on [Zenodo](https://doi.org/10.5281/zenodo.12092555).** 
 
 - See [here](https://geco-bern.github.io/FluxDataKit/articles/01_setup.html) for references to original data sources used for creating the FluxDataKit data product.
 - See [here](https://geco-bern.github.io/FluxDataKit/articles/02_data_coverage.html) for an overview of data coverage.
@@ -70,7 +70,7 @@ For machine learning or other modelling purposes, we provide ancillary MODIS bas
 
 ## Data and code availabilty
 
-Data releases are made public via a Zenodo archive at [https://zenodo.org/record/7258291](https://zenodo.org/record/7258291). The processing workflow relies on the `FluxDataKit` R package and a [workflow described in the repository](https://github.com/geco-bern/FluxDataKit/tree/main/analysis). 
+Data releases are made public via a Zenodo archive at [https://doi.org/10.5281/zenodo.12092555](https://doi.org/10.5281/zenodo.12092555). The processing workflow relies on the `FluxDataKit` R package and a [workflow described in the repository](https://github.com/geco-bern/FluxDataKit/tree/main/analysis). 
 
 ## Acknowledgements
 

@@ -6,7 +6,7 @@ library(stringr)
 
 data_path <- "/data/archive/"
 
-output_path <- "/data/scratch/jaideep/fdk_v4.0"
+output_path <- "/data_2/FluxDataKit/v3.3"
 
 dir.create(output_path, recursive = T)
 
@@ -192,7 +192,7 @@ siteinfo_fluxnet2015 <- readr::read_csv(
   )
 )
 
-# Correct IGBP types 
+# Correct IGBP types
 # Priority: ICOS, Fluxnet2015, plumber
 #   i.e, Fluxnet2015 overwrites plumber, then ICOS overwrites the reuslt
 df <- df |>
@@ -255,7 +255,7 @@ df <- df |>
 
 ## root zone water storage capacity---------------------------------------------
 # using the map from Stocker et al., 2023, obtainable from Zenodo at https://doi.org/10.5281/zenodo.5515246
-whc <- raster("/data/archive/whc_stocker_2023/data/cwdx80_forcing.nc")
+whc <- raster("/data/archive/whc_stocker_2023/data/zroot_cwdx80_forcing.nc")
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
@@ -329,21 +329,23 @@ df <- df |>
 ## Jaideep note:
 # 22 sites in plumber have conflicting IGBP types as compared with ICOS and Fluxnet2015
 # This code just checks how many still have inconsistent types are reassigning the codes by priority
-siteinfo_eu_fluxnet = read.csv("data-raw/meta_data/siteinfo_europe-fluxdata.eu.csv")
-siteinfo_fluxnet2015 = read.csv("data-raw/meta_data/fluxnet2015_site_list.csv")
+# siteinfo_eu_fluxnet = read.csv("data-raw/meta_data/siteinfo_europe-fluxdata.eu.csv")
+# siteinfo_fluxnet2015 = read.csv("data-raw/meta_data/fluxnet2015_site_list.csv")
 
 igbp_by_source = df |>
   dplyr::select(sitename, classid) |>
   rename(IGBP_fdk = classid) |>
-  left_join(siteinfo_eu_fluxnet |>
-              dplyr::select(Site.Code, IGBP.Code) |>
-              rename(sitename = Site.Code,
-                     IGBP_eu = IGBP.Code)
+  left_join(siteinfo_icos |>
+              dplyr::select(site, classid_icos) |>
+              rename(sitename = site,
+                     IGBP_eu = classid_icos),
+            by = join_by(sitename)
   ) |>
   left_join(siteinfo_fluxnet2015 |>
               dplyr::select(id, IGBP) |>
               rename(sitename = id,
-                     IGBP_flx2015 = IGBP)
+                     IGBP_flx2015 = IGBP),
+            by = join_by(sitename)
   ) |>
   mutate(IGBP_synth = ifelse(!is.na(IGBP_eu),
                              yes = IGBP_eu,
@@ -362,19 +364,21 @@ message("IGBP: found ",
 print(igbp_by_source |>
           dplyr::filter(IGBP_fdk != IGBP_eu | IGBP_fdk != IGBP_flx2015))
 
-
 # Get C3/C4 classification and C4-% from data shared by Yanghui Kang (Trevor's group)
-site_summary_YK = read.csv("data-raw/meta_data/site_summary_yanghui_kang.csv")
+site_summary_YK = readr::read_csv("data-raw/meta_data/site_summary_yanghui_kang.csv")
 
 df <- df |>
   left_join(
     site_summary_YK |>
-      dplyr::select(SITE_ID, C3.C4, C4_percent) |>
-      rename(sitename = SITE_ID)
+      dplyr::select(SITE_ID, c3c4 = `C3/C4`) |>
+      rename(sitename = SITE_ID),
+    by = join_by(sitename)
   ) |>
-  mutate(C3.C4 = dplyr::case_match(C3.C4,
-                                   "unknown"~NA,
-                                   .default = C3.C4)
+  mutate(c3c4 = dplyr::case_match(
+    c3c4,
+    "unknown" ~ NA,
+    .default = c3c4
+    )
   )
 
 # save the data, retaining only key columns (note: valuable information also in
@@ -393,8 +397,7 @@ fdk_site_info <- df |>
     igbp_land_use = classid,
     whc,
     product,
-    photosynthesis_pathway = C3.C4,
-    C4_percent
+    c3c4
   ) |>
   ungroup()
 
@@ -411,7 +414,7 @@ save(fdk_site_info,
 # write CSV file for upload to Zenodo
 readr::write_csv(
   fdk_site_info,
-  file = here::here("data/fdk_site_info.csv")
+  file = paste0(output_path, "/fdk_site_info.csv")
 )
 
 # write CSV file for upload to Zenodo

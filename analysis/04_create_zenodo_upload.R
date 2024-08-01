@@ -11,11 +11,11 @@
 # the Zenodo repository:
 # https://zenodo.org/record/7258291
 
-input_path <- "~/data/FluxDataKit/v3.2/"
-tmp_path <- "~/data/FluxDataKit/v3.2/zenodo_upload/"
-drivers_filnam <- "rsofun_driver_data_v3.2.rds"
-siteinfo_filnam <- "~/data/FluxDataKit/v3.2/fdk_site_info.csv"
-fullyearseq_filnam <- "~/data/FluxDataKit/v3.2/fdk_site_fullyearsequence.csv"
+input_path <- "/data_2/FluxDataKit/v3.3/"
+tmp_path <- "/data_2/FluxDataKit/v3.3/zenodo_upload/"
+drivers_filnam <- "rsofun_driver_data_v3.3.rds"
+siteinfo_filnam <- "/data_2/FluxDataKit/v3.3/fdk_site_info.csv"
+fullyearseq_filnam <- "/data_2/FluxDataKit/v3.3/fdk_site_fullyearsequence.csv"
 
 #---- purge old data -----
 
@@ -24,12 +24,14 @@ fullyearseq_filnam <- "~/data/FluxDataKit/v3.2/fdk_site_fullyearsequence.csv"
 
 # recreate temporary path
 dir.create(tmp_path)
+dir.create(paste0(tmp_path, "/fluxnet"))
+dir.create(paste0(tmp_path, "/lsm"))
 
 #---- copy new data over ----
 # rsofun driver data object
 system(
   sprintf(
-    "cp -R %s/%s %s/%s",
+    "cp %s/%s %s/%s",
     input_path,
     drivers_filnam,
     tmp_path,
@@ -58,7 +60,7 @@ system(
 # CSV files
 system(
   sprintf(
-    "cp -R %s/fluxnet %s/fluxnet",
+    "cp -R %s/fluxnet/* %s/fluxnet/",
     input_path,
     tmp_path
   )
@@ -67,7 +69,7 @@ system(
 # NetCDF files
 system(
   sprintf(
-    "cp -R %s/lsm %s/lsm",
+    "cp -R %s/lsm/* %s/lsm/",
     input_path,
     tmp_path
   )

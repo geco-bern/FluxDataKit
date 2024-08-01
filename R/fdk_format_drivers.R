@@ -53,9 +53,10 @@ fdk_format_drivers <- function(
   list_flux <- lapply(site_info$sitename, function(site){
 
     # get file name path
-    filn <- list.files(path,
+    filn <- list.files(paste0(path, "/fluxnet/"),
                        pattern = paste0("FLX_", site, ".*_FULLSET_DD.*.csv"),
-                       recursive = TRUE
+                       recursive = TRUE,
+                       full.names = TRUE
     )
 
     # conversion factor from SPLASH: flux to energy conversion,
@@ -63,7 +64,7 @@ fdk_format_drivers <- function(
     kfFEC <- 2.04
 
     # read from FLUXNET-standard file with daily variables
-    df_flux <-  read.csv(file.path(path, filn)) |>
+    df_flux <-  read.csv(file.path(filn)) |>
 
        dplyr::mutate(
 
@@ -128,7 +129,7 @@ fdk_format_drivers <- function(
 
     #---- Processing CRU data (for cloud cover CCOV) ----
     ccov <- fdk_process_cloud_cover(
-      path = "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
+      path = "/data_2/FluxDataKit/FDK_inputs/cloud_cover/",
       site = site
     )
 
@@ -155,7 +156,7 @@ fdk_format_drivers <- function(
     #   # required data
     #
     #   ccov <- fdk_process_cloud_cover(
-    #     path = "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
+    #     path = "/data_2/FluxDataKit/FDK_inputs/cloud_cover/",
     #     site = site
     #   )
     #
@@ -204,9 +205,6 @@ fdk_format_drivers <- function(
         gpp_qc,
         le,
         le_qc
-      ) |>
-      dplyr::mutate(
-        patm = ifelse(patm <= 300, NA, patm)
       ) |>
       dplyr::group_by(sitename) |>
       tidyr::nest()
