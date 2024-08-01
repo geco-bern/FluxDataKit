@@ -6,7 +6,7 @@ library(stringr)
 
 data_path <- "/data/archive/"
 
-output_path <- "/data_2/FluxDataKit/v3.3"
+output_path <- "/data/scratch/jaideep/FluxDataKit/v4.0/"
 
 dir.create(output_path, recursive = T)
 
@@ -414,7 +414,7 @@ save(fdk_site_info,
 # write CSV file for upload to Zenodo
 readr::write_csv(
   fdk_site_info,
-  file = paste0(output_path, "/fdk_site_info.csv")
+  file = here::here("data/fdk_site_info.csv")
 )
 
 # write CSV file for upload to Zenodo
