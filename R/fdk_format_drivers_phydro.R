@@ -16,7 +16,7 @@
 #' @param params_siml simulation parameters (preset)
 #' @param product which flux product to use
 #' @param verbose provide verbose output (default = FALSE)
-#' @param path path with daily FLUXNET data
+#' @param path path with daily (downsampled) FLUXNET data
 #'
 #' @return returns an rsofun compatible driver file for the provided
 #'  sites
@@ -36,12 +36,12 @@ fdk_format_drivers_phydro <- function(
       lgr3                      = TRUE,
       lgn3                      = FALSE,
       lgr4                      = FALSE,
-      use_phydro                = TRUE,
+      use_phydro                = FALSE,
       use_pml                   = FALSE
     ),
     path,
     verbose = TRUE,
-    fdk_inputs_dir = "/data_2/FDK_inputs/"
+    fdk_inputs_dir = "/data_2/FluxDataKit/FDK_inputs/"
 ){
 
   #---- start-up checks ----
@@ -58,22 +58,36 @@ fdk_format_drivers_phydro <- function(
     df_combined <- tidyr::tibble(sitename = site)
 
     # get file name path
-    filn <- list.files(path,
-                       pattern = paste0("FLX_", site, ".*_FULLSET_DD.*.csv$"),
-                       recursive = TRUE
+    filn <- list.files(file.path(path, "fluxnet"),
+                       pattern = paste0("FLX_", site, ".*_FULLSET_DD.*.csv"),
+                       recursive = TRUE,
+                       full.names = TRUE
     )
 
     # conversion factor from SPLASH: flux to energy conversion,
     # umol/J (Meek et al., 1984)
     kfFEC <- 2.04
 
-    agg_types <- c("24h", "daytime", "3hrmax")
+    #---- Processing CRU data (for cloud cover CCOV) ----
+    ccov <- fdk_process_cloud_cover(
+      path = file.path(fdk_inputs_dir, "cloud_cover"), # "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
+      site = site
+    )
+    # # dummy data for testing, in case cloud cover data is unavailable
+    # ccov <- df_flux |>
+    #   tidyr::unnest(data) |>
+    #   dplyr::mutate(date = as.Date(TIMESTAMP)) |>
+    #   dplyr::select(sitename, date) |>
+    #   dplyr::mutate(ccov = 0)
+
+    agg_types <- c("legacy", "24h", "daytime", "3hrmax")
     for (agg in agg_types){
 
+      if (!any(grepl(agg, x=filn))) stop("Missing downsampled file: ", agg)
       fname <- filn[grepl(agg, x=filn)]
 
       # read from FLUXNET-standard file with daily variables
-      df_flux <-  read.csv(file.path(path, fname)) |>
+      df_flux <-  readr::read_csv(file.path(fname)) |>
 
         dplyr::mutate(
 
@@ -119,30 +133,21 @@ fdk_format_drivers_phydro <- function(
           co2 = CO2_F_MDS,
 
           # used as target data for rsofun, not forcing
-          # gross primary production (phydro uses DT GPP by default)
-          gpp = GPP_DT_VUT_REF,
+          # gross primary production
+          gpp_dt = GPP_DT_VUT_REF,
           gpp_nt = GPP_NT_VUT_REF,
           gpp_qc = NEE_VUT_REF_QC,
 
           # energy balance-corrected latent heat flux (~ evapotranspiration)
-          le = LE_CORR,
+          # Jaideep: LE_CORR is not available for all sites. Fall back to LE_F_MDS in that case
+          le_corr = LE_CORR,
+          le = LE_F_MDS,
           le_qc = LE_F_MDS_QC
         )
       # nest by site
       df_flux <- df_flux |>
         dplyr::group_by(sitename) |>
         tidyr::nest()
-
-      #---- Processing CRU data (for cloud cover CCOV) ----
-      ccov <- fdk_process_cloud_cover(
-        path = file.path(fdk_inputs_dir, "cloud_cover"), # "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
-        site = site
-      )
-      # ccov <- df_flux |>
-      #   tidyr::unnest(data) |>
-      #   dplyr::mutate(date = as.Date(TIMESTAMP)) |>
-      #   dplyr::select(sitename, date) |>
-      #   dplyr::mutate(ccov = 0)
 
       df_flux <- df_flux |>
         tidyr::unnest(data) |>
@@ -212,9 +217,10 @@ fdk_format_drivers_phydro <- function(
           fapar,
           co2,
           ccov,
-          gpp,
+          gpp_dt,
           gpp_nt,
           gpp_qc,
+          le_corr,
           le,
           le_qc
         ) |>
@@ -285,6 +291,7 @@ fdk_format_drivers_phydro <- function(
       sitename,
       params_siml,
       site_info,
+      forcing = forcing_legacy,
       forcing_24h,
       forcing_daytime,
       forcing_3hrmax

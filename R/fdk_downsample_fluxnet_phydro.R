@@ -24,6 +24,7 @@ fdk_downsample_fluxnet_phydro <- function(
     df,
     site,
     out_path,
+    fig_path = out_path,
     overwrite = FALSE,
     save_plots = TRUE,
     method = c("legacy", "24hr", "daytime", "3hrmax")[1],
@@ -57,6 +58,8 @@ fdk_downsample_fluxnet_phydro <- function(
                       method
   )
 
+  fig_prefix = paste(site, start_year, end_year, method, sep="_")
+
   if(!missing(out_path)){
     filename <- file.path(
       out_path,
@@ -74,6 +77,8 @@ fdk_downsample_fluxnet_phydro <- function(
     # met
     "P_F" = NA,
     "TA_F_MDS" = NA,
+    "TMAX_F_MDS" = NA,
+    "TMIN_F_MDS" = NA,
     "SW_IN_F_MDS" = NA,
     "LW_IN_F_MDS" = NA,
     "VPD_F_MDS" = NA,
@@ -135,8 +140,9 @@ fdk_downsample_fluxnet_phydro <- function(
   }
 
   # determine daytime threshold based on 1% quantile of solar radiation
-  # JAIDEEP FIXME: probs was set to 0.1, which is 10% quantile. Replaced with 0.01
-  daytime_thresh <- stats::quantile(df$SW_IN_F_MDS, probs = 0.01)
+  # daytime_thresh <- stats::quantile(df$SW_IN_F_MDS, probs = 0.1)
+  # Jaideep: Absolute value (10 W/m2) seems to work better, perhaps because of noise
+  daytime_thresh <- 10
 
   # add daytime flag
   df <- df |>
@@ -155,7 +161,7 @@ fdk_downsample_fluxnet_phydro <- function(
 
   if (method == "legacy"){
 
-    # Aggregation of quality checks is taken as-is from legacy code. 
+    # Aggregation of quality checks is taken as-is from legacy code.
     # JAIDEEP: Why do some variables use na.rm=F ?
     df_day_QC <- df |>
       dplyr::group_by(TIMESTAMP) |>
@@ -178,11 +184,11 @@ fdk_downsample_fluxnet_phydro <- function(
       )
 
     # VPD and TA are aggregated as daytime averages
-    # JAIDEEP: I am simplifying the logic here: variables should be named 
+    # JAIDEEP: I am simplifying the logic here: variables should be named
     #    uniformly in this driver object, and their aggregation logic is
-    #    entirely specified here (rather that across multiple files). 
+    #    entirely specified here (rather that across multiple files).
     #    Hence, I am calling these variables as XX_MDS instead of XX_DAY_MDS,
-    #    and am removing theie 24-hr mean versions further below. If the 24-hr 
+    #    and am removing theie 24-hr mean versions further below. If the 24-hr
     #    means are needed, they should be retrived from the 24 hr forcing.
     df_day_vars_ta_vpd <- df |>
       dplyr::filter(DAY) |>
@@ -200,9 +206,9 @@ fdk_downsample_fluxnet_phydro <- function(
 
         # METEO
         # precipitation is the sum of HH values
-        # P_F = sum(P_F, na.rm = TRUE),  # removing, aggregated separately later 
+        # P_F = sum(P_F, na.rm = TRUE),  # removing, aggregated separately later
 
-        # JAIDEEP: MAJOR BUG ALERT: DO NOT replace TA_F_MDS here, as it is needed for TMIN/TMAX calculations below. 
+        # JAIDEEP: MAJOR BUG ALERT: DO NOT replace TA_F_MDS here, as it is needed for TMIN/TMAX calculations below.
         # temperature is the mean of the HH values
         # TA_F_MDS = mean(TA_F_MDS, na.rm = TRUE), # removing, see comment above
 
@@ -396,7 +402,7 @@ fdk_downsample_fluxnet_phydro <- function(
       if (missing(out_path)){
         print(p1)
       } else {
-        pdf(paste0(filename, ".SW_acclim_",method,"_sample.pdf"), height=2, width=4)
+        pdf(paste0(fig_path, "/", fig_prefix, ".SW_acclim_sample.pdf"), height=2, width=4)
         print(p1)
         dev.off()
       }
@@ -449,9 +455,12 @@ fdk_downsample_fluxnet_phydro <- function(
 
   # Calculate day length
   df_daylen <- df |>
+    # dplyr::filter(SW_IN_F_MDS > 10) |>
     dplyr::filter(DAY) |>
     dplyr::group_by(TIMESTAMP) |>
-    dplyr::summarize(DAYLENGTH = difftime(max(time), min(time), units="hours") |> as.numeric())
+    dplyr::summarize(DAYLENGTH = difftime(max(time), min(time), units="hours") |> as.numeric()) |>
+    # Average daylength is corrected to 12 hr (as thresholding might slightly underestimate it)
+    dplyr::mutate(DAYLENGTH = DAYLENGTH - mean(DAYLENGTH)+12)
 
   # combine variables, P_F, quality flags, and computed tmax/min
   # This step replaces df from half-hourly to aggregated daily
@@ -468,8 +477,8 @@ fdk_downsample_fluxnet_phydro <- function(
       TA_F_MDS      = ifelse(TA_F_MDS_QC < 0.5, NA, TA_F_MDS), # no better approach
       # TA_DAY_F_MDS  = ifelse(TA_F_MDS_QC < 0.5, NA, TA_DAY_F_MDS),
       # VPD_DAY_F_MDS = ifelse(VPD_F_MDS_QC < 0.5, NA, VPD_DAY_F_MDS),
-      TMIN_F_MDS    = ifelse(TA_F_MDS_QC < 0.5, NA, TMIN_F_MDS),
-      TMAX_F_MDS    = ifelse(TA_F_MDS_QC < 0.5, NA, TMAX_F_MDS),
+      # TMIN_F_MDS    = ifelse(TA_F_MDS_QC < 0.5, NA, TMIN_F_MDS),
+      # TMAX_F_MDS    = ifelse(TA_F_MDS_QC < 0.5, NA, TMAX_F_MDS),
       SW_IN_F_MDS   = ifelse(SW_IN_F_MDS_QC < 0.5, NA, SW_IN_F_MDS),
       LW_IN_F_MDS   = ifelse(LW_IN_F_MDS_QC < 0.5, NA, LW_IN_F_MDS),
       VPD_F_MDS     = ifelse(VPD_F_MDS_QC < 0.5, NA, VPD_F_MDS),
@@ -518,7 +527,7 @@ fdk_downsample_fluxnet_phydro <- function(
     if (missing(out_path)){
       print(p)
     } else {
-      pdf(paste0(filename, ".before_gapfilling.pdf"), height=5, width=6)
+      pdf(paste0(fig_path, "/", fig_prefix, ".before_gapfilling.pdf"), height=5, width=6)
       print(p)
       dev.off()
     }
@@ -613,7 +622,7 @@ fdk_downsample_fluxnet_phydro <- function(
     if (missing(out_path)){
       print(p)
     } else {
-      pdf(paste0(filename, ".after_gapfilling.pdf"), height=5, width=6)
+      pdf(paste0(fig_path, "/", fig_prefix, ".after_gapfilling.pdf"), height=5, width=6)
       print(p)
       dev.off()
     }
