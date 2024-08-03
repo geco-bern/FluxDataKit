@@ -15,6 +15,7 @@
 #' @param save_plots Whether plots of downsampled variables before and after gapfilling should be saved to files (in the output_folder OR to default device)
 #' @param method What method should be used for averaging (should be one of "24hr", "daytime", "3hrmax")
 #' @param midday_criterion How should midday time points be identified? Should be one of "quantile", "time"
+#' @param max_gap max length of gap in temperature to be gapfilled by interpolation
 #'
 #' @return data frame with daily (DD) down sampled values or file in the
 #'  FLUXNET format
@@ -28,7 +29,8 @@ fdk_downsample_fluxnet_phydro <- function(
     overwrite = FALSE,
     save_plots = TRUE,
     method = c("legacy", "24hr", "daytime", "3hrmax")[1],
-    midday_criterion = c("quantile", "time")[2]
+    midday_criterion = c("quantile", "time")[2],
+    max_gap = 7
 ){
 
   # Using the FLUXNET instructions, however in some cases there will
@@ -534,16 +536,14 @@ fdk_downsample_fluxnet_phydro <- function(
   }
 
   # TA is used for gapfilling others, so ideally, it should itself be gap free
-  # Gapfill TA by interpolation if:
-  # - only a few values (<1%) are missing
-  # - gap is < 1 week
+  # Gapfill TA by interpolation wherever gap is < 1 week
   frac_missing_ta <- sum(is.na(df$TA_F_MDS))/nrow(df)
-  if (frac_missing_ta < 0.01){
+  # if (frac_missing_ta < 0.01){
     df <- df |>
       dplyr::mutate(
         TA_F_MDS = zoo::na.approx(TA_F_MDS, na.rm = FALSE, maxgap = 7)
       )
-  }
+  # }
 
   # Gapfill TMAX and TMIN from hh data
   df <- df |>
@@ -589,6 +589,13 @@ fdk_downsample_fluxnet_phydro <- function(
       pred1 = "TA_F_MDS",
       k = 5
     )
+  }
+
+  # JAIDEEP FIXME: anything better?
+  # P: set missing to zero
+  if ("P_F" %in% missing){
+    df <- df |> 
+      mutate(P_F = ifelse(is.na(P_F), yes=0, no=P_F))
   }
 
   # CO2: interpolate

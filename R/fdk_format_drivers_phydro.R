@@ -17,6 +17,7 @@
 #' @param product which flux product to use
 #' @param verbose provide verbose output (default = FALSE)
 #' @param path path with daily (downsampled) FLUXNET data
+#' @param out_path path to save drivers and validation data
 #'
 #' @return returns an rsofun compatible driver file for the provided
 #'  sites
@@ -40,6 +41,7 @@ fdk_format_drivers_phydro <- function(
       use_pml                   = FALSE
     ),
     path,
+    out_path = path,
     verbose = TRUE,
     fdk_inputs_dir = "/data_2/FluxDataKit/FDK_inputs/"
 ){
@@ -297,6 +299,47 @@ fdk_format_drivers_phydro <- function(
       forcing_3hrmax
     ) |>
     dplyr::ungroup()
+
+  # remove target variables from forcing dataset
+  df_drivers_only = df_drivers |>
+    dplyr::rowwise() |>
+    dplyr::mutate(
+      dplyr::across(
+        .cols = tidyselect::starts_with("forcing"),
+        .fns = function(df){
+          df |>
+            dplyr::select(-tidyselect::starts_with(c("gpp", "le"))) |>
+            list()
+        }
+      )
+    )
+
+  # collect target variables into validation dataset
+  df_validation = df_drivers |>
+    dplyr::rowwise() |>
+    dplyr::mutate(
+      dplyr::across(
+        .cols = tidyselect::starts_with("forcing"),
+        .fns = function(df){
+          df |>
+            dplyr::select(date, tidyselect::starts_with(c("gpp", "le"))) |>
+            dplyr::mutate(gpp_dt  = ifelse(gpp_qc > 0.5, yes=gpp_dt,  no=NA),
+                          gpp_nt  = ifelse(gpp_qc > 0.5, yes=gpp_nt,  no=NA),
+                          le_corr = ifelse(le_qc  > 0.5, yes=le_corr, no=NA),
+                          le      = ifelse(le_qc  > 0.5, yes=le,      no=NA),
+                          ) |>
+            list()
+        }
+      )
+    ) |>
+    rename_all(.funs = stringr::str_replace,
+               pattern = "forcing",
+               replacement = "data")
+
+  saveRDS(df_drivers_only, file.path(out_path, "p_model_drivers.rds"))
+  saveRDS(df_validation, file.path(out_path, "p_model_validation.rds"))
+
+  saveRDS(df_drivers, file.path(out_path, "p_model_combined_drivers_validation.rds"))
 
   return(df_drivers)
 }

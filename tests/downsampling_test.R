@@ -2,9 +2,9 @@
 csv_path = "/data_2/FluxDataKit/v3.3/fluxnet/"
 out_path = "/data/scratch/jaideep/FluxDataKit/v4.0"
 
-# Old version (working well so far)
-csv_path = "/data/scratch/jaideep/fluxdata/FLUXDATAKIT_FLUXNET"
-out_path = "/data/scratch/jaideep/FluxDataKit/v2023.10.3"
+# # Old version (working well so far)
+# csv_path = "/data/scratch/jaideep/fluxdata/FLUXDATAKIT_FLUXNET"
+# out_path = "/data/scratch/jaideep/FluxDataKit/v2023.10.3"
 
 fig_path = file.path(out_path, "data_gen_figures")
 down_path = file.path(out_path, "fluxnet")
