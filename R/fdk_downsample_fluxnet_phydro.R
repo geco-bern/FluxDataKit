@@ -524,7 +524,7 @@ fdk_downsample_fluxnet_phydro <- function(
     p <- df |> dplyr::select(TIMESTAMP, DAYLENGTH, any_of(vars)) |>
       tidyr::pivot_longer(-TIMESTAMP) |>
       ggplot2::ggplot(ggplot2::aes(x=TIMESTAMP, y=value)) +
-      ggplot2::geom_line() +
+      ggplot2::geom_line(col="black", linewidth=0.3) +
       ggplot2::facet_wrap(~name, scales="free")
     if (missing(out_path)){
       print(p)
@@ -535,20 +535,52 @@ fdk_downsample_fluxnet_phydro <- function(
     }
   }
 
+
+  # # Gapfill TA by interpolation wherever gap is < 1 week
+  # frac_missing_ta <- sum(is.na(df$TA_F_MDS))/nrow(df)
+  # # if (frac_missing_ta < 0.01){
+  #   df <- df |>
+  #     dplyr::mutate(
+  #       TA_F_MDS = zoo::na.approx(TA_F_MDS, na.rm = FALSE, maxgap = 7)
+  #     )
+  # # }
+
   # TA is used for gapfilling others, so ideally, it should itself be gap free
-  # Gapfill TA by interpolation wherever gap is < 1 week
-  frac_missing_ta <- sum(is.na(df$TA_F_MDS))/nrow(df)
-  # if (frac_missing_ta < 0.01){
-    df <- df |>
-      dplyr::mutate(
-        TA_F_MDS = zoo::na.approx(TA_F_MDS, na.rm = FALSE, maxgap = 7)
-      )
-  # }
+  # Therefore, we gapfill TA first using SW and DOY,
+  # and whatever is still missing is gapfilled using DOY alone (seasonal cycle)
+  df <- df |>
+    dplyr::mutate(DOY = lubridate::yday(TIMESTAMP))
+
+  # Where temperature is missing, all other drivers which are gapfilled with
+  # temp are also unreliable, hence mark a FORCING_QC flag that indicates whether
+  # temperature has been (badly) gapfilled. These points can be excluded from
+  # comparisons of pmodel outputs with data
+  df <- df |>
+    dplyr::mutate(FORCING_QC = ifelse(is.na(TA_F_MDS), yes=0, no=1))
+
+  if ("TA_F_MDS" %in% missing){
+    df <- fdk_impute_knn(
+      df,
+      target = "TA_F_MDS",
+      pred1 = "SW_IN_F_MDS",
+      pred2 = "DOY",
+      k = 5
+    )
+
+    df <- fdk_impute_knn(
+      df,
+      target = "TA_F_MDS",
+      pred1 = "DOY",
+      k = 5
+    )
+
+  }
 
   # Gapfill TMAX and TMIN from hh data
   df <- df |>
     dplyr::mutate(TMAX_F_MDS = ifelse(is.na(TMAX_F_MDS), yes=tmax, no=TMAX_F_MDS),
-           TMIN_F_MDS = ifelse(is.na(TMIN_F_MDS), yes=tmin, no=TMIN_F_MDS))
+           TMIN_F_MDS = ifelse(is.na(TMIN_F_MDS), yes=tmin, no=TMIN_F_MDS)) |>
+    dplyr::select(-tmin, -tmax)
 
   # Shortwave radiation: impute with KNN
   if ("SW_IN_F_MDS" %in% missing){
@@ -594,7 +626,7 @@ fdk_downsample_fluxnet_phydro <- function(
   # JAIDEEP FIXME: anything better?
   # P: set missing to zero
   if ("P_F" %in% missing){
-    df <- df |> 
+    df <- df |>
       mutate(P_F = ifelse(is.na(P_F), yes=0, no=P_F))
   }
 
@@ -624,7 +656,7 @@ fdk_downsample_fluxnet_phydro <- function(
       dplyr::select(TIMESTAMP, DAYLENGTH, any_of(vars)) |>
       tidyr::pivot_longer(-TIMESTAMP) |>
       ggplot2::ggplot(ggplot2::aes(x=TIMESTAMP, y=value)) +
-      ggplot2::geom_line(col="brown") +
+      ggplot2::geom_line(col="brown", linewidth=0.3) +
       ggplot2::facet_wrap(~name, scales="free")
     if (missing(out_path)){
       print(p)

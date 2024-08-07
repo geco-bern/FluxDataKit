@@ -241,10 +241,10 @@ fdk_format_drivers_phydro <- function(
       gc()
 
       df_flux <- df_flux |>
-        set_names(c("sitename", paste0("forcing_", agg)))
+        purrr::set_names(c("sitename", paste0("forcing_", agg)))
 
       df_combined <- df_combined |>
-        left_join(df_flux)
+        dplyr::left_join(df_flux)
     }
     # return data, either a driver
     # or processed output
@@ -260,7 +260,7 @@ fdk_format_drivers_phydro <- function(
   # construct the final driver file
   # first join in the site info data
   df_drivers <- site_info |>
-    dplyr::select(sitename, lon, lat, elv, whc) |>
+    # dplyr::select(sitename, lon, lat, elv, whc, canopy_height, reference_height, igbp_land_use, c3c4) |>
     dplyr::group_by(sitename) |>
     tidyr::nest() |>
     dplyr::rename(
@@ -299,47 +299,6 @@ fdk_format_drivers_phydro <- function(
       forcing_3hrmax
     ) |>
     dplyr::ungroup()
-
-  # remove target variables from forcing dataset
-  df_drivers_only = df_drivers |>
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      dplyr::across(
-        .cols = tidyselect::starts_with("forcing"),
-        .fns = function(df){
-          df |>
-            dplyr::select(-tidyselect::starts_with(c("gpp", "le"))) |>
-            list()
-        }
-      )
-    )
-
-  # collect target variables into validation dataset
-  df_validation = df_drivers |>
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      dplyr::across(
-        .cols = tidyselect::starts_with("forcing"),
-        .fns = function(df){
-          df |>
-            dplyr::select(date, tidyselect::starts_with(c("gpp", "le"))) |>
-            dplyr::mutate(gpp_dt  = ifelse(gpp_qc > 0.5, yes=gpp_dt,  no=NA),
-                          gpp_nt  = ifelse(gpp_qc > 0.5, yes=gpp_nt,  no=NA),
-                          le_corr = ifelse(le_qc  > 0.5, yes=le_corr, no=NA),
-                          le      = ifelse(le_qc  > 0.5, yes=le,      no=NA),
-                          ) |>
-            list()
-        }
-      )
-    ) |>
-    rename_all(.funs = stringr::str_replace,
-               pattern = "forcing",
-               replacement = "data")
-
-  saveRDS(df_drivers_only, file.path(out_path, "p_model_drivers.rds"))
-  saveRDS(df_validation, file.path(out_path, "p_model_validation.rds"))
-
-  saveRDS(df_drivers, file.path(out_path, "p_model_combined_drivers_validation.rds"))
 
   return(df_drivers)
 }
