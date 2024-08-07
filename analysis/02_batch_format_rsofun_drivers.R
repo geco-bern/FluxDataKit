@@ -31,9 +31,9 @@ failed_sites <- readRDS(here::here("data/failed_sites.rds"))
 sites <- FluxDataKit::fdk_site_info %>%
   filter(!sitename %in% failed_sites)
 
-# # sample for testing:
-# sites <- sites |>
-#   filter(sitename %in% c("AU-ASM", "FR-Pue", "GF-Guy"))
+# sample for testing:
+sites <- sites |>
+  filter(sitename %in% c("AU-ASM"))#, "FR-Pue", "GF-Guy"))
 
 # # site subset------------------
 # # xxx debug
@@ -154,10 +154,12 @@ df_drivers_only = driver_data |>
 
 # collect target variables into validation dataset
 df_validation = driver_data |>
+  dplyr::select(sitename, forcing_24h) |>
+  dplyr::rename(data = forcing_24h) |>
   dplyr::rowwise() |>
   dplyr::mutate(
     dplyr::across(
-      .cols = tidyselect::starts_with("forcing"),
+      .cols = tidyselect::starts_with("data"),
       .fns = function(df){
         df |>
           dplyr::select(date, tidyselect::starts_with(c("gpp", "le"))) |>
@@ -169,10 +171,11 @@ df_validation = driver_data |>
           list()
       }
     )
-  ) |>
-  rename_all(.funs = stringr::str_replace,
-             pattern = "forcing",
-             replacement = "data")
+  )
+# |>
+#   rename_all(.funs = stringr::str_replace,
+#              pattern = "forcing",
+#              replacement = "data")
 
 saveRDS(df_drivers_only, file.path(out_path, "p_model_drivers.rds"))
 saveRDS(df_validation, file.path(out_path, "p_model_validation.rds"))
@@ -302,7 +305,7 @@ validation_check %>%
   left_join(drivers_check) %>%
   filter(!bad) %>%
   filter(lec_nt | lec_dt_nt) %>%
-  write_csv(file.path(out_path, "valid_sites_phydro.csv"))
+  readr::write_csv(file.path(out_path, "valid_sites_phydro.csv"))
 
 
 # Visualize data availability
