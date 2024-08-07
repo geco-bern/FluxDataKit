@@ -31,9 +31,9 @@ failed_sites <- readRDS(here::here("data/failed_sites.rds"))
 sites <- FluxDataKit::fdk_site_info %>%
   filter(!sitename %in% failed_sites)
 
-# sample for testing:
-sites <- sites |>
-  filter(sitename %in% c("AU-ASM"))#, "FR-Pue", "GF-Guy"))
+# # sample for testing:
+# sites <- sites |>
+#   filter(sitename %in% c("AU-ASM"))#, "FR-Pue", "GF-Guy"))
 
 # # site subset------------------
 # # xxx debug
