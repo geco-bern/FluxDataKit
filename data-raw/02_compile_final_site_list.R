@@ -4,11 +4,7 @@ library(raster)
 library(stringr)
 # library(MODISTools)
 
-data_path <- "/data/archive/"
-
-output_path <- "/data/scratch/jaideep/FluxDataKit/v4.0/"
-
-dir.create(output_path, recursive = T)
+output_path <- "/data_2/FluxDataKit/v3.4"
 
 # read site data RDS files
 # append site types (ICOS, PLUMBER etc)

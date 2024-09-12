@@ -9,6 +9,9 @@ library(ggplot2)
 library(rsofun)
 # lapply(list.files("R/","*.R", full.names = TRUE), source)
 
+# input_path <- "/data_2/FluxDataKit/v3.4/"
+# failed_sites <- readRDS(here::here("data/failed_sites.rds"))
+
 # Path to half-hourly data for downsampling
 hh_input_path <- "/data_2/FluxDataKit/v3.3/fluxnet"
 
@@ -130,57 +133,13 @@ driver_data <- lapply(sites$sitename, function(site){
 # bind all tibbles into one big tibble
 driver_data <- dplyr::bind_rows(driver_data)
 
-# # write all drivers to file
-# # apply compression to minimize space
-# saveRDS(
-#   driver_data,
-#   "/data_2/FluxDataKit/v3.3/rsofun_driver_data_v3.3.rds",
-#   compress = "xz"
-#   )
-
-# remove target variables from forcing dataset
-df_drivers_only = driver_data |>
-  dplyr::rowwise() |>
-  dplyr::mutate(
-    dplyr::across(
-      .cols = tidyselect::starts_with("forcing"),
-      .fns = function(df){
-        df |>
-          dplyr::select(-tidyselect::starts_with(c("gpp", "le"))) |>
-          list()
-      }
-    )
+# write all drivers to file
+# apply compression to minimize space
+saveRDS(
+  driver_data,
+  "/data_2/FluxDataKit/v3.4/rsofun_driver_data_v3.4.rds",
+  compress = "xz"
   )
-
-# collect target variables into validation dataset
-df_validation = driver_data |>
-  dplyr::select(sitename, forcing_24h) |>
-  dplyr::rename(data = forcing_24h) |>
-  dplyr::rowwise() |>
-  dplyr::mutate(
-    dplyr::across(
-      .cols = tidyselect::starts_with("data"),
-      .fns = function(df){
-        df |>
-          dplyr::select(date, tidyselect::starts_with(c("gpp", "le"))) |>
-          dplyr::mutate(gpp_dt  = ifelse(gpp_qc > 0.5, yes=gpp_dt,  no=NA),
-                        gpp_nt  = ifelse(gpp_qc > 0.5, yes=gpp_nt,  no=NA),
-                        le_corr = ifelse(le_qc  > 0.5, yes=le_corr, no=NA),
-                        le      = ifelse(le_qc  > 0.5, yes=le,      no=NA),
-          ) |>
-          list()
-      }
-    )
-  )
-# |>
-#   rename_all(.funs = stringr::str_replace,
-#              pattern = "forcing",
-#              replacement = "data")
-
-saveRDS(df_drivers_only, file.path(out_path, "p_model_drivers.rds"))
-saveRDS(df_validation, file.path(out_path, "p_model_validation.rds"))
-
-saveRDS(driver_data, file.path(out_path, "p_model_combined_drivers_validation.rds"))
 
 ### Some Statistics about goodness of data ---------------------------
 

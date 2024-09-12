@@ -445,3 +445,80 @@ interpolate2daily_WS_F <- function(df){
   return(df)
 }
 
+
+#' Interpolate missing wind speed data
+#'
+#' Interpolate missing air temperature
+#'
+#' @param df a data frame containing missing values for TA_F_MDS
+#'
+#' @return a gap filled data frame
+#' @export
+
+interpolate2daily_TA_F_MDS <- function(df){
+
+  # determine fraction of missing values
+  df <- df |>
+    dplyr::mutate(
+      TA_F_MDS = ifelse(is.nan(TA_F_MDS), NA, TA_F_MDS)
+    )
+  frac_missing <- sum(is.na(df$TA_F_MDS))/nrow(df)
+
+  # if less than a quarter is missing, fill it, with maximum gaps to be filled:
+  # 30 days
+  if (frac_missing < 0.25){
+
+    df <- df |>
+      dplyr::mutate(
+        TA_F_MDS = zoo::na.approx(TA_F_MDS, na.rm = FALSE, maxgap = 30)
+      )
+
+    # fill remaining with mean seasonal cycle
+    meandf <- df |>
+      dplyr::mutate(doy = lubridate::yday(TIMESTAMP)) |>
+      dplyr::group_by(doy) |>
+      dplyr::summarise(TA_F_MDS_meandoy = mean(TA_F_MDS, na.rm = TRUE))
+
+    df <- df |>
+      dplyr::mutate(doy = lubridate::yday(TIMESTAMP)) |>
+      dplyr::left_join(
+        meandf,
+        by = "doy"
+      ) |>
+      dplyr::mutate(TA_F_MDS = ifelse(is.na(TA_F_MDS), TA_F_MDS_meandoy, TA_F_MDS)) |>
+      dplyr::select(-TA_F_MDS_meandoy, -doy)
+
+    # still missing?
+    frac_missing <- sum(is.na(df$TA_F_MDS))/nrow(df)
+    if (frac_missing > 0){
+
+      # pad then interpolate
+      len <- nrow(df)
+      df <- dplyr::bind_rows(
+        dplyr::slice(meandf, 1:365),
+        df,
+        dplyr::slice(meandf, 1:365)
+      ) |>
+        dplyr::mutate(
+          TA_F_MDS = zoo::na.approx(TA_F_MDS, na.rm = FALSE, maxgap = 30)
+        ) |>
+        dplyr::slice(366:(365+len))
+
+      # still missing?
+      frac_missing <- sum(is.na(df$TA_F_MDS))/nrow(df)
+      if (frac_missing > 0){
+        # fill by mean
+        df$TA_F_MDS[which(is.na(df$TA_F_MDS))] <- mean(df$TA_F_MDS, na.rm = TRUE)
+      }
+
+    }
+
+  } else {
+
+    message("Fraction of missing TA_F_MDS data too large (>0.25). Not interpolating.")
+
+  }
+
+  return(df)
+}
+
