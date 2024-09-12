@@ -311,6 +311,11 @@ fdk_downsample_fluxnet <- function(
     dplyr::filter(value > 0) |>
     dplyr::pull(name)
 
+  # Air temperature: interpolate linearly, if gap <30 days
+  if ("TA_F_MDS" %in% missing){
+    df <- interpolate2daily_TA_F_MDS(df)
+  }
+
   # Shortwave radiation: impute with KNN
   if ("SW_IN_F_MDS" %in% missing){
     df <- fdk_impute_knn(

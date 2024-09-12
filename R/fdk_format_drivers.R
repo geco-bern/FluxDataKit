@@ -103,20 +103,27 @@ fdk_format_drivers <- function(
          # maximum daily temperature (deg C)
          tmax = TMAX_F_MDS,
 
+         # wind speed (m/s)
+         vwind = WS_F,
+
          # fraction of absorbed photosynthetically active radiation
          fapar = FPAR,
 
          # atmospheric CO2 concentration in ppmv
          co2 = CO2_F_MDS,
 
-         # used as target data for rsofun, not forcing
+         # Variables below are used as target data for rsofun, not forcing
          # gross primary production
          gpp = GPP_NT_VUT_REF,
          gpp_qc = NEE_VUT_REF_QC,
 
          # energy balance-corrected latent heat flux (~ evapotranspiration)
          le = LE_CORR,
-         le_qc = LE_F_MDS_QC
+         le_qc = LE_F_MDS_QC,
+
+         # net ecosystem exchange
+         nee = NEE_VUT_REF,
+         nee_qc = NEE_VUT_REF_QC
       )
 
     # fill missing net radiation data
@@ -198,11 +205,14 @@ fdk_format_drivers <- function(
         rain,
         tmin,
         tmax,
+        vwind,
         fapar,
         co2,
         ccov,
         gpp,
         gpp_qc,
+        nee,
+        nee_qc,
         le,
         le_qc
       ) |>

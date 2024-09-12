@@ -4,7 +4,7 @@ library(raster)
 library(stringr)
 # library(MODISTools)
 
-output_path <- "/data_2/FluxDataKit/v3.3"
+output_path <- "/data_2/FluxDataKit/v3.4"
 
 # read site data RDS files
 # append site types (ICOS, PLUMBER etc)
