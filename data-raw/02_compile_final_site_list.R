@@ -251,7 +251,7 @@ df <- df |>
 
 ## root zone water storage capacity---------------------------------------------
 # using the map from Stocker et al., 2023, obtainable from Zenodo at https://doi.org/10.5281/zenodo.5515246
-whc <- raster("/data/archive/whc_stocker_2023/data/zroot_cwdx80_forcing.nc")
+whc <- raster("/data/archive/whc_stocker_2023/data/cwdx80_forcing.nc")
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
@@ -397,6 +397,8 @@ fdk_site_info <- df |>
   ) |>
   ungroup()
 
+
+
 # # quick check for missing data
 # visdat::vis_miss(df)
 
@@ -408,6 +410,11 @@ save(fdk_site_info,
 # write CSV file for upload to Zenodo
 readr::write_csv(
   fdk_site_info,
-  file = paste0(output_path, "/fdk_site_info.csv")
+  file = here::here("data/fdk_site_info.csv")
 )
 
+# write CSV file for upload to Zenodo
+readr::write_csv(
+  fdk_site_info,
+  file = file.path(output_path, "fdk_site_info.csv")
+)

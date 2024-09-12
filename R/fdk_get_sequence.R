@@ -26,6 +26,8 @@ fdk_get_sequence <- function(
     out_path = "data/tmp"
 ){
 
+  # FIXME: handle dt here, e.g.
+  # mutate(good_gpp_dt = ifelse(NEE_VUT_REF_QC > qc_threshold & !is.na(GPP_VUT_NT_REF), TRUE, FALSE),
   df <- df |>
     mutate(good_gpp = ifelse(NEE_VUT_REF_QC > qc_threshold, TRUE, FALSE),
            good_le = ifelse(LE_F_MDS_QC > qc_threshold, TRUE, FALSE),
