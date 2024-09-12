@@ -698,9 +698,10 @@ fdk_site_info <- df |>
 # visdat::vis_miss(df)
 
 # write binary file to be included to package (.rds not possible)
-save(fdk_site_info,
-     file = here::here("data/fdk_site_info.rda"), compress = "xz"
-     )
+readr::write_csv(
+  fdk_site_info,
+  file = here::here("data/fdk_site_info.csv")
+)
 
 # write CSV file for upload to Zenodo
 readr::write_csv(
