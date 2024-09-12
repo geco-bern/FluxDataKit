@@ -11,6 +11,61 @@ output_path <- "/data_2/FluxDataKit/v3.4"
 # sort through the sites lists depending on the
 # order or preference of the data
 
+# function to extract values from BADM file
+get_values_badm <- function(df_badm, varnam){
+
+  groups <- amf_badm |>
+    filter(
+      VARIABLE_GROUP == paste0("GRP_", varnam),
+      VARIABLE == paste0(varnam, "_STATISTIC"),
+      DATAVALUE == "Mean"
+    ) |>
+    pull(GROUP_ID)
+
+  amf_badm |>
+    filter(
+      GROUP_ID %in% groups,
+      VARIABLE == varnam
+    ) |>
+    mutate(DATAVALUE = as.numeric(DATAVALUE)) |>
+    group_by(SITE_ID) |>
+    summarise(
+      var = mean(DATAVALUE)
+    ) |>
+    rename(!!varnam := var)
+}
+
+get_values_badm_HEIGHTSENSOR <- function(df_badm){
+
+  # get group referring to variable information: height
+  groups <- df_flx_badm |>
+    filter(VARIABLE_GROUP == "GRP_VAR_INFO", VARIABLE == "VAR_INFO_HEIGHT") |>
+    pull(GROUP_ID)
+
+  # within that, get group referring to height of latent heat measurement
+  groups2 <- df_flx_badm |>
+    filter(
+      GROUP_ID %in% groups,
+      VARIABLE_GROUP == "GRP_VAR_INFO",
+      VARIABLE == "VAR_INFO_VARNAME",
+      DATAVALUE == "LE_F_MDS"
+    ) |>
+    pull(GROUP_ID)
+
+  # extract value and average if multiple values are given per site
+  df_flx_badm |>
+    filter(
+      GROUP_ID %in% groups2,
+      VARIABLE == "VAR_INFO_HEIGHT"
+    ) |>
+    mutate(DATAVALUE = as.numeric(DATAVALUE)) |>
+    group_by(SITE_ID) |>
+    summarise(
+      HEIGHTSENSOR = mean(DATAVALUE)
+    )
+}
+
+
 # Read collected meta data------------------------------------------------------
 ## Plumber ----------------------------------------------------------------------
 plumber <- readRDS(here::here("data-raw/meta_data/plumber_meta-data.rds")) |>
@@ -34,7 +89,11 @@ plumber <- readRDS(here::here("data-raw/meta_data/plumber_meta-data.rds")) |>
     product = "plumber"
   )
 
-## Ameriflux---------------------------------------------------------------------
+## Ameriflux--------------------------------------------------------------------
+
+# Additional site meta info from BADM file
+df_amf_badm <- read_csv(here::here("data-raw/meta_data/AMF_AA-Flx_BIF_CCBY4_20240910.csv"))
+
 ameriflux <- readRDS(here::here("data-raw/meta_data/amf_meta_data.rds")) |>
   filter(
     DATA_POLICY != "LEGACY"
@@ -50,10 +109,24 @@ ameriflux <- readRDS(here::here("data-raw/meta_data/amf_meta_data.rds")) |>
     koeppen_code = CLIMATE_KOEPPEN
   ) |>
   mutate(
-    canopy_height = NA,
-    reference_height = NA,
     product = "ameriflux",
     nyears = year_end - year_start + 1,
+  ) |>
+  left_join(
+    get_values_badm(df_amf_badm, "HEIGHTC") |>
+      rename(
+        canopy_height = HEIGHTC,
+        sitename = SITE_ID
+        ),
+    join_by("sitename")
+  ) |>
+  left_join(
+    get_values_badm_HEIGHTSENSOR(df_amf_badm) |>
+      rename(
+        reference_height = HEIGHTSENSOR,
+        sitename = SITE_ID
+      ),
+    join_by("sitename")
   )
 
 ## ICOS Drought 2018 release ---------------------------------------------------
@@ -124,7 +197,8 @@ df <- plumber |>
 
 
 # Complement missing meta information-------------------------------------------
-## Get info from Falge et al https://doi.org/10.3334/ORNLDAAC/1530 -------------
+## Get data from Falge et al -------------
+# obtained from https://doi.org/10.3334/ORNLDAAC/1530
 siteinfo_falge <- readr::read_csv(here::here("data-raw/meta_data/fluxnet_site_info_all_falge.csv")) |>
   dplyr::select(-sitename) |>
   dplyr::rename(
@@ -161,6 +235,42 @@ siteinfo_falge <- readr::read_csv(here::here("data-raw/meta_data/fluxnet_site_in
   ) |>
   dplyr::select(-koeppen_climate)
 
+## Get data from ICOS site list file -----------------------------------
+siteinfo_icos <- readr::read_csv(
+  here::here(
+    "data-raw/meta_data/sites_list_icos.csv"
+  )
+)
+
+## Get data from Fluxnet2015 and their BADM -----------------------------------
+siteinfo_fluxnet2015 <- readr::read_csv(
+  here::here(
+    "data-raw/meta_data/fluxnet2015_site_list.csv"
+  )
+)
+
+# Additional site meta info from FLUXNET BADM file
+df_flx_badm <- read_csv(here::here("data-raw/meta_data/FLX_AA-Flx_BIF_DD_20200501.csv"))
+
+siteinfo_fluxnet2015 <- siteinfo_fluxnet2015 |>
+  left_join(
+    get_values_badm(df_flx_badm, "HEIGHTC") |>
+      rename(
+        canopy_height = HEIGHTC,
+        id = SITE_ID
+      ),
+    join_by("id")
+  ) |>
+  left_join(
+    get_values_badm_HEIGHTSENSOR(df_flx_badm) |>
+      rename(
+        reference_height = HEIGHTSENSOR,
+        id = SITE_ID
+      ),
+    join_by("id")
+  )
+
+## Complement various variables with Falge et al. -----------------
 df <- df |>
   arrange(sitename) |>
   left_join(
@@ -175,20 +285,8 @@ df <- df |>
     koeppen_code = ifelse(is.na(koeppen_code), koeppen_code_falge, koeppen_code)
   )
 
-## Get missing data from ICOS and Fluxnet2015 site list files -----------------------------------
-siteinfo_icos <- readr::read_csv(
-  here::here(
-    "data-raw/meta_data/sites_list_icos.csv"
-  )
-)
 
-siteinfo_fluxnet2015 <- readr::read_csv(
-  here::here(
-    "data-raw/meta_data/fluxnet2015_site_list.csv"
-  )
-)
-
-# Correct IGBP types
+## Correct IGBP types  -----------------
 # Priority: ICOS, Fluxnet2015, plumber
 #   i.e, Fluxnet2015 overwrites plumber, then ICOS overwrites the reuslt
 df <- df |>
@@ -286,6 +384,57 @@ df <- df |>
       elv)
   )
 
+## Get C3/C4 classification ----------------------------------------------------
+# ... and C4-% from data shared by Yanghui Kang (Trevor's group)
+site_summary_YK = readr::read_csv("data-raw/meta_data/site_summary_yanghui_kang.csv")
+
+df <- df |>
+  left_join(
+    site_summary_YK |>
+      dplyr::select(SITE_ID, c3c4 = `C3/C4`) |>
+      rename(sitename = SITE_ID),
+    by = join_by(sitename)
+  ) |>
+  mutate(c3c4 = dplyr::case_match(
+    c3c4,
+    "unknown" ~ NA,
+    .default = c3c4
+  )
+  )
+
+## Get vegetation and measurement height ---------------------------------------
+df <- df |>
+
+  # complement with AmeriFlux meta info
+  left_join(
+    ameriflux |>
+      select(
+        sitename,
+        canopy_height_amf = canopy_height,
+        reference_height_amf = reference_height
+        ),
+    join_by(sitename)
+  ) |>
+  mutate(
+    ifelse(is.na(canopy_height), canopy_height_amf, canopy_height),
+    ifelse(is.na(reference_height), reference_height_amf, reference_height)
+  ) |>
+
+  # complement with FLUXNET2015 meta info
+  left_join(
+    siteinfo_fluxnet2015 |>
+      select(
+        sitename = id,
+        canopy_height_flx = canopy_height,
+        reference_height_flx = reference_height
+      ),
+    join_by(sitename)
+  ) |>
+  mutate(
+    ifelse(is.na(canopy_height), canopy_height_flx, canopy_height),
+    ifelse(is.na(reference_height), reference_height_flx, reference_height)
+  )
+
 # ## get IGBP from MODIS data-----------------------------------------------------
 # # download IGBP class values (MODISTools)
 # igbp <- apply(df, 1, function(x){
@@ -360,22 +509,7 @@ message("IGBP: found ",
 print(igbp_by_source |>
           dplyr::filter(IGBP_fdk != IGBP_eu | IGBP_fdk != IGBP_flx2015))
 
-# Get C3/C4 classification and C4-% from data shared by Yanghui Kang (Trevor's group)
-site_summary_YK = readr::read_csv("data-raw/meta_data/site_summary_yanghui_kang.csv")
 
-df <- df |>
-  left_join(
-    site_summary_YK |>
-      dplyr::select(SITE_ID, c3c4 = `C3/C4`) |>
-      rename(sitename = SITE_ID),
-    by = join_by(sitename)
-  ) |>
-  mutate(c3c4 = dplyr::case_match(
-    c3c4,
-    "unknown" ~ NA,
-    .default = c3c4
-    )
-  )
 
 # save the data, retaining only key columns (note: valuable information also in
 # other columns!)

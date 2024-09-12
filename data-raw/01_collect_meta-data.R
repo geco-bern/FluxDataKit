@@ -4,12 +4,12 @@
 # not correspond to the defaults as listed
 # below)
 
+library(tidyverse)
 library(ingestr)
 # remotes::install_github("bluegreen-labs/icoscp")
 library(icoscp)
 library(RCurl)
 library(XML)
-library(dplyr)
 library(amerifluxr)
 
 # Set local paths of data files -------------------------------------------------
@@ -142,7 +142,7 @@ if (!file.exists(filnam)){
   saveRDS(sites_icos_warm_winter_2020, file = filnam, compress = "xz")
 }
 
-# # FLUXNET2015-------------------------------------------------------------------
+# FLUXNET2015-------------------------------------------------------------------
 # filnam <- here::here("data-raw/meta_data/fluxnet_meta_data.rds")
 # if (!file.exists(filnam)){
 #
