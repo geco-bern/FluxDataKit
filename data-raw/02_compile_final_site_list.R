@@ -349,7 +349,8 @@ df <- df |>
 
 ## root zone water storage capacity---------------------------------------------
 # using the map from Stocker et al., 2023, obtainable from Zenodo at https://doi.org/10.5281/zenodo.5515246
-whc <- raster("/data/archive/whc_stocker_2023/data/zroot_cwdx80_forcing.nc")
+# whc <- raster("/data/archive/whc_stocker_2023/data/zroot_cwdx80_forcing.nc")  # on geco server
+whc <- raster("~/data/mct_data/zroot_cwdx80_forcing.nc")
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
@@ -369,7 +370,8 @@ df <- df |>
 
 ## Get still missing elevation data from ETOPO1---------------------------------
 # file is too large to add it to this repo.
-etopo <- raster("/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")
+# etopo <- raster("/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")  # on geco server
+etopo <- raster("~/data/etopo/ETOPO1_Bed_g_geotiff.tif")  # on geco server
 etopo_v <- raster::extract(etopo, loc)
 
 # add etopo1 column
@@ -408,7 +410,7 @@ df <- df |>
   # complement with AmeriFlux meta info
   left_join(
     ameriflux |>
-      select(
+      dplyr::select(
         sitename,
         canopy_height_amf = canopy_height,
         reference_height_amf = reference_height
@@ -416,14 +418,14 @@ df <- df |>
     join_by(sitename)
   ) |>
   mutate(
-    ifelse(is.na(canopy_height), canopy_height_amf, canopy_height),
-    ifelse(is.na(reference_height), reference_height_amf, reference_height)
+    canopy_height = ifelse(is.na(canopy_height), canopy_height_amf, canopy_height),
+    reference_height = ifelse(is.na(reference_height), reference_height_amf, reference_height)
   ) |>
 
   # complement with FLUXNET2015 meta info
   left_join(
     siteinfo_fluxnet2015 |>
-      select(
+      dplyr::select(
         sitename = id,
         canopy_height_flx = canopy_height,
         reference_height_flx = reference_height
@@ -431,9 +433,172 @@ df <- df |>
     join_by(sitename)
   ) |>
   mutate(
-    ifelse(is.na(canopy_height), canopy_height_flx, canopy_height),
-    ifelse(is.na(reference_height), reference_height_flx, reference_height)
+    canopy_height= ifelse(is.na(canopy_height), canopy_height_flx, canopy_height),
+    reference_height = ifelse(is.na(reference_height), reference_height_flx, reference_height)
+  ) |>
+
+  # complement with Plumber data
+  left_join(
+    plumber |>
+      dplyr::select(
+        sitename,
+        canopy_height_plb = canopy_height,
+        reference_height_plb = reference_height
+      ),
+    join_by(sitename)
+  ) |>
+  mutate(
+    canopy_height= ifelse(is.na(canopy_height), canopy_height_plb, canopy_height),
+    reference_height = ifelse(is.na(reference_height), reference_height_plb, reference_height)
   )
+
+# get mean ratio of measurement height over vegetation height (for later)
+vec_ratio <- df |>
+  mutate(ratio = reference_height/canopy_height) |>
+  ungroup() |>
+  pull(ratio)
+
+ratio_q10 <- quantile(vec_ratio, probs = 0.25, na.rm = TRUE)
+ratio_q50 <- quantile(vec_ratio, probs = 0.5, na.rm = TRUE)
+ratio_q90 <- quantile(vec_ratio, probs = 0.75, na.rm = TRUE)
+
+# fill by mean by vegetation type and major climate zone (biome)
+df_fill <- df |>
+  mutate(biome = stringr::str_sub(koeppen_code, start = 1, end = 1)) |>
+  group_by(biome, classid) |>
+  summarise(
+    canopy_height = mean(canopy_height, na.rm = TRUE),
+    reference_height = mean(reference_height, na.rm = TRUE)
+  )
+
+# fill remaining only by veg type
+df_fill2 <- df |>
+  group_by(classid) |>
+  summarise(
+    canopy_height2 = mean(canopy_height, na.rm = TRUE),
+    reference_height2 = mean(reference_height, na.rm = TRUE)
+  )
+
+# fill remaining only by climate zone
+df_fill3 <- df |>
+  group_by(koeppen_code) |>
+  summarise(
+    canopy_height3 = mean(canopy_height, na.rm = TRUE),
+    reference_height3 = mean(reference_height, na.rm = TRUE)
+  )
+
+# df_fill <- df_fill |>
+#   left_join(
+#     df_fill2,
+#     join_by(classid)
+#   ) |>
+#   mutate(
+#     canopy_height = ifelse(is.na(canopy_height), canopy_height2, canopy_height),
+#     reference_height = ifelse(is.na(reference_height), reference_height2, reference_height)
+#   ) |>
+#   dplyr::select(
+#     -reference_height2,
+#     -canopy_height2
+#   )
+
+# some are still missing: take ENF for DNF
+df_fill4 <- df_fill |>
+  filter(
+    classid == "ENF"
+  ) |>
+  rename(
+    canopy_height4 = canopy_height,
+    reference_height4 = reference_height
+  )
+
+# fill missing
+df <- df |>
+
+  # fill with average by biome and vegetation type
+  mutate(biome = stringr::str_sub(koeppen_code, start = 1, end = 1)) |>
+  left_join(
+    df_fill |>
+      rename(
+        canopy_height_fill = canopy_height,
+        reference_height_fill = reference_height
+      ),
+    join_by(biome, classid)
+  ) |>
+  mutate(
+    canopy_height = ifelse(is.na(canopy_height), canopy_height_fill, canopy_height),
+    reference_height = ifelse(is.na(reference_height), reference_height_fill, reference_height)
+  ) |>
+  dplyr::select(
+    -reference_height_fill,
+    -canopy_height_fill
+  ) |>
+
+  # fill with average by vegetation type
+  left_join(
+    df_fill2 |>
+      rename(
+        canopy_height_fill = canopy_height2,
+        reference_height_fill = reference_height2
+      ),
+    join_by(classid)
+  ) |>
+  mutate(
+    canopy_height = ifelse(is.na(canopy_height), canopy_height_fill, canopy_height),
+    reference_height = ifelse(is.na(reference_height), reference_height_fill, reference_height)
+  ) |>
+  dplyr::select(
+    -reference_height_fill,
+    -canopy_height_fill
+  ) |>
+
+  # fill remaining with ENF for DNF
+  left_join(
+    df_fill4 |>
+      mutate(classid = "DNF") |>
+      rename(
+        canopy_height_fill = canopy_height4,
+        reference_height_fill = reference_height4
+      ),
+    join_by(biome, classid)
+  ) |>
+  mutate(
+    canopy_height = ifelse(is.na(canopy_height), canopy_height_fill, canopy_height),
+    reference_height = ifelse(is.na(reference_height), reference_height_fill, reference_height)
+  ) |>
+  dplyr::select(
+    -reference_height_fill,
+    -canopy_height_fill
+  ) |>
+
+  # fill with average by koeppen climate
+  left_join(
+    df_fill3 |>
+      rename(
+        canopy_height_fill = canopy_height3,
+        reference_height_fill = reference_height3
+      ),
+    join_by(koeppen_code)
+  ) |>
+  mutate(
+    canopy_height = ifelse(is.na(canopy_height), canopy_height_fill, canopy_height),
+    reference_height = ifelse(is.na(reference_height), reference_height_fill, reference_height)
+  ) |>
+  dplyr::select(
+    -reference_height_fill,
+    -canopy_height_fill
+  )
+
+# correct those where ratio of canopy and vegetation height is in 10% quantiles
+df <- df |>
+  mutate(ratio = reference_height/canopy_height) |>
+  mutate(reference_height = ifelse(ratio > ratio_q90, canopy_height * ratio_q50, reference_height)) |>
+  mutate(reference_height = ifelse(ratio < ratio_q10, canopy_height * ratio_q50, reference_height))
+
+
+# df |>
+#   mutate(ratio = reference_height/canopy_height) |>
+#   ggplot(aes(ratio, ..count..)) +
+#   geom_histogram()
 
 # ## get IGBP from MODIS data-----------------------------------------------------
 # # download IGBP class values (MODISTools)
@@ -508,8 +673,6 @@ message("IGBP: found ",
   " conficted entries:")
 print(igbp_by_source |>
           dplyr::filter(IGBP_fdk != IGBP_eu | IGBP_fdk != IGBP_flx2015))
-
-
 
 # save the data, retaining only key columns (note: valuable information also in
 # other columns!)
