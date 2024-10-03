@@ -2,6 +2,7 @@
 library(dplyr)
 library(raster)
 library(stringr)
+library(readr)
 # library(MODISTools)
 
 output_path <- "/data_2/FluxDataKit/v3.4"
@@ -14,7 +15,7 @@ output_path <- "/data_2/FluxDataKit/v3.4"
 # function to extract values from BADM file
 get_values_badm <- function(df_badm, varnam){
 
-  groups <- amf_badm |>
+  groups <- df_badm |>
     filter(
       VARIABLE_GROUP == paste0("GRP_", varnam),
       VARIABLE == paste0(varnam, "_STATISTIC"),
@@ -22,7 +23,7 @@ get_values_badm <- function(df_badm, varnam){
     ) |>
     pull(GROUP_ID)
 
-  amf_badm |>
+  df_badm |>
     filter(
       GROUP_ID %in% groups,
       VARIABLE == varnam
@@ -38,12 +39,12 @@ get_values_badm <- function(df_badm, varnam){
 get_values_badm_HEIGHTSENSOR <- function(df_badm){
 
   # get group referring to variable information: height
-  groups <- df_flx_badm |>
+  groups <- df_badm |>
     filter(VARIABLE_GROUP == "GRP_VAR_INFO", VARIABLE == "VAR_INFO_HEIGHT") |>
     pull(GROUP_ID)
 
   # within that, get group referring to height of latent heat measurement
-  groups2 <- df_flx_badm |>
+  groups2 <- df_badm |>
     filter(
       GROUP_ID %in% groups,
       VARIABLE_GROUP == "GRP_VAR_INFO",
@@ -53,7 +54,7 @@ get_values_badm_HEIGHTSENSOR <- function(df_badm){
     pull(GROUP_ID)
 
   # extract value and average if multiple values are given per site
-  df_flx_badm |>
+  df_badm |>
     filter(
       GROUP_ID %in% groups2,
       VARIABLE == "VAR_INFO_HEIGHT"
@@ -349,8 +350,8 @@ df <- df |>
 
 ## root zone water storage capacity---------------------------------------------
 # using the map from Stocker et al., 2023, obtainable from Zenodo at https://doi.org/10.5281/zenodo.5515246
-# whc <- raster("/data/archive/whc_stocker_2023/data/zroot_cwdx80_forcing.nc")  # on geco server
-whc <- raster("~/data/mct_data/zroot_cwdx80_forcing.nc")
+whc <- raster("/data/archive/whc_stocker_2023/data/zroot_cwdx80_forcing.nc")  # on geco server
+# whc <- raster("~/data/mct_data/zroot_cwdx80_forcing.nc")
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
@@ -370,8 +371,8 @@ df <- df |>
 
 ## Get still missing elevation data from ETOPO1---------------------------------
 # file is too large to add it to this repo.
-# etopo <- raster("/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")  # on geco server
-etopo <- raster("~/data/etopo/ETOPO1_Bed_g_geotiff.tif")  # on geco server
+etopo <- raster("/data/archive/etopo_NA_NA/data/ETOPO1_Bed_g_geotiff.tif")  # on geco server
+# etopo <- raster("~/data/etopo/ETOPO1_Bed_g_geotiff.tif")
 etopo_v <- raster::extract(etopo, loc)
 
 # add etopo1 column
@@ -690,7 +691,9 @@ fdk_site_info <- df |>
     igbp_land_use = classid,
     whc,
     product,
-    c3c4
+    c3c4,
+    mat,
+    p_over_pet
   ) |>
   ungroup()
 

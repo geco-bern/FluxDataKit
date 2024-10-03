@@ -142,6 +142,53 @@ if (!file.exists(filnam)){
   saveRDS(sites_icos_warm_winter_2020, file = filnam, compress = "xz")
 }
 
+# Climatic meta information ----------------------------------------------------
+library(cwd)
+
+# load rsofun driver data (created by analysis/02_batch_format_rsofun_driver.R)
+driver <- readr::read_rds("/data_2/FluxDataKit/v3.4/rsofun_driver_data_v3.4.rds")
+
+# make flat
+df <- driver %>%
+  dplyr::select(sitename, forcing) %>%
+  unnest(forcing) %>%
+  dplyr::select(sitename, temp, rain, snow, ppfd, netrad, patm) %>%
+
+  # impute netrad globally (across all sites)
+  FluxDataKit::fill_netrad() %>%
+
+  # get PET and daily total water variables in mm
+  mutate(
+    year = lubridate::year(date),
+    pet = 60 * 60 * 24 * cwd::pet(netrad, temp, patm),
+    prec = (snow + rain) *  60 * 60 * 24
+  ) %>%
+
+  # get annual sum for prec and pet
+  group_by(sitename, year) %>%
+  summarise(
+    pet = sum(pet),
+    prec = sum(prec),
+    temp = mean(temp)
+  ) %>%
+
+  # get mean annual temperature and aridity index
+  ungroup() %>%
+  group_by(sitename) %>%
+  summarise(
+    pet = mean(pet),
+    prec = mean(prec),
+    mat = mean(temp)
+  ) %>%
+  mutate(
+    p_over_pet = prec / pet
+  ) %>%
+  dplyr::select(
+    sitename, mat, p_over_pet
+  )
+
+
+
 # FLUXNET2015-------------------------------------------------------------------
 # filnam <- here::here("data-raw/meta_data/fluxnet_meta_data.rds")
 # if (!file.exists(filnam)){
