@@ -71,7 +71,7 @@ KNN approach, using temperature and ppfd</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fill_netrad</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fill_netrad</span><span class="op">(</span><span class="va">df</span>, limit_missing <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -81,6 +81,10 @@ KNN approach, using temperature and ppfd</p>
 <dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
 <dd><p>a data frame containing a netrad data column, and temperature
 and light variables</p></dd>
+
+
+<dt id="arg-limit-missing">limit_missing<a class="anchor" aria-label="anchor" href="#arg-limit-missing"></a></dt>
+<dd><p>Fraction of missing data maximally to be allowed.</p></dd>
 
 </dl></div>
     <div id="value">
