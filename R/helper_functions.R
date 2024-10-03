@@ -53,13 +53,14 @@ linear_pred_co2 <- function(co2, start_ind, end_ind){
 #'
 #' @param df a data frame containing a netrad data column, and temperature
 #' and light variables
+#' @param limit_missing Fraction of missing data maximally to be allowed.
 #'
 #' @return a gap filled data frame
 #' @export
 
-fill_netrad <- function(df){
+fill_netrad <- function(df, limit_missing = 0.4){
 
-    if (sum(is.na(df$netrad)) > 0.0 & sum(is.na(df$netrad))/nrow(df) < 0.4){
+    if (sum(is.na(df$netrad)) > 0.0 & sum(is.na(df$netrad))/nrow(df) < limit_missing){
 
       message("Imputing net radiation with KNN ....")
       message(

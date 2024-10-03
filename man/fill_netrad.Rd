@@ -4,11 +4,13 @@
 \alias{fill_netrad}
 \title{Gap fill net radiation measurements}
 \usage{
-fill_netrad(df)
+fill_netrad(df, limit_missing = 0.4)
 }
 \arguments{
 \item{df}{a data frame containing a netrad data column, and temperature
 and light variables}
+
+\item{limit_missing}{Fraction of missing data maximally to be allowed.}
 }
 \value{
 a gap filled data frame

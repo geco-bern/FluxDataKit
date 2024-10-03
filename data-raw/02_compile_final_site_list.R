@@ -596,6 +596,15 @@ df <- df |>
   mutate(reference_height = ifelse(ratio < ratio_q10, canopy_height * ratio_q50, reference_height))
 
 
+## Add climatic meta info-------------------------------------------------------
+df_climatic <- readr::read_rds(here::here("data-raw/meta_data/climatic_meta_info.rds"))
+
+df <- df |>
+  left_join(
+    df_climatic,
+    by = join_by(sitename)
+  )
+
 # df |>
 #   mutate(ratio = reference_height/canopy_height) |>
 #   ggplot(aes(ratio, ..count..)) +

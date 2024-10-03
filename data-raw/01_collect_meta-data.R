@@ -11,6 +11,13 @@ library(icoscp)
 library(RCurl)
 library(XML)
 library(amerifluxr)
+# remotes::install_github("geco-bern/cwd")
+library(cwd)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(lubridate)
+library(ggplot2)
 
 # Set local paths of data files -------------------------------------------------
 # Get PLUMBER2 data from https://dx.doi.org/10.25914/5fdb0902607e1
@@ -143,50 +150,93 @@ if (!file.exists(filnam)){
 }
 
 # Climatic meta information ----------------------------------------------------
-library(cwd)
+filnam <- here::here("data-raw/meta_data/climatic_meta_info.rds")
+if (!file.exists(filnam)){
 
-# load rsofun driver data (created by analysis/02_batch_format_rsofun_driver.R)
-driver <- readr::read_rds("/data_2/FluxDataKit/v3.4/rsofun_driver_data_v3.4.rds")
+  # load rsofun driver data (created by analysis/02_batch_format_rsofun_driver.R)
+  # driver <- readr::read_rds("/data_2/FluxDataKit/v3.4/rsofun_driver_data_v3.4.rds")
+  driver <- readr::read_rds("~/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.rds")
 
-# make flat
-df <- driver %>%
-  dplyr::select(sitename, forcing) %>%
-  unnest(forcing) %>%
-  dplyr::select(sitename, temp, rain, snow, ppfd, netrad, patm) %>%
+  # make flat
+  df <- driver %>%
+    dplyr::select(sitename, forcing) %>%
+    unnest(forcing) %>%
+    dplyr::select(sitename, date, temp, rain, snow, ppfd, netrad, patm)
 
-  # impute netrad globally (across all sites)
-  FluxDataKit::fill_netrad() %>%
+  # impute netrad globally (across all sites) by learning from a reduced dataset
+  df_missing <- df |>
+    dplyr::filter(is.na(netrad))
 
-  # get PET and daily total water variables in mm
-  mutate(
-    year = lubridate::year(date),
-    pet = 60 * 60 * 24 * cwd::pet(netrad, temp, patm),
-    prec = (snow + rain) *  60 * 60 * 24
-  ) %>%
+  # make data smaller to make KNN handle it
+  df_present <- df |>
+    dplyr::filter(!is.na(netrad)) |>
+    dplyr::sample_n(1.0e4)
 
-  # get annual sum for prec and pet
-  group_by(sitename, year) %>%
-  summarise(
-    pet = sum(pet),
-    prec = sum(prec),
-    temp = mean(temp)
-  ) %>%
+  # run imputation
+  df_filled <- bind_rows(
+    df_missing,
+    df_present
+  ) |>
+    fill_netrad(limit_missing = 0.99) |>
+    rename(netrad_filled = netrad)
 
-  # get mean annual temperature and aridity index
-  ungroup() %>%
-  group_by(sitename) %>%
-  summarise(
-    pet = mean(pet),
-    prec = mean(prec),
-    mat = mean(temp)
-  ) %>%
-  mutate(
-    p_over_pet = prec / pet
-  ) %>%
-  dplyr::select(
-    sitename, mat, p_over_pet
-  )
+  # fill missing data in full dataframe
+  df <- df |>
+    left_join(
+      df_filled |>
+        dplyr::select(sitename, date, netrad_filled),
+      by = join_by(sitename, date)
+    ) |>
+    mutate(
+      netrad = ifelse(is.na(netrad), netrad_filled, netrad)
+    ) |>
+    dplyr::select(-netrad_filled)
 
+  visdat::vis_miss(df, warn_large_data = FALSE)
+
+  df <- df %>%
+
+    # get PET and daily total water variables in mm
+    mutate(
+      year = lubridate::year(date),
+      pet = 60 * 60 * 24 * cwd::pet(netrad, temp, patm),
+      prec = (snow + rain) *  60 * 60 * 24
+    ) %>%
+
+    # get annual sum for prec and pet
+    group_by(sitename, year) %>%
+    summarise(
+      pet = sum(pet),
+      prec = sum(prec),
+      temp = mean(temp)
+    ) %>%
+
+    # get mean annual temperature and aridity index
+    ungroup() %>%
+    group_by(sitename) %>%
+    summarise(
+      pet = mean(pet),
+      prec = mean(prec),
+      mat = mean(temp)
+    ) %>%
+    mutate(
+      p_over_pet = prec / pet
+    ) %>%
+    dplyr::select(
+      sitename, mat, p_over_pet
+    )
+
+  saveRDS(df, file = filnam, compress = "xz")
+}
+
+
+# df |>
+#   ggplot(aes(mat, ..count..)) +
+#   geom_histogram()
+#
+# df |>
+#   ggplot(aes(p_over_pet, ..count..)) +
+#   geom_histogram()
 
 
 # FLUXNET2015-------------------------------------------------------------------
