@@ -16,7 +16,8 @@
 #' @param params_siml simulation parameters (preset)
 #' @param product which flux product to use
 #' @param verbose provide verbose output (default = FALSE)
-#' @param path path with daily FLUXNET data
+#' @param path path with daily (downsampled) FLUXNET data
+#' @param out_path path to save drivers and validation data
 #'
 #' @return returns an rsofun compatible driver file for the provided
 #'  sites
@@ -35,10 +36,14 @@ fdk_format_drivers <- function(
       ltnd                      = FALSE,
       lgr3                      = TRUE,
       lgn3                      = FALSE,
-      lgr4                      = FALSE
+      lgr4                      = FALSE,
+      use_phydro                = FALSE,
+      use_pml                   = FALSE
     ),
     path,
-    verbose = TRUE
+    out_path = path,
+    verbose = TRUE,
+    fdk_inputs_dir = "/data_2/FluxDataKit/FDK_inputs/"
 ){
 
   #---- start-up checks ----
@@ -53,7 +58,7 @@ fdk_format_drivers <- function(
   list_flux <- lapply(site_info$sitename, function(site){
 
     # get file name path
-    filn <- list.files(paste0(path, "/fluxnet/"),
+    filn <- list.files(file.path(path, "fluxnet"),
                        pattern = paste0("FLX_", site, ".*_FULLSET_DD.*.csv"),
                        recursive = TRUE,
                        full.names = TRUE
@@ -63,178 +68,201 @@ fdk_format_drivers <- function(
     # umol/J (Meek et al., 1984)
     kfFEC <- 2.04
 
-    # read from FLUXNET-standard file with daily variables
-    df_flux <-  read.csv(file.path(filn)) |>
-
-       dplyr::mutate(
-
-         sitename = site,
-         date = as.Date(TIMESTAMP),
-
-         # temp is daytime temperature (deg C)
-         temp = TA_DAY_F_MDS,
-
-         # vapour pressure deficit is averaged over daytime hours,
-         # given in hPa, required in Pa
-         vpd = VPD_DAY_F_MDS * 1.0e2,
-
-         # photosynthetic photon flux density based on shortwave radiation
-         # convert from J/m2/s to mol/m2/s;
-         # kfFEC = 2.04 is the flux-to-energy conversion, micro-mol/J
-         # (Meek et al., 1984)
-         ppfd = SW_IN_F_MDS * kfFEC * 1.0e-6,
-
-         # net radiation (J m-2 s-1 = W m-2)
-         netrad = NETRAD,
-
-         # atmospheric pressure, given in kPa, required in Pa
-         patm = PA_F * 1e3,
-
-         # precipitation as snow, in mm
-         # (is not provided explicilty in FLUXNET-type data)
-         snow = 0,
-
-         # precipitation as water, mean rate over time step (day, 24 hours)
-         rain = P_F / (60 * 60 * 24),
-
-         # minimum daily temperature (deg C)
-         tmin = TMIN_F_MDS,
-
-         # maximum daily temperature (deg C)
-         tmax = TMAX_F_MDS,
-
-         # wind speed (m/s)
-         vwind = WS_F,
-
-         # fraction of absorbed photosynthetically active radiation
-         fapar = FPAR,
-
-         # atmospheric CO2 concentration in ppmv
-         co2 = CO2_F_MDS,
-
-         # Variables below are used as target data for rsofun, not forcing
-         # gross primary production
-         gpp = GPP_NT_VUT_REF,
-         gpp_qc = NEE_VUT_REF_QC,
-
-         # energy balance-corrected latent heat flux (~ evapotranspiration)
-         le = LE_CORR,
-         le_qc = LE_F_MDS_QC,
-
-         # net ecosystem exchange
-         nee = NEE_VUT_REF,
-         nee_qc = NEE_VUT_REF_QC
-      )
-
-    # fill missing net radiation data
-    df_flux <- df_flux |>
-      dplyr::group_by(sitename) |>
-      tidyr::nest() |>
-      dplyr::mutate(
-        data = purrr::map(data, ~fill_netrad(.))
-      )
-
     #---- Processing CRU data (for cloud cover CCOV) ----
     ccov <- fdk_process_cloud_cover(
-      path = "/data_2/FluxDataKit/FDK_inputs/cloud_cover/",
+      path = file.path(fdk_inputs_dir, "cloud_cover"), # "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
       site = site
     )
+    # # dummy data for testing, in case cloud cover data is unavailable
+    # ccov <- df_flux |>
+    #   tidyr::unnest(data) |>
+    #   dplyr::mutate(date = as.Date(TIMESTAMP)) |>
+    #   dplyr::select(sitename, date) |>
+    #   dplyr::mutate(ccov = 0)
 
-    df_flux <- df_flux |>
-      tidyr::unnest(data) |>
-      dplyr::left_join(
-        ccov, by = c("sitename", "date")
-      ) |>
-      dplyr::group_by(sitename) |>
-      tidyr::nest()
+    # compute aggregations 'df_flux' and add to combined data.frame 'df_combined'
+    df_combined <- tidyr::tibble(sitename = site)
+    agg_types <- c("legacy", "24h", "daytime", "3hrmax")
+    for (agg in agg_types){
 
-    # if (geco_system){
-    #
-    #   if (verbose){
-    #     message("Processing ERA5 cloud cover data ....")
-    #   }
-    #
-    #   # include cloud cover data if on
-    #   # internal GECO system, will skip
-    #   # when external as the download takes
-    #   # lots of time
-    #
-    #   # constrain range of dates to
-    #   # required data
-    #
-    #   ccov <- fdk_process_cloud_cover(
-    #     path = "/data_2/FluxDataKit/FDK_inputs/cloud_cover/",
-    #     site = site
-    #   )
-    #
-    #  df_flux <- df_flux |>
-    #     tidyr::unnest(data) |>
-    #     left_join(
-    #       ccov, by = c("sitename", "date")
-    #     ) |>
-    #     group_by(sitename) |>
-    #     tidyr::nest()
-    #
-    # } else {
-    #
-    #   message("Filling cloud cover forcing with 0.
-    #           Use net radiation for simulations.")
-    #
-    #   df_flux <- df_flux |>
-    #     tidyr::unnest(data) |>
-    #     mutate(
-    #      ccov = 0
-    #     ) |>
-    #     group_by(sitename) |>
-    #     tidyr::nest()
-    #
-    # }
+      if (!any(grepl(agg, x=filn))) stop("Missing downsampled file: ", agg)
+      fname <- filn[grepl(agg, x=filn)]
 
-    df_flux <- df_flux |>
-      dplyr::group_by(sitename) |>
-      tidyr::unnest(data) |>
-      dplyr::select(
-        sitename,
-        date,
-        temp,
-        vpd,
-        ppfd,
-        netrad,
-        patm,
-        snow,
-        rain,
-        tmin,
-        tmax,
-        vwind,
-        fapar,
-        co2,
-        ccov,
-        gpp,
-        gpp_qc,
-        nee,
-        nee_qc,
-        le,
-        le_qc
-      ) |>
-      dplyr::group_by(sitename) |>
-      tidyr::nest()
+      # read from FLUXNET-standard file with daily variables
+      df_flux <-  readr::read_csv(file.path(fname)) |>
 
-    # memory intensive, purge memory
-    gc()
+        dplyr::mutate(
 
+          sitename = site,
+          date = as.Date(TIMESTAMP),
+
+          # temperature (deg C)
+          temp = TA_F_MDS,
+
+          # vapour pressure deficit
+          # given in hPa, required in Pa
+          vpd = VPD_F_MDS * 1.0e2,
+
+          # photosynthetic photon flux density based on shortwave radiation
+          # convert from J/m2/s to mol/m2/s;
+          # kfFEC = 2.04 is the flux-to-energy conversion, micro-mol/J
+          # (Meek et al., 1984)
+          ppfd = SW_IN_F_MDS * kfFEC * 1.0e-6,
+
+          # net radiation (J m-2 s-1 = W m-2)
+          netrad = NETRAD,
+
+          # atmospheric pressure, given in kPa, required in Pa
+          patm = PA_F * 1e3,
+
+          # precipitation as snow, in mm
+          # (is not provided explicilty in FLUXNET-type data)
+          snow = 0,
+
+          # precipitation as water, mean rate over time step (day, 24 hours)
+          rain = P_F / (60 * 60 * 24),
+
+          # minimum daily temperature (deg C)
+          tmin = TMIN_F_MDS,
+
+          # maximum daily temperature (deg C)
+          tmax = TMAX_F_MDS,
+
+         # wind speed (m/s)
+         #vwind = WS_F,
+
+          # fraction of absorbed photosynthetically active radiation
+          fapar = FPAR,
+
+          # atmospheric CO2 concentration in ppmv
+          co2 = CO2_F_MDS,
+
+          # Variables below are used as target data for rsofun, not forcing
+          # gross primary production
+          gpp_dt = GPP_DT_VUT_REF,
+          gpp_nt = GPP_NT_VUT_REF,
+          gpp_qc = NEE_VUT_REF_QC,
+
+          # energy balance-corrected latent heat flux (~ evapotranspiration)
+          # Jaideep: LE_CORR is not available for all sites. Fall back to LE_F_MDS in that case
+          le_corr = LE_CORR,
+          le = LE_F_MDS,
+          le_qc = LE_F_MDS_QC#,
+
+         # net ecosystem exchange
+         #nee_dt = NEE_DT_VUT_REF,
+         #nee_nt = NEE_NT_VUT_REF,
+         #nee_qc = NEE_VUT_REF_QC
+        )
+      # nest by site
+      df_flux <- df_flux |>
+        dplyr::group_by(sitename) |>
+        tidyr::nest()
+
+      df_flux <- df_flux |>
+        tidyr::unnest(data) |>
+        dplyr::left_join(
+          ccov, by = c("sitename", "date")
+        ) |>
+        dplyr::group_by(sitename) |>
+        tidyr::nest()
+
+      # if (geco_system){
+      #
+      #   if (verbose){
+      #     message("Processing ERA5 cloud cover data ....")
+      #   }
+      #
+      #   # include cloud cover data if on
+      #   # internal GECO system, will skip
+      #   # when external as the download takes
+      #   # lots of time
+      #
+      #   # constrain range of dates to
+      #   # required data
+      #
+      #   ccov <- fdk_process_cloud_cover(
+      #     path = file.path(fdk_inputs_dir, "cloud_cover"), # "/Users/benjaminstocker/data/FluxDataKit/FDK_inputs/cloud_cover/",
+      #     site = site
+      #   )
+      #
+      #  df_flux <- df_flux |>
+      #     tidyr::unnest(data) |>
+      #     left_join(
+      #       ccov, by = c("sitename", "date")
+      #     ) |>
+      #     group_by(sitename) |>
+      #     tidyr::nest()
+      #
+      # } else {
+      #
+      #   message("Filling cloud cover forcing with 0.
+      #           Use net radiation for simulations.")
+      #
+      #   df_flux <- df_flux |>
+      #     tidyr::unnest(data) |>
+      #     mutate(
+      #      ccov = 0
+      #     ) |>
+      #     group_by(sitename) |>
+      #     tidyr::nest()
+      #
+      # }
+
+      df_flux <- df_flux |>
+        dplyr::group_by(sitename) |>
+        tidyr::unnest(data) |>
+        dplyr::select(
+          sitename,
+          date,
+          temp,
+          vpd,
+          ppfd,
+          netrad,
+          patm,
+          snow,
+          rain,
+          tmin,
+          tmax,
+          #vwind,
+          fapar,
+          co2,
+          ccov,
+          gpp_dt,
+          gpp_nt,
+          gpp_qc,
+          #nee_dt,
+          #nee_nt,
+          #nee_qc,
+          le_corr,
+          le,
+          le_qc
+        ) |>
+        dplyr::group_by(sitename) |>
+        tidyr::nest()
+
+      # remove 29 Feb of leap years
+      df_flux <- df_flux |>
+        tidyr::unnest(data) |>
+        dplyr::filter(
+          !(lubridate::mday(date) == 29 & lubridate::month(date) == 2)) |>
+        dplyr::group_by(sitename) |>
+        tidyr::nest()
+
+      # memory intensive, purge memory
+      gc()
+
+      df_flux <- df_flux |>
+        purrr::set_names(c("sitename", paste0("forcing_", agg)))
+
+      df_combined <- df_combined |>
+        dplyr::left_join(df_flux)
+    }
     # return data, either a driver
     # or processed output
-    return(df_flux)
+    return(df_combined)
   }) |>
     dplyr::bind_rows()
-
-  # remove 29 Feb of leap years
-  df_flux <- list_flux |>
-    tidyr::unnest(data) |>
-    dplyr::filter(
-      !(lubridate::mday(date) == 29 & lubridate::month(date) == 2)) |>
-    dplyr::group_by(sitename) |>
-    tidyr::nest()
 
   #---- Format p-model driver data ----
   if (verbose){
@@ -244,7 +272,7 @@ fdk_format_drivers <- function(
   # construct the final driver file
   # first join in the site info data
   df_drivers <- site_info |>
-    dplyr::select(sitename, lon, lat, elv, whc) |>
+    dplyr::select(sitename, lon, lat, elv, whc, canopy_height, reference_height, igbp_land_use, c3c4) |>
     dplyr::group_by(sitename) |>
     tidyr::nest() |>
     dplyr::rename(
@@ -252,11 +280,9 @@ fdk_format_drivers <- function(
       )
 
   # join in the flux driver data
+  df_flux    <- list_flux
   df_drivers <- df_drivers |>
-    dplyr::left_join(df_flux, by = "sitename") |>
-    dplyr::rename(
-      forcing = data
-      )
+    dplyr::left_join(df_flux, by = "sitename")
 
   # join in the parameter settings
   df_drivers <- df_drivers |>
@@ -280,7 +306,10 @@ fdk_format_drivers <- function(
       sitename,
       params_siml,
       site_info,
-      forcing
+      forcing = forcing_legacy,
+      forcing_24h,
+      forcing_daytime,
+      forcing_3hrmax
     ) |>
     dplyr::ungroup()
 

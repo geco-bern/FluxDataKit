@@ -342,7 +342,8 @@ fdk_convert_lsm <- function(
           all,
           site = site,
           out_path = out_path,
-          overwrite = overwrite
+          overwrite = overwrite,
+          method = "legacy"     # TODO: do we need here all downsampling methods?
         )
       )
     )

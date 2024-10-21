@@ -147,7 +147,8 @@ fdk_downsample_fluxnet(
   df,
   site = "FR-Fon", # a site name
   out_path = tempdir(),
-  overwrite = TRUE
+  overwrite = TRUE,
+  method = "legacy"     # TODO: do we need here all downsampling methods?
 )
 ```
 

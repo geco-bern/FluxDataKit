@@ -77,7 +77,7 @@ lapply(sites$sitename,
     for (method in c("legacy", "24hr", "3hrmax", "daytime")){
       output <- try(
         suppressWarnings(
-        FluxDataKit::fdk_downsample_fluxnet_phydro(
+        FluxDataKit::fdk_downsample_fluxnet(
           hhdf,
           site,
           overwrite = T,

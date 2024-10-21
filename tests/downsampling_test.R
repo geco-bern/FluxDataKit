@@ -28,41 +28,41 @@ for (site in sites){
   hhdf <- hhdf |> dplyr::mutate(TIMESTAMP_START= as.character(TIMESTAMP_START),
                                 TIMESTAMP_END= as.character(TIMESTAMP_END))
 
-  # FDK downsampler
-  # -------------------------------
-  # Legacy FDK downsampler (generally 24-hr means, daytime means for TA and VPD, sum for P)
-  ddf_fdk = FluxDataKit::fdk_downsample_fluxnet(hhdf, site, overwrite = T)#, out_path = out_path)
+  # # FDK downsampler
+  # # -------------------------------
+  # # Legacy FDK downsampler (generally 24-hr means, daytime means for TA and VPD, sum for P)
+  # ddf_fdk = FluxDataKit::fdk_downsample_fluxnet(hhdf, site, overwrite = T)#, out_path = out_path)
 
-  # New FDK downsampler with "legacy" option
-  ddf_legacy_fdk = FluxDataKit::fdk_downsample_fluxnet_phydro(hhdf, site, overwrite = T, save_plots = T, method = "legacy")#, out_path = out_path)
+  # # New FDK downsampler with "legacy" option
+  # ddf_legacy_fdk = FluxDataKit::fdk_downsample_fluxnet_phydro(hhdf, site, overwrite = T, save_plots = T, method = "legacy")#, out_path = out_path)
 
-  # Check that both give identical results
-  library(tidyverse)
-  p = ddf_fdk %>% mutate(DAYLENGTH=NA) %>%
-    dplyr::select(TIMESTAMP, CO2_F_MDS, DAYLENGTH, FPAR, LAI, LW_IN_F_MDS, NETRAD, P_F, PA_F, SW_IN_F_MDS, TA_DAY_F_MDS, TMAX_F_MDS, TMIN_F_MDS, VPD_DAY_F_MDS, WS_F, GPP_NT_VUT_REF, LE_F_MDS) %>%
-    rename(TA_F_MDS = TA_DAY_F_MDS,
-           VPD_F_MDS = VPD_DAY_F_MDS) %>%
-    pivot_longer(-TIMESTAMP) %>%
-    mutate(type="1 Legacy_Orig") %>%
-    bind_rows(
-      ddf_legacy_fdk %>%
-        dplyr::select(TIMESTAMP, CO2_F_MDS, DAYLENGTH, FPAR, LAI, LW_IN_F_MDS, NETRAD, P_F, PA_F, SW_IN_F_MDS, TA_F_MDS, TMAX_F_MDS, TMIN_F_MDS, VPD_F_MDS, WS_F, GPP_NT_VUT_REF, LE_F_MDS) %>%
-        pivot_longer(-TIMESTAMP) %>%
-        mutate(type="2 Legacy_New")
-    ) %>%
-    ggplot(aes(x=TIMESTAMP, y=value, col=type, group=type))+
-    geom_line(alpha=0.7)+
-    facet_wrap(~name, scales="free")
+  # # Check that both give identical results
+  # library(tidyverse)
+  # p = ddf_fdk %>% mutate(DAYLENGTH=NA) %>%
+  #   dplyr::select(TIMESTAMP, CO2_F_MDS, DAYLENGTH, FPAR, LAI, LW_IN_F_MDS, NETRAD, P_F, PA_F, SW_IN_F_MDS, TA_DAY_F_MDS, TMAX_F_MDS, TMIN_F_MDS, VPD_DAY_F_MDS, WS_F, GPP_NT_VUT_REF, LE_F_MDS) %>%
+  #   rename(TA_F_MDS = TA_DAY_F_MDS,
+  #          VPD_F_MDS = VPD_DAY_F_MDS) %>%
+  #   pivot_longer(-TIMESTAMP) %>%
+  #   mutate(type="1 Legacy_Orig") %>%
+  #   bind_rows(
+  #     ddf_legacy_fdk %>%
+  #       dplyr::select(TIMESTAMP, CO2_F_MDS, DAYLENGTH, FPAR, LAI, LW_IN_F_MDS, NETRAD, P_F, PA_F, SW_IN_F_MDS, TA_F_MDS, TMAX_F_MDS, TMIN_F_MDS, VPD_F_MDS, WS_F, GPP_NT_VUT_REF, LE_F_MDS) %>%
+  #       pivot_longer(-TIMESTAMP) %>%
+  #       mutate(type="2 Legacy_New")
+  #   ) %>%
+  #   ggplot(aes(x=TIMESTAMP, y=value, col=type, group=type))+
+  #   geom_line(alpha=0.7)+
+  #   facet_wrap(~name, scales="free")
 
-  cairo_pdf(file.path(fig_path, paste0(site,"_check_legacy_drivers.pdf")), width = 9, height = 5)
-  print(
-    p
-  )
-  dev.off()
+  # cairo_pdf(file.path(fig_path, paste0(site,"_check_legacy_drivers.pdf")), width = 9, height = 5)
+  # print(
+  #   p
+  # )
+  # dev.off()
 
   ## Write all 4 kinds of downsampled files
   for (method in c("legacy", "24hr", "3hrmax", "daytime")){
-    FluxDataKit::fdk_downsample_fluxnet_phydro(hhdf, site, overwrite = T, save_plots = T, method = method, out_path = down_path, fig_path = fig_path)
+    FluxDataKit::fdk_downsample_fluxnet(hhdf, site, overwrite = T, save_plots = T, method = method, out_path = down_path, fig_path = fig_path)
   }
 
 
