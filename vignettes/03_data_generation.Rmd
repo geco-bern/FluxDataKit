@@ -163,12 +163,15 @@ library(rsofun)
 
 # processing of the half hourly data to
 # p-model input drivers for rsofun
-rsofun_data <- fdk_format_drivers(
+rsofun_driver <- rsofun::fdk_format_drivers(
   site_info = FluxDataKit::fdk_site_info |>
     filter(sitename == "FR-Fon"),
   path = paste0(tempdir(),"/"),
   verbose = TRUE
 )
+
+# Please make sure the parameter names correspond to your version of rsofun.
+# See rsofun documentation
 
 # optimized parameters from previous work
 params_modl <- list(
@@ -181,7 +184,7 @@ params_modl <- list(
 
 # run the model for these parameters
 output <- rsofun::runread_pmodel_f(
-  rsofun_data,
+  rsofun_driver,
   par = params_modl
 )
 
@@ -194,7 +197,7 @@ print(head(model_data))
 
 ```{r eval = evaluate}
 
-validation_data <- rsofun_data |>
+validation_data <- rsofun_driver |>
   filter(sitename == "FR-Fon") |>
   tidyr::unnest(forcing)
 
