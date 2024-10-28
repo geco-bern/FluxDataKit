@@ -8,6 +8,7 @@ library(FluxDataKit)
 library(FluxnetLSM)
 library(dplyr)
 library(ingestr)
+library(rsofun)
 
 input_path <- "/data_2/FluxDataKit/FDK_inputs/"
 output_path <- "/data_2/FluxDataKit/v3.4/"
