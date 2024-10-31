@@ -7,6 +7,7 @@
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
 <url><loc>/reference/calc_esat.html</loc></url>
 <url><loc>/reference/fdk_balance_energy.html</loc></url>
 <url><loc>/reference/fdk_convert_lsm.html</loc></url>
@@ -21,6 +22,7 @@
 <url><loc>/reference/fdk_flux_corrections.html</loc></url>
 <url><loc>/reference/fdk_format_drivers.html</loc></url>
 <url><loc>/reference/fdk_get_sequence.html</loc></url>
+<url><loc>/reference/fdk_impute_knn.html</loc></url>
 <url><loc>/reference/fdk_match_modis.html</loc></url>
 <url><loc>/reference/fdk_optimal_span.html</loc></url>
 <url><loc>/reference/fdk_plot.html</loc></url>
@@ -28,10 +30,16 @@
 <url><loc>/reference/fdk_process_lsm.html</loc></url>
 <url><loc>/reference/fdk_release.html</loc></url>
 <url><loc>/reference/fdk_setup_sofun.html</loc></url>
+<url><loc>/reference/fdk_site_fullyearsequence.html</loc></url>
 <url><loc>/reference/fdk_site_info.html</loc></url>
 <url><loc>/reference/fdk_smooth_ts.html</loc></url>
 <url><loc>/reference/fill_netrad.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/interpolate2daily_CO2_F_MDS.html</loc></url>
+<url><loc>/reference/interpolate2daily_PA_F.html</loc></url>
+<url><loc>/reference/interpolate2daily_TA_F_MDS.html</loc></url>
+<url><loc>/reference/interpolate2daily_WS_F.html</loc></url>
+<url><loc>/reference/interpolate2daily_fpar.html</loc></url>
 <url><loc>/reference/site_exceptions.html</loc></url>
 </urlset>
 
