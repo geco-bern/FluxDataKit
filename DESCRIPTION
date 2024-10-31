@@ -1,6 +1,6 @@
 Package: FluxDataKit
 Title: Flux Data Kit
-Version: 3.1
+Version: 3.4
 Authors@R: c(
   person(
     family = "Hufkens",
