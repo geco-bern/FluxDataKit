@@ -6,7 +6,6 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(ingestr)
-library(rsofun)
 # lapply(list.files("R/","*.R", full.names = TRUE), source)
 
 input_path <- "/data_2/FluxDataKit/v3.4/"
