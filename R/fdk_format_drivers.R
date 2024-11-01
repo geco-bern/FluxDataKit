@@ -244,7 +244,7 @@ fdk_format_drivers <- function(
   # construct the final driver file
   # first join in the site info data
   df_drivers <- site_info |>
-    dplyr::select(sitename, lon, lat, elv, whc) |>
+    dplyr::select(sitename, lon, lat, elv, whc, canopy_height, reference_height) |>
     dplyr::group_by(sitename) |>
     tidyr::nest() |>
     dplyr::rename(

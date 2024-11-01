@@ -67,9 +67,7 @@ driver_data <- lapply(sites$sitename, function(site){
 # bind all tibbles into one big tibble
 driver_data <- dplyr::bind_rows(driver_data)
 
-# wr
-
-ite all drivers to file
+# write all drivers to file
 # apply compression to minimize space
 saveRDS(
   driver_data,
