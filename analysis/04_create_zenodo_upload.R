@@ -9,7 +9,7 @@
 #
 # Compressed data should be uploaded to
 # the Zenodo repository:
-# https://zenodo.org/record/7258291
+# https://doi.org/10.5281/zenodo.10885933
 
 input_path <- "/data_2/FluxDataKit/v3.4/"
 tmp_path <- "/data_2/FluxDataKit/v3.4/zenodo_upload/"
