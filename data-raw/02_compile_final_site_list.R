@@ -724,4 +724,3 @@ readr::write_csv(
   fdk_site_info,
   file = paste0(output_path, "/fdk_site_info.csv")
 )
-

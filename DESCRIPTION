@@ -13,7 +13,7 @@ Authors@R: c(
     given = "Stocker",
     email = "benjamin.stocker@gmail.com",
     comment = c(ORCID = "0000-0003-2697-9096"),
-    role = c("ctb"))
+    role = c("ctb", "aut"))
     )
 Description: A processing workflow for aggregated flux and remote sensing data.
  Returns both Land Surface Model or CSV based harmonized and gap filled data.
