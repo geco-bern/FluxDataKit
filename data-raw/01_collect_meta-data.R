@@ -154,8 +154,7 @@ filnam <- here::here("data-raw/meta_data/climatic_meta_info.rds")
 if (!file.exists(filnam)){
 
   # load rsofun driver data (created by analysis/02_batch_format_rsofun_driver.R)
-  # driver <- readr::read_rds("/data_2/FluxDataKit/v3.4/rsofun_driver_data_v3.4.rds")
-  driver <- readr::read_rds("~/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.rds")
+  driver <- readr::read_rds("/data_2/FluxDataKit/v3.4/zenodo_upload/rsofun_driver_data_v3.4.rds")
 
   # make flat
   df <- driver %>%
@@ -192,6 +191,7 @@ if (!file.exists(filnam)){
     ) |>
     dplyr::select(-netrad_filled)
 
+  # check visually for missing data
   visdat::vis_miss(df, warn_large_data = FALSE)
 
   df <- df %>%
@@ -215,9 +215,9 @@ if (!file.exists(filnam)){
     ungroup() %>%
     group_by(sitename) %>%
     summarise(
-      pet = mean(pet),
-      prec = mean(prec),
-      mat = mean(temp)
+      pet = mean(pet, na.rm = TRUE),
+      prec = mean(prec, na.rm = TRUE),
+      mat = mean(temp, na.rm = TRUE)
     ) %>%
     mutate(
       p_over_pet = prec / pet
@@ -225,6 +225,9 @@ if (!file.exists(filnam)){
     dplyr::select(
       sitename, mat, p_over_pet
     )
+
+  # check visually for missing data
+  visdat::vis_miss(df, warn_large_data = FALSE)
 
   saveRDS(df, file = filnam, compress = "xz")
 }

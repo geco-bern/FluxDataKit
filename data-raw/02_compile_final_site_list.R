@@ -597,6 +597,7 @@ df <- df |>
 
 
 ## Add climatic meta info-------------------------------------------------------
+# file created in data-raw/01_collect_meta-data.R
 df_climatic <- readr::read_rds(here::here("data-raw/meta_data/climatic_meta_info.rds"))
 
 df <- df |>
@@ -604,6 +605,11 @@ df <- df |>
     df_climatic,
     by = join_by(sitename)
   )
+
+# some climatic meta info is missing
+visdat::vis_miss(df_climatic)
+visdat::vis_miss(df)
+
 
 # df |>
 #   mutate(ratio = reference_height/canopy_height) |>
@@ -706,8 +712,8 @@ fdk_site_info <- df |>
   ) |>
   ungroup()
 
-# # quick check for missing data
-# visdat::vis_miss(df)
+# quick check for missing data
+visdat::vis_miss(fdk_site_info)
 
 # write binary file to be included to package (.rds not possible)
 save(fdk_site_info,

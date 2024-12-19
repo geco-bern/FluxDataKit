@@ -45,7 +45,7 @@ fdk_process_cloud_cover <- function(
 
  } else {
    # read CRU cloud cover data
-   df <- readRDS("~/data/FluxDataKit/FDK_inputs/cloud_cover/df_cru.rds") |>
+   df <- readRDS(paste0(path, "df_cru.rds")) |>
      dplyr::filter(sitename == site) |>
      tidyr::unnest(data) |>
      dplyr::select(date, ccov, sitename)
