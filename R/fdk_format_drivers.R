@@ -117,8 +117,12 @@ fdk_format_drivers <- function(
          gpp = GPP_NT_VUT_REF,
          gpp_qc = NEE_VUT_REF_QC,
 
-         # energy balance-corrected latent heat flux (~ evapotranspiration)
-         le = LE_CORR,
+         # non-energy balance-corrected latent heat flux (~ evapotranspiration)
+         # This was changed back to non-EBC because daily EBC-LE was larger than
+         # net radiation for a substantial number of data points. This makes it
+         # impossible to meaningfully model LE and prohibits robust model
+         # calibration.
+         le = LE_F_MDS,
          le_qc = LE_F_MDS_QC,
 
          # net ecosystem exchange
