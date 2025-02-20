@@ -348,10 +348,9 @@ df <- df |>
       koeppen_code)
   )
 
-## root zone water storage capacity---------------------------------------------
+## root zone water storage capacity (mm) ---------------------------------------
 # using the map from Stocker et al., 2023, obtainable from Zenodo at https://doi.org/10.5281/zenodo.5515246
-whc <- raster("/data/archive/whc_stocker_2023/data/zroot_cwdx80_forcing.nc")  # on geco server
-# whc <- raster("~/data/mct_data/zroot_cwdx80_forcing.nc")
+whc <- raster("/data/archive/whc_stocker_2023/data/cwdx80_forcing.nc")  # on geco server
 whc_v <- raster::extract(whc, loc)
 
 # append to original data frame
@@ -716,9 +715,11 @@ fdk_site_info <- df |>
 visdat::vis_miss(fdk_site_info)
 
 # write binary file to be included to package (.rds not possible)
-save(fdk_site_info,
-     file = here::here("data/fdk_site_info.rda"), compress = "xz"
-     )
+save(
+  fdk_site_info,
+  file = here::here("data/fdk_site_info.rda"),
+  compress = "xz"
+  )
 
 readr::write_csv(
   fdk_site_info,
