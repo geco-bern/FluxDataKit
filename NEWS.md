@@ -1,5 +1,9 @@
 # FluxDataKit
 
+### v3.4.3
+
+- Added spurious (=repeated) values identification for determining good-quality sequences.
+
 ### v3.4.2
 
 - Corrected root zone water storage capacity (whc in site meta info). Rooting depth was erronneously read instead of rooting zone water storage capacity.

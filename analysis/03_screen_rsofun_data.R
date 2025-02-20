@@ -17,7 +17,7 @@ sites <- FluxDataKit::fdk_site_info |>
 #   # "US-SRM", # Deserts & Xeric Shrublands
 #   # "FR-Pue", # Mediterranean Forests, Woodlands & Scrub
 #   # "DE-Hai", # Temperate Broadleaf & Mixed Forests
-#   "IT-Ro1"
+#   "CH-Dav"
 #   # "US-Tw1", # Temperate Grasslands, Savannas & Shrublands
 #   # "AU-How", # Tropical & Subtropical Grasslands, Savannas & Shrubland
 #   # "BR-Sa3", # Tropical
