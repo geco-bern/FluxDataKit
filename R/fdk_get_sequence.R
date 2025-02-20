@@ -26,10 +26,28 @@ fdk_get_sequence <- function(
     out_path = "data/tmp"
 ){
 
+  # identify spurious values based on repeated numerically matching values
+  value_counts_gpp <- table(df$GPP_NT_VUT_REF)
+  value_counts_le <- table(df$LE_F_MDS)
+  value_counts_lecorr <- table(df$LE_CORR)
+
+  # Identify spurious values (those appearing more than once)
+  spurious_values_gpp <- as.numeric(names(value_counts_gpp[value_counts_gpp > 1]))
+  spurious_values_le <- as.numeric(names(value_counts_le[value_counts_le > 1]))
+  spurious_values_lecorr <- as.numeric(names(value_counts_lecorr[value_counts_lecorr > 1]))
+
+  # create variable in data frame
+  df$gpp_spurious <- FALSE
+  df$gpp_spurious[which(df$GPP_NT_VUT_REF %in% spurious_values_gpp)] <- TRUE
+  df$le_spurious <- FALSE
+  df$le_spurious[which(df$LE_F_MDS %in% spurious_values_le)] <- TRUE
+  df$lecorr_spurious <- FALSE
+  df$lecorr_spurious[which(df$LE_CORR %in% spurious_values_lecorr)] <- TRUE
+
   df <- df |>
-    mutate(good_gpp = ifelse(NEE_VUT_REF_QC > qc_threshold, TRUE, FALSE),
-           good_le = ifelse(LE_F_MDS_QC > qc_threshold, TRUE, FALSE),
-           good_lecorr = ifelse(LE_F_MDS_QC > qc_threshold & !is.na(LE_CORR), TRUE, FALSE)
+    mutate(good_gpp = ifelse(NEE_VUT_REF_QC > qc_threshold & !gpp_spurious, TRUE, FALSE),
+           good_le = ifelse(LE_F_MDS_QC > qc_threshold & !le_spurious, TRUE, FALSE),
+           good_lecorr = ifelse(LE_F_MDS_QC > qc_threshold & !is.na(LE_CORR) & !lecorr_spurious, TRUE, FALSE)
            )
 
   out <- get_sequence_byvar(site, df, df$good_gpp, leng_threshold, TRUE) |>

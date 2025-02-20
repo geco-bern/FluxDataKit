@@ -292,3 +292,66 @@ if (!file.exists(filnam)){
 #   saveRDS(fluxnet_list, file = filnam, compress = "xz")
 #
 # }
+
+# SAPFLUXNET meta information --------------------------------------------------
+# Following quick guide:
+# https://cran.r-project.org/web/packages/sapfluxnetr/vignettes/sapfluxnetr-quick-guide.html
+filnam <- here::here("data-raw/meta_data/sapfluxnet_meta_info.rds")
+if (!file.exists(filnam)){
+
+  install.packages('sapfluxnetr')
+  library(sapfluxnetr)
+
+  dir <- "~/data_2/sapfluxnet/"
+
+  # # Data is publicly available on Zenodo to download.
+  # download.file(
+  #   url = "https://zenodo.org/record/3971689/files/0.1.5.zip?download=1",
+  #   destfile = "~/data_2/sapfluxnet/0.1.5.zip"
+  # )
+  #
+  # # unzip the data
+  # # BE SURE YOU HAVE AT LEAST 24GB OF DISK SPACE
+  # unzip(paste0(dir, "0.1.5.zip"))
+  #
+  # # check if files are present
+  # list.files(file.path(paste0(dir, "0.1.5"), 'RData', 'plant'))
+  # list.files(file.path(paste0(dir, "0.1.5"), 'csv', 'plant'))
+
+  # collect meta data from all sites
+  sfn_metadata <- read_sfn_metadata(
+    folder = paste0(dir, "0.1.5/RData/plant/"),
+    .write_cache = TRUE
+    )
+
+  # for scaleup table: temperate and boreal forest sites
+  sites_sfn <- sfn_metadata$site_md |>
+    dplyr::filter(si_biome %in% c("Temperate forest", "Boreal forest"), si_flux_network) |>
+    dplyr::select(si_code, si_long, si_lat, si_igbp, si_biome)
+
+  # join with FLUXNET site info table, identifying site matches by whether
+  # longitude and latitude values are within 0.1 degrees.
+  sites_sfn <- fuzzyjoin::fuzzy_inner_join(
+    sites_sfn,
+    FluxDataKit::fdk_site_info,
+    by = c("si_long" = "lon", "si_lat" = "lat"),
+    match_fun = list(
+      function(x, y) abs(x - y) <= 0.1,  # Condition for value1a and value2a
+      function(x, y) abs(x - y) <= 0.1  # Condition for value1b and value2b
+      )
+    )
+
+  # Complement with species information
+  sites_sfn <- sites_sfn |>
+    dplyr::left_join(
+      sfn_metadata$species_md |>
+        dplyr::group_by(si_code) |>
+        dplyr::summarise(
+          species = paste(sp_name, collapse = ", "),
+          .groups = "drop"  # Ensures the result is not grouped
+        )
+      ) |>
+    dplyr::select(id_fluxnet = sitename, id_sapfluxnet = si_code, si_biome, si_igbp, species)
+
+
+}
